@@ -1,0 +1,260 @@
+/***************************admin page****************************/
+/*fonts*/
+@font-face {
+  font-family: 'OpenSans-Regular';
+  font-style: normal;
+  font-weight: 400;
+  src: url('OpenSans-Regular.ttf'); 
+}
+@font-face {
+  font-family: 'OpenSans-Bold';
+  font-style: normal;
+  font-weight: 700;
+  src: url('OpenSans-Bold.ttf'); 
+}
+/*floats*/
+.fl {float:left;}
+.fr {float:right;}
+
+h1 {font-size: 30px;font-weight: 100;color:#ccc;}
+body {max-width: 100%;min-width: 1200px;margin: 0 auto;text-align: center;font-family: "Open Sans"; background: #ECF0F5;}
+a {color:inherit;text-decoration: none}
+a:hover {text-decoration: none;color:inherit;}
+h1,h2,h3,h4,h5,tr,td,th,dd,dl,dt,p { padding:0; margin:0; }
+.row {width: 95%;}
+/*clearings*/
+.clear{ clear:both;}
+.clearfix:after {content:"."; display:block; height:0; clear:both;visibility:hidden;font-size: 0;}
+.clearfix {display:block;}
+/*admin_page*/
+.contentpage{margin: 25px 0 0 280px;}
+#admin_page {width: 100%; height: 100%; font-family: "Open Sans"}
+#admin_page .topbar{height: 50px; transition: 0.2s ease-in;}
+#admin_page .topbar .topbarleft{width: 18.229166666666664%; background: #367FA9;height: 50px; position: fixed;left: 0;}
+#admin_page .topbar .topbarright{background: #3C8DBC;height: 50px; width: 81.77083333333334%; position: fixed; right: 0; z-index: 1}
+#admin_page .topbar .topbarright .icon{color: #fff; font-size: 23px; float: left;padding: 9px; cursor: pointer;}
+#admin_page .topbar .topbarright .info{width: 260px; float:right;display: flex;justify-content: space-around; align-items: center; color: #fff;}
+#admin_page .topbar .topbarright .info .fnt{cursor: pointer;}
+#admin_page .topbar .topbarright .profile{display: flex; align-items: center}
+#admin_page .topbar .topbarright .profile span{padding-left: 10px}
+#admin_page .topbar h2{color: #fff; font-size: 20px;font-family: "Arial"; font-weight: 700; padding: 14px 0}
+#admin_page .leftmenu{background: #2A3F54; width: 18.229166666666664%; position: fixed; height: 100%;}
+#admin_page .leftmenu .container{position: relative; height: 100%}
+#admin_page .leftmenu .welcome{position: relative;display: flex; align-items: center; width: 170px; justify-content: space-around; margin: 0 auto; padding: 20px 0}
+#admin_page .leftmenu .welcome:after{position: absolute;width: 210px;border-bottom: 1px solid #D7D7D7; content: ''; bottom: 0}
+#admin_page .leftmenu .imgholder img{display: block;}
+#admin_page .leftmenu .welcomecont h3{color: #fff; font-size: 15px}
+#admin_page .leftmenu .welcomecont span{color: #D7D7D7; display: block;}
+/*header*/
+#admin_page header{margin-top: 20px; font-size: 15px;}
+#admin_page header nav a#pull {display: none}
+#admin_page header nav ul {margin: 0;padding: 0}
+#admin_page header nav ul li {display: block;vertical-align: middle; text-align: left; color: #D7D7D7; padding: 15px;}
+#admin_page header nav ul li.active-menu , #header nav ul li a:hover {color:#fff; background: #3C8DBC;}
+/*Container Bot*/
+#admin_page .leftmenu i {margin-right: 15px;}
+#admin_page .leftmenu .containerBot{height: 40px; background: #1A2C3D; position: absolute; bottom: 51px; width: 100%}
+#admin_page .leftmenu .containerBot .fnt{color: #fff; font-size: 21px;padding: 9px 15px; cursor: pointer;}
+#admin_page .logo{margin-top: 25px;}
+/*******content page*******/
+#admin_page .contentpage { margin: 25px 0 0 280px;}
+
+/*Summary*/
+/*Dashboard*/
+.contentpage .summary {display: flex; justify-content: space-between;}
+.contentpage .summary .box{width: calc(80%/4);padding: 7px 22px;}
+.contentpage .summary .box h4{font-size: 15px; color: #fff; text-align: left}
+.contentpage .summary .box h4>span{text-decoration: underline; font-weight: 700; font-family: Arial}
+.contentpage .summary .box1{background: #00C0EF;}
+.contentpage .summary .box2{background: #00A65A;}
+.contentpage .summary .box3{background: #F39C12;}
+.contentpage .summary .box4{background: #DD4B39;}
+.contentpage .summary .box .innercont{width: 100%; display: flex;justify-content: space-between;align-items: baseline; margin-top: 10px;}
+.contentpage .summary .box .innercont>span{font-size: 27px; color: #fff}
+.contentpage .summary .box .innercont>i{color: #fff; font-size: 50px;}
+
+/*widgetcontent*/
+#admin_page .contentpage .widget {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding-bottom: 25px;}
+#admin_page .contentpage .widget .header {display: flex; justify-content: space-between;margin-top: 40px;padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+#admin_page .contentpage .widget .header p{padding: 0; margin: 0}
+#admin_page .contentpage .widget .widgetcontent{padding: 0px;}
+#admin_page .contentpage .widget .widgetcontent .box{box-shadow: 0px 1px 1px 1px #c0c9d8; background: #fff; width: calc(87%/4); margin-top: 25px;}
+  
+/**table template*/
+/*#admin_page .contentpage .widget .widgetcontent .table-scroll{border: 1px solid #C5C5C5;max-width: 100%}*/
+#admin_page .contentpage .widget .widgetcontent .table-wrap{width: 100%; overflow: auto}
+#admin_page .contentpage .widget .widgetcontent table{width: 100%;border-spacing:0;margin:auto;width: 100%; border-collapse: separate; margin:auto;overflow:hidden;}
+#admin_page .contentpage .widget .widgetcontent tr:nth-child(even) {background-color: #f2f2f2}
+#admin_page .contentpage .widget .widgetcontent th{white-space:nowrap;font-size: 14px; border: 1px solid #ddd; font-family: Arial; font-weight: 700; padding: 9px 18px;}
+#admin_page .contentpage .widget .widgetcontent th>i{padding-left: 10px}
+#admin_page .contentpage .widget .widgetcontent td{white-space:nowrap;height: 40px;font-size: 14px; border: 1px solid #ddd;}
+
+/*Enroll students*/
+.contentpage .widget .enrollcontent{ padding: 30px;}
+.contentpage .widget .enrollcontent .cont2{float: right}
+.contentpage .widget .enrollcontent .cont2 {display: flex;justify-content: space-between;width: unset;align-items: center;}
+.contentpage .widget .enrollcontent .cont2 > span{font-size: 15px;}
+.contentpage .widget .enrollcontent .cont2  input{padding: 6px 0;}
+.contentpage .widget .enrollcontent .cont3 {margin-top: 20px;}
+.contentpage .widget .widgetcontent .cont4 button{background: #0089DA;border: none;color: #fff;padding: 7px 12px;letter-spacing: 1px;}
+.contentpage .widget .widgetcontent .cont4 {display: flex;justify-content: space-between; align-items: center; margin-top: 20px; margin: 20px 27px 0px 27px}
+.contentpage .widget .widgetcontent .cont4 .pagination {display: inline-flex;}
+.contentpage .widget .widgetcontent .cont4 .btn{font-size: 14px; color: #000; background: #fff; border: 1px solid #d1d3d6; cursor: pointer; padding:8px 12px; margin-left: -1px;}
+.contentpage .widget .widgetcontent .cont4 .active{background: #337AB7; color: #fff;}
+.contentpage .widget .widgetcontent .cont4 p{font-size: 14px;}
+
+.contentpage .widget .enrollcontent .cont {display: flex; width: unset;align-items: center; padding: 0px 0px 0px 0px; margin: 0px 27px 0px 27px}
+.contentpage .widget .enrollcontent .cont select { padding: 6px 0px; margin-right: 10px}
+.contentpage .widget .enrollcontent .cont span {font-size: 15px;}
+.contentpage .widget .enrollcontent .cont p {border:1px; border-style:solid; border-color:#000000; padding: .5em;}
+.contentpage .widget .enrollcontent .tabs li {display: inline-block; padding: 15px 25px; font-weight: 600; text-align: center;}
+.contentpage .widget .enrollcontent .tabs li {color: #0af; border: 0px solid #abc;}
+.contentpage .widget .enrollcontent .tabs li *, *::before, *::after {margin: 0; padding: 0; box-sizing: border-box;}
+.contentpage .widget .enrollcontent .tabs li:hover {color: #789;cursor: pointer;}
+.contentpage .widget .enrollcontent .tabs ul {color: #0af;border: 1px solid #abc;border-top: 1px solid #0af;}
+.contentpage .widget .enrollcontent .tabs ul {padding: 0px 0; display: flex}
+.contentpage .widget .enrollcontent .cont2 {padding: 9px 0;}
+.contentpage .widget .enrollcontent .cont2 {display: flex; justify-content: space-between; align-items: center; margin: 0px 27px -20px 27px}
+.contentpage .widget .enrollcontent .cont2 .box1 {display: flex;justify-content: space-between;width: unset;align-items: center;}
+.contentpage .widget .enrollcontent .cont2 .box1 select { padding: 6px 0px; margin-right: 10px}
+.contentpage .widget .enrollcontent .cont2 .box1 span {font-size: 15px;}
+.contentpage .widget .enrollcontent .cont2 .box2 {display: flex;justify-content: space-between;width: unset;align-items: center;}
+.contentpage .widget .enrollcontent .cont2 .box2 span{font-size: 15px;}
+.contentpage .widget .enrollcontent .cont2 .box2 input { padding: 6px 0px;}
+.contentpage .widget .enrollcontent .cont4 .total {font-size: 14px;}
+.contentpage .widget .enrollcontent .cont4 .total h4{font-size: 14px;display: flex; margin: 4px 0px 5px 1px;}
+.contentpage .widget .enrollcontent .cont3 .table-scroll{border: 1px solid #C5C5C5;max-width: 100%; margin: 0px 27px 0px 27px}
+/*.contentpage .widget .enrollcontent .cont5, .contentpage .widget .studentContent .cont6 { display: inline-block; width: calc(100%/2 - 20px); }*/
+.contentpage .widget .enrollcontent .cont5 h3 {display: flex; margin-left: 52px;}
+.contentpage .widget .enrollcontent .cont5 hr {width: 90%;}
+.contentpage .widget .enrollcontent .boxenter {display: flex; margin-left: 52px; align-items: center;}
+.contentpage .widget .enrollcontent .boxenter1 {display: flex; margin-left: 52px; padding: 10px 0px 0px 1px; align-items: center;}
+.contentpage .widget .enrollcontent .boxenter2 {display: flex; margin-left: 52px; padding: 10px 0px 0px 1px; align-items: center;}
+.contentpage .widget .enrollcontent .boxenter2 input {margin-left: 25px; width: 60%;}
+.contentpage .widget .enrollcontent .boxenter3 {display: flex; margin-left: 52px; padding: 10px 0px 0px 1px; align-items: center;}
+.contentpage .widget .enrollcontent .boxenter3 input {margin-left: 22px; width: 60%;}
+.contentpage .widget .enrollcontent .boxenter4 {display: flex; margin-left: 52px; padding: 10px 0px 0px 1px; align-items: center;}
+.contentpage .widget .enrollcontent .boxenter4 input {margin-left: 3px; width: 60%;}
+.contentpage .widget .enrollcontent .boxenter5 {display: flex; margin-left: 52px; padding: 10px 0px 0px 1px; align-items: center;}
+.contentpage .widget .enrollcontent .boxenter5 > p {margin-left: 70px;}
+.contentpage .widget .enrollcontent .cont6 h3 { display: flex; margin-left: 52px;}
+.contentpage .widget .enrollcontent .cont6 hr {width: 90%;}
+.contentpage .widget .enrollcontent .boxenter6 {display: flex; margin-left: 52px; padding: 10px 0px 0px 1px; align-items: center;}
+.contentpage .widget .enrollcontent .boxenter6 input { margin-left: 92px; width: 60%;}
+.contentpage .widget .enrollcontent .boxenter7 {display: flex; margin-left: 52px; padding: 10px 0px 0px 1px; align-items: center;}
+.contentpage .widget .enrollcontent .boxenter7 input { margin-left: 232px; width: 60%;}
+.contentpage .widget .enrollcontent .boxenter8 {display: flex; margin-left: 52px; padding: 10px 0px 0px 1px; align-items: center;}
+.contentpage .widget .enrollcontent .boxenter8 input { width: 60%;}
+.contentpage .widget .enrollcontent .boxenter9 {display: flex; margin-left: 52px; padding: 10px 0px 0px 1px; align-items: center;}
+.contentpage .widget .enrollcontent .boxenter9 input { margin-left: 248px;}
+.contentpage .widget .enrollcontent .cont7 h3 { display: flex; margin-left: 52px;}
+.contentpage .widget .enrollcontent .cont7 hr {width: 90%;}
+/*.contentpage .widget .enrollcontent .boxenter10 {display: inline-grid;}*/
+/*.contentpage .widget .enrollcontent .boxenter10 span{ display: inline-block; }*/
+.contentpage .widget .enrollcontent .boxenter10 {float: left; width: 43.5%; padding: 8px;}
+.contentpage .widget .enrollcontent .boxenter10 input {width: 90%; margin-left: 46.5px;}
+.contentpage .widget .enrollcontent .boxenter11 {float: inline-right; padding: 7.7px;}
+.contentpage .widget .enrollcontent .boxenter11 input {width: 40%; margin: 0px 0px 0px 48px;}
+.contentpage .widget .enrollcontent .boxenter12 {display: inline-grid; margin-right: 532px;}
+.contentpage .widget .enrollcontent .boxenter12 input {width: 106.5%; margin-left: .5px;}
+.contentpage .widget .enrollcontent .boxenter13 {float: left; width: 43.5%; padding: 8px;}
+.contentpage .widget .enrollcontent .boxenter13 span {margin-right: 178px;}
+.contentpage .widget .enrollcontent .boxenter13 input {display: -webkit-box; width: 90%; margin-left: 46.5px;}
+.contentpage .widget .enrollcontent .boxenter14 {float: inline-right; padding: 7.7px;}
+.contentpage .widget .enrollcontent .boxenter14 span {margin-right: 182px;}
+.contentpage .widget .enrollcontent .boxenter14 input {width: 40%; margin-left: 47.5px;}
+.contentpage .widget .enrollcontent .boxenter15 button{background: #0089DA;border: none;color: #fff;padding: 7px 12px;letter-spacing: 1px; margin-left: 385px;}
+
+/* student */
+.contentpage .widget .studentContent .cont {display: flex; width: unset;align-items: center; padding: 0px 0px 0px 0px; margin: 0px 27px 0px 27px}
+.contentpage .widget .studentContent .cont select { padding: 6px 0px; margin-right: 10px}
+.contentpage .widget .studentContent .cont span {font-size: 15px;}
+.contentpage .widget .studentContent .cont p {border:1px; border-style:solid; border-color:#000000; padding: .5em;}
+.contentpage .widget .studentContent .tabs li {display: inline-block; padding: 15px 25px; font-weight: 600; text-align: center;}
+.contentpage .widget .studentContent .tabs li {color: #0af; border: 0px solid #abc;}
+.contentpage .widget .studentContent .tabs li *, *::before, *::after {margin: 0; padding: 0; box-sizing: border-box;}
+.contentpage .widget .studentContent .tabs li:hover {color: #789;cursor: pointer;}
+.contentpage .widget .studentContent .tabs ul {color: #0af;border: 1px solid #abc;border-top: 1px solid #0af;}
+.contentpage .widget .studentContent .tabs ul {padding: 0px 0; display: flex}
+.contentpage .widget .studentContent .cont2 {padding: 9px 0;}
+.contentpage .widget .studentContent .cont2 {display: flex; justify-content: space-between; align-items: center; margin: 0px 27px 0px 27px}
+.contentpage .widget .studentContent .cont2 .box1 {display: flex;justify-content: space-between;width: unset;align-items: center;}
+.contentpage .widget .studentContent .cont2 .box1 select { padding: 6px 0px; margin-right: 10px}
+.contentpage .widget .studentContent .cont2 .box1 span {font-size: 15px;}
+.contentpage .widget .studentContent .cont2 .box2 {display: flex;justify-content: space-between;width: unset;align-items: center;}
+.contentpage .widget .studentContent .cont2 .box2 span{font-size: 15px;}
+.contentpage .widget .studentContent .cont2 .box2 input { padding: 6px 0px;}
+.contentpage .widget .studentContent .cont4 .total {font-size: 14px;}
+.contentpage .widget .studentContent .cont4 .total h4{font-size: 14px;display: flex; margin: 4px 0px 5px 1px;}
+.contentpage .widget .studentContent .cont3 .table-scroll{border: 1px solid #C5C5C5;max-width: 100%; margin: 0px 27px 0px 27px}
+.contentpage .widget .studentContent .cont5, .contentpage .widget .studentContent .cont6 { display: inline-block; width: calc(100%/2 - 20px);  }
+
+/*classes*/
+.contentpage .widget .classesContent .cont {display: flex; width: unset;align-items: center; padding: 0px 0px 0px 0px; margin: 0px 27px 0px 27px}
+.contentpage .widget .classesContent .cont select { padding: 6px 0px; margin-right: 10px}
+.contentpage .widget .classesContent .cont span {font-size: 15px;}
+.contentpage .widget .classesContent .cont p {border:1px; border-style:solid; border-color:#000000; padding: .5em;}
+.contentpage .widget .classesContent .tabs li {display: inline-block; padding: 15px 25px; font-weight: 600; text-align: center;}
+.contentpage .widget .classesContent .tabs li {color: #0af; border: 0px solid #abc;}
+.contentpage .widget .classesContent .tabs li *, *::before, *::after {margin: 0; padding: 0; box-sizing: border-box;}
+.contentpage .widget .classesContent .tabs li:hover {color: #789;cursor: pointer;}
+.contentpage .widget .classesContent .tabs ul {color: #0af;border: 1px solid #abc;border-top: 1px solid #0af;}
+.contentpage .widget .classesContent .tabs ul {padding: 0px 0; display: flex}
+.contentpage .widget .classesContent .cont2 {padding: 9px 0;}
+.contentpage .widget .classesContent .cont2 {display: flex; justify-content: space-between; align-items: center; margin: 0px 27px 0px 27px}
+.contentpage .widget .classesContent .cont2 .box1 {display: flex;justify-content: space-between;width: unset;align-items: center;}
+.contentpage .widget .classesContent .cont2 .box1 select { padding: 6px 0px; margin-right: 10px}
+.contentpage .widget .classesContent .cont2 .box1 span {font-size: 15px;}
+.contentpage .widget .classesContent .cont2 .box2 {display: flex;justify-content: space-between;width: unset;align-items: center;}
+.contentpage .widget .classesContent .cont2 .box2 span{font-size: 15px;}
+.contentpage .widget .classesContent .cont2 .box2 input { padding: 6px 0px;}
+.contentpage .widget .classescontent .cont4 button {background: #0089DA;border: none;color: #fff;padding: 7px 12px;letter-spacing: 1px;}
+.contentpage .widget .classesContent .cont3 .table-scroll{border: 1px solid #C5C5C5;max-width: 100%; margin: 0px 27px 0px 27px}
+.contentpage .widget .classesContent .cont5 .table-scroll{border: 1px solid #C5C5C5;max-width: 100%; margin: 0px 27px 0px 27px}
+
+/*attendance*/
+.contentpage .newcont {display: flex; justify-content: space-between;margin-top: 40px;padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+.contentpage .newcont1 {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding-bottom: 120px;}
+.contentpage .newcont1 p {display: flex; padding: 15px 0px 0px 30px;}
+.contentpage .newcont1 .cont {display: flex; margin: 10px 0px 0px 100px;}
+.contentpage .newcont1 .cont .box2 span {margin-left: 60px;}
+.contentpage .newcont1 .cont .box3 span {margin-left: 90px;}
+.contentpage .newcont1 .cont1 .box1 {display: -webkit-box; margin: 10px 0px 0px 100px;}
+.contentpage .newcont1 .cont1 .box1 select {margin: 20px 0px 0px 20px;}
+.contentpage .newcont1 .cont .box3 p {display: flex; padding: 0px 0px 0px 30px; margin-left: 30px;}
+.contentpage .widget .classattendance {display: flex; justify-content: space-between;margin-top: 40px;padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+.contentpage .newcont1 .cont2 {margin-left: 750px;}
+.contentpage .newcont1 .cont2 button {background: #0089DA;border: none;color: #fff;padding: 7px 12px;letter-spacing: 1px;}
+
+/*grades*/
+.contentpage .widget .gradesContent .cont {display: flex; width: unset;align-items: center; padding: 0px 0px 0px 0px; margin: 20px 27px 0px 27px}
+.contentpage .widget .gradesContent .cont .boxs1 select { padding: 6px 0px; margin-right: 10px}
+.contentpage .widget .gradesContent .cont .boxs1 span {font-size: 15px;}
+.contentpage .widget .gradesContent .cont .boxs2 span {margin-left: 70px}
+.contentpage .widget .gradesContent .cont .boxs3 span {margin-left: 70px}
+
+.contentpage .widget .gradesContent .cont2 {padding: 9px 0;}
+.contentpage .widget .gradesContent .cont2 {display: flex; justify-content: space-between; align-items: center; margin: 0px 27px 0px 27px}
+.contentpage .widget .gradesContent .cont2 .box1 {display: flex;justify-content: space-between;width: unset;align-items: center;}
+.contentpage .widget .gradesContent .cont2 .box1 select { padding: 6px 0px; margin-right: 10px}
+.contentpage .widget .gradesContent .cont2 .box1 span {font-size: 15px;}
+.contentpage .widget .gradesContent .cont2 .box2 {display: flex;justify-content: space-between;width: unset;align-items: center;}
+.contentpage .widget .gradesContent .cont2 .box2 span{font-size: 15px;}
+.contentpage .widget .gradesContent .cont2 .box2 input { padding: 6px 0px;}
+.contentpage .widget .gradesContent .cont4 .total {font-size: 14px;}
+.contentpage .widget .gradesContent .cont4 .total  h4{font-size: 14px;display: flex; margin: 4px 0px 5px 1px;}
+.contentpage .widget .gradesContent .cont4 button {margin-left: 750px;}
+.contentpage .widget .gradesContent .cont3 .table-scroll {border: 1px solid #C5C5C5;max-width: 100%;margin: 0px 27px 0px 27px;}
+
+/*footer*/
+#footer{margin: 25px 0 25px 280px; }
+#footer p.copy{font-size: 15px;color: #575a60;}
+/********end content page******/
+/*responsive*/
+@media only screen and (max-width: 1400px) {
+	#admin_page .contentpage .conttop .box {
+    		width: calc(87%/4);
+    		padding: 10px;
+	}
+}
+/***************************END****************************/
