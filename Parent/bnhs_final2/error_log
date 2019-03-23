@@ -1,0 +1,34 @@
+[24-May-2018 06:20:47 UTC] PHP Warning:  require(config/config.php): failed to open stream: No such file or directory in /home/esilverconnect/public_html/betasites/T/test/index.php on line 2
+[24-May-2018 06:20:47 UTC] PHP Fatal error:  require(): Failed opening required 'config/config.php' (include_path='.:/opt/cpanel/ea-php56/root/usr/share/pear') in /home/esilverconnect/public_html/betasites/T/test/index.php on line 2
+[24-May-2018 06:21:52 UTC] PHP Parse error:  syntax error, unexpected '}' in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 202
+[24-May-2018 06:22:27 UTC] PHP Parse error:  syntax error, unexpected '}' in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 202
+[24-May-2018 06:22:35 UTC] PHP Parse error:  syntax error, unexpected '}' in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 202
+[24-May-2018 08:23:33 UTC] PHP Parse error:  syntax error, unexpected ')' in /home/esilverconnect/public_html/betasites/T/test/app/view/contact.php on line 13
+[25-May-2018 01:55:55 UTC] PHP Parse error:  syntax error, unexpected '$reCaptcha' (T_VARIABLE) in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 26
+[25-May-2018 02:03:36 UTC] PHP Notice:  Use of undefined constant policy_link - assumed 'policy_link' in /home/esilverconnect/public_html/betasites/T/test/app/view/contact.php on line 13
+[25-May-2018 02:03:36 UTC] PHP Notice:  Use of undefined constant policy_link - assumed 'policy_link' in /home/esilverconnect/public_html/betasites/T/test/app/view/template/footer.php on line 7
+[25-May-2018 02:04:47 UTC] PHP Notice:  Use of undefined constant policy_link - assumed 'policy_link' in /home/esilverconnect/public_html/betasites/T/test/app/view/contact.php on line 13
+[25-May-2018 02:04:56 UTC] PHP Notice:  Use of undefined constant policy_link - assumed 'policy_link' in /home/esilverconnect/public_html/betasites/T/test/app/view/contact.php on line 13
+[25-May-2018 02:06:14 UTC] PHP Notice:  Undefined index: recipient in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 10
+[25-May-2018 02:06:14 UTC] PHP Notice:  Undefined index: subject in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 11
+[25-May-2018 02:06:14 UTC] PHP Notice:  Undefined index: from in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 12
+[25-May-2018 02:06:14 UTC] PHP Notice:  Undefined index: from_name in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 13
+[25-May-2018 02:06:14 UTC] PHP Notice:  Undefined index: bcc in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 14
+[25-May-2018 02:06:14 UTC] PHP Notice:  Undefined index: cc in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 15
+[25-May-2018 02:07:19 UTC] PHP Parse error:  syntax error, unexpected '[', expecting variable (T_VARIABLE) or '$' in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 17
+[25-May-2018 02:08:11 UTC] PHP Parse error:  syntax error, unexpected ';' in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 9
+[25-May-2018 02:16:31 UTC] PHP Notice:  Undefined index: consent in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 47
+[25-May-2018 02:19:56 UTC] PHP Parse error:  syntax error, unexpected 'else' (T_ELSE) in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 126
+[25-May-2018 02:26:45 UTC] PHP Fatal error:  Cannot use isset() on the result of an expression (you can use "null !== expression" instead) in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 45
+[25-May-2018 02:27:28 UTC] PHP Fatal error:  Cannot use isset() on the result of an expression (you can use "null !== expression" instead) in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 45
+[25-May-2018 02:27:54 UTC] PHP Parse error:  syntax error, unexpected ')' in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 45
+[25-May-2018 02:28:37 UTC] PHP Notice:  Undefined index: subject in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 84
+[25-May-2018 02:30:43 UTC] PHP Fatal error:  Call to undefined method Helpers::socialLink() in /home/esilverconnect/public_html/betasites/T/test/app/view/home.php on line 3
+[25-May-2018 02:31:11 UTC] PHP Notice:  Undefined index: termsConditions in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 45
+[25-May-2018 02:38:02 UTC] PHP Parse error:  syntax error, unexpected ')', expecting ']' in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 46
+[25-May-2018 02:38:04 UTC] PHP Parse error:  syntax error, unexpected ')', expecting ']' in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 46
+[25-May-2018 02:38:14 UTC] PHP Parse error:  syntax error, unexpected ')', expecting ']' in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 46
+[25-May-2018 02:38:16 UTC] PHP Parse error:  syntax error, unexpected ')', expecting ']' in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 46
+[25-May-2018 02:38:18 UTC] PHP Parse error:  syntax error, unexpected ')', expecting ']' in /home/esilverconnect/public_html/betasites/T/test/libraries/helpers.php on line 46
+[25-May-2018 03:24:25 UTC] PHP Fatal error:  Call to undefined method Helpers::socialLink() in /home/esilverconnect/public_html/betasites/T/test/app/view/home.php on line 3
+[25-May-2018 03:24:51 UTC] PHP Fatal error:  Call to undefined method Helpers::socialLink() in /home/esilverconnect/public_html/betasites/T/test/app/view/home.php on line 3

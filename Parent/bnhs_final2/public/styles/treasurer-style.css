@@ -1,0 +1,144 @@
+/***************************Pptatreasurer page****************************/
+/*fonts*/
+@font-face {
+	font-family: 'OpenSans-Regular';
+	font-style: normal;
+	font-weight: 400;
+	src: url('OpenSans-Regular.ttf'); 
+}
+@font-face {
+	font-family: 'OpenSans-Bold';
+	font-style: normal;
+	font-weight: 700;
+	src: url('OpenSans-Bold.ttf'); 
+}
+/*floats*/
+.fl {float:left;}
+.fr {float:right;}
+
+h1 {font-size: 30px;font-weight: 100;color:#ccc;}
+body {max-width: 100%;min-width: 1200px;margin: 0 auto;text-align: center;font-family: "Open Sans"; background: #ECF0F5;}
+a {color:inherit;text-decoration: none}
+a:hover {text-decoration: none;color:inherit;}
+h1,h2,h3,h4,h5{ padding:0; margin:0; }
+.row {width: 95%; margin: 0 auto}
+/*clearings*/
+.clear{ clear:both;}
+.clearfix:after {content:"."; display:block; height:0; clear:both;visibility:hidden;font-size: 0;}
+.clearfix {display:block;}
+
+/*******content page*******/
+/*Summary*/
+#treasurer_home .contentpage{margin: 25px 0 0 280px; font-size: 30px;}
+#treasurer_home .contentpage .summary {display: flex; justify-content: space-between;}
+#treasurer_home .contentpage .summary .box{width: calc(80%/4);padding: 7px 22px;}
+#treasurer_home .contentpage .summary .box h4{font-size: 15px; color: #fff; text-align: left}
+#treasurer_home .contentpage .summary .box h4>span{text-decoration: underline; font-weight: 700; font-family: Arial}
+#treasurer_home .contentpage .summary .box1{background: #00C0EF;}
+#treasurer_home .contentpage .summary .box2{background: #00A65A;}
+#treasurer_home .contentpage .summary .box3{background: #F39C12;}
+#treasurer_home .contentpage .summary .box4{background: #DD4B39;}
+#treasurer_home .contentpage .summary .box .innercont{width: 100%; display: flex;justify-content: space-between;align-items: baseline; margin-top: 10px;}
+#treasurer_home .contentpage .summary .box .innercont>span{font-size: 27px; color: #fff}
+#treasurer_home .contentpage .summary .box .innercont>i{color: #fff; font-size: 50px;}
+/*widget classes*/
+#treasurer_home .contentpage .widget {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding-bottom: 30px;}
+#treasurer_home .contentpage .widget .header {display: flex; justify-content: space-between;margin-top: 40px;padding: 7px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+#treasurer_home .contentpage .widget .header p{padding: 0; margin: 0}
+#treasurer_home .contentpage .widget .widgetcontent{display: flex;justify-content: space-evenly; flex-wrap: wrap}
+#treasurer_home .contentpage .widget .widgetcontent .box{box-shadow: 0px 1px 1px 1px #c0c9d8;  background: #fff; width: calc(87%/2); margin-top: 25px;}
+#treasurer_home .contentpage .widget .widgetcontent .box h5{font-size: 18px; text-align: center;}
+#treasurer_home .contentpage .widget .widgetcontent .boxheader>span{font-size: 13px; display: block; text-align: center; color:#fff;}
+#treasurer_home .contentpage .widget .widgetcontent .boxcontent p{font-size: 25px;}
+#treasurer_home .contentpage .widget .widgetcontent .boxcontent span{font-size: 20px;}
+#treasurer_home .contentpage .widget .widgetcontent .boxheader{    padding: 10px 23px;text-align: left;font-size: 15px;color: #5b5b5b;background: #f6f6f6;border-bottom: 1px solid #ddd;font-weight: 700;}
+#treasurer_home .contentpage .widget .eventcontent{padding: 25px 35px;}
+#treasurer_home .contentpage .widget .eventcontent .cont1{width: 345px;display: flex;justify-content: space-between;align-items: center;}
+#treasurer_home .contentpage .widget .eventcontent .cont1 p{font-size: 15px; padding: 0;margin: 0; letter-spacing: 1px;}
+#treasurer_home .contentpage .widget .eventcontent .cont1 span{font-family: Arial; font-weight: 700}
+#treasurer_home .contentpage .widget .eventcontent .cont1 button{background: #0089DA; border: none; color: #fff;padding: 7px 12px;letter-spacing: 1px;}
+#treasurer_home .contentpage .widget .eventcontent .cont2 select{width: 66px;height: 32px; font-size: 15px;}
+#treasurer_home .contentpage .widget .eventcontent .cont2 span{font-size: 15px; color: #000}
+#treasurer_home .contentpage .widget .eventcontent .cont2 {display: flex;justify-content: space-between;align-items: center; padding: 17px 0;}
+#treasurer_home .contentpage .widget .eventcontent .cont2 .box2{display: flex;justify-content: space-between;width: 215px;align-items: center;}
+#treasurer_home .contentpage .widget .eventcontent .cont2 .box2 input{padding: 6px 0;}
+#treasurer_home .contentpage .widget .eventcontent .cont3 .table-scroll{border: 1px solid #C5C5C5;max-width: 100%}
+#treasurer_home .contentpage .widget .eventcontent .cont3 .table-wrap{width: 100%; overflow: auto}
+#treasurer_home .contentpage .widget .eventcontent .cont3 button{background: #008000; border: none; color: #fff;padding: 7px 12px;letter-spacing: 1px;}
+#treasurer_home .contentpage .widget .eventcontent .cont3 table{width: 100%;border-spacing:0;margin:auto;width: 100%; border-collapse: separate; margin:auto;overflow:hidden;}
+#treasurer_home .contentpage .widget .eventcontent .cont3 tr:nth-child(even) {background-color: #f2f2f2}
+#treasurer_home .contentpage .widget .eventcontent .cont3 th{white-space:nowrap; font-size: 14px; border: 1px solid #ddd; font-family: Arial; font-weight: 700; padding: 9px 18px;}
+#treasurer_home .contentpage .widget .eventcontent .cont3 th>i{padding-left: 10px}
+#treasurer_home .contentpage .widget .eventcontent .cont3 td{white-space:nowrap;height: 40px;font-size: 14px; border: 1px solid #ddd;}
+#treasurer_home .contentpage .widget .eventcontent .cont4 button{display: inline-flex; background: #008000; border: none; color: #fff;padding: 7px 12px;letter-spacing: 1px;}
+#treasurer_home .contentpage .widget .eventcontent .cont4 {display: flex;justify-content: space-between; align-items: baseline; margin-top: 20px;}
+#treasurer_home .contentpage .widget .eventcontent .cont4 .pagination {display: inline-flex;}
+#treasurer_home .contentpage .widget .eventcontent .cont4 .btn{font-size: 14px; color: #000; background: #fff; border: 1px solid #d1d3d6; cursor: pointer; padding:8px 12px; margin-left: -1px;}
+#treasurer_home .contentpage .widget .eventcontent .cont4 .active{background: #337AB7; color: #fff;}
+#treasurer_home .contentpage .widget .eventcontent .cont4 p{font-size: 14px;}
+/*tuition*/
+#treasurer_home .contentpage .tuition{display: flex;justify-content: space-between; margin-top: 40px;box-shadow:unset;background: unset;}
+#treasurer_home .contentpage .tuition .container {width: calc(100%/2 - 10px);}
+#treasurer_home .contentpage .tuition .contleft {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding-bottom: 30px; }
+#treasurer_home .contentpage .tuition .contleft .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366; margin-top: 0 !important;}
+#treasurer_home .contentpage .tuition .contleft .header p{padding: 0; margin: 0}
+#treasurer_home .contentpage .tuition .contright .innercont1 {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding-bottom: 15px; }
+#treasurer_home .contentpage .tuition .contright .innercont1 .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366; margin-top: 0 !important}
+#treasurer_home .contentpage .tuition .contright .innercont1 .header p{padding: 0; margin: 0}
+#treasurer_home .contentpage .tuition .contright .innercont1 p{font-size: 15px; color: #fff;padding: 6px 0px;margin: 17px 0;}
+#treasurer_home .contentpage .tuition .contright .innercont1 .box{width: 80%;margin: 0 auto;}
+#treasurer_home .contentpage .tuition .contright .innercont1 .box1{background: #CC3333;}
+#treasurer_home .contentpage .tuition .contright .innercont1 .box2{background: #FF6600;}
+#treasurer_home .contentpage .tuition .contright .innercont1 .box3{background: #006699;}
+#treasurer_home .contentpage .tuition .contright .innercont1 {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding-bottom: 30px;}
+#treasurer_home .contentpage .tuition .contright .innercont1 .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+#treasurer_home .contentpage .tuition .contright .innercont1 .header p{padding: 0; margin: 0}
+#treasurer_home .contentpage .tuition .contright .innercont1 .eventcontent>p{font-family: "Arial"; font-weight: 700; font-size: 18px; padding: 10px 20px; text-align: left;}
+#treasurer_home .contentpage .tuition .contright .innercont1 .eventcontent table{width: 100%;border-spacing:0;margin:auto;width: 100%; border-collapse: separate; margin:auto;overflow:hidden;}
+#treasurer_home .contentpage .tuition .contright .innercont1 .eventcontent tr:nth-child(even) {background-color: #f2f2f2}
+#treasurer_home .contentpage .tuition .contright .innercont1 .eventcontent th{white-space:nowrap; font-size: 14px; border: 1px solid #ddd; font-family: Arial; font-weight: 700; padding: 9px 18px;}
+#treasurer_home .contentpage .tuition .contright .innercont1 .eventcontent th>i{padding-left: 10px}
+#treasurer_home .contentpage .tuition .contright .innercont1 .eventcontent td:first-of-type{text-align:left;padding-left:10px;}
+#treasurer_home .contentpage .tuition .contright .innercont1 .eventcontent td{padding-right:10px;white-space:nowrap;height: 40px;text-align:right;font-size: 14px; border: 1px solid #ddd;}
+#treasurer_home .contentpage .tuition .eventcontent .cont4 button{display: inline-flex; background: #008000; border: none; color: #fff;padding: 7px 12px;letter-spacing: 1px;}
+/* dashboard I*/
+#treasurer_home .contentpage .dashboardWidget{display: flex;justify-content: space-between; margin-top: 40px;box-shadow:unset;background: unset;}
+#treasurer_home .contentpage .dashboardWidget .contleft {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding-bottom: 30px; width: 70%}
+#treasurer_home .contentpage .dashboardWidget .contleft .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366; margin-top: 0 !important;}
+#treasurer_home .contentpage .dashboardWidget .contleft .header p{padding: 0; margin: 0}
+#treasurer_home .contentpage .dashboardWidget .contright{width: 28%}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding-bottom: 15px; }
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366; margin-top: 0 !important; }
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .header p{padding: 0; margin: 0}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 p{font-size: 15px; color: #fff;padding: 6px 0px;margin: 17px 0;}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .box{width: 80%;margin: 0 auto;}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .box1{background: #CC3333;}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .box2{background: #FF6600;}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .box3{background: #006699;}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding-bottom: 30px;}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .header p{padding: 0; margin: 0}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .eventcontent>p{font-family: "Arial"; font-weight: 700; font-size: 18px; padding: 10px 20px; text-align: left;}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .eventcontent table{width: 100%;border-spacing:0;margin:auto;width: 100%; border-collapse: separate; margin:auto;overflow:hidden;}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .eventcontent tr:nth-child(even) {background-color: #f2f2f2}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .eventcontent th{white-space:nowrap; font-size: 14px; border: 1px solid #ddd; font-family: Arial; font-weight: 700; padding: 9px 18px;}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .eventcontent th>i{padding-left: 10px}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .eventcontent td:first-of-type{text-align:left;padding-left:10px;}
+#treasurer_home .contentpage .dashboardWidget .contright .innercont1 .eventcontent td{padding-right:10px;height: 40px;text-align:right;font-size: 14px; border: 1px solid #ddd;}
+#treasurer_home .contentpage .dashboardWidget .eventcontent .cont4 button{display: inline-flex; background: #008000; border: none; color: #fff;padding: 7px 12px;letter-spacing: 1px;}
+/*footer*/
+#footer{margin: 25px 0 25px 280px; }
+#footer p.copy{font-size: 15px;color: #575a60;}
+/********end content page******/
+/*responsive*/
+@media only screen and (max-width: 1400px) {
+	#treasurer_home .contentpage .conttop .box {
+		width: calc(87%/4);
+		padding: 10px;
+	}
+}
+
+/*Modal*/
+
+
+ /***************************END****************************/

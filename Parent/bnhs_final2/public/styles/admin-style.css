@@ -1,0 +1,116 @@
+
+/*fonts*/
+@font-face {
+  font-family: 'OpenSans-Regular';
+  font-style: normal;
+  font-weight: 400;
+  src: url('OpenSans-Regular.ttf'); 
+}
+@font-face {
+  font-family: 'OpenSans-Bold';
+  font-style: normal;
+  font-weight: 700;
+  src: url('OpenSans-Bold.ttf'); 
+}
+
+/*floats*/
+.fl {float:left;}
+.fr {float:right;}
+
+h1 {font-size: 30px;font-weight: 100;color:#ccc;}
+body {width: 100%; height: 100%;max-width: 100%;min-width: 1200px;margin: 0 auto;text-align: center;font-family: "Open Sans"; background: #ECF0F5;}
+a {color:inherit;text-decoration: none}
+a:hover {text-decoration: none;color:inherit;}
+h1,h2,h3,h4,h5{ padding:0; margin:0; }
+.row {width: 95%; margin: 0 auto}
+
+/*clearings*/
+.clear{ clear:both;}
+.clearfix:after {content:"."; display:block; height:0; clear:both;visibility:hidden;font-size: 0;}
+.clearfix {display:block;}
+/**************************************************CONTENT PAGE**********************************************************************/
+
+/*widget template*/
+#admin_home .contentpage .widget {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px;}
+#admin_home .contentpage .widget .header {display: flex; justify-content: space-between;margin-top: 40px;padding: 10px 23px; font-size: 15px; color: #5b5b5b;background: #f6f6f6;border-bottom: 1px solid #ddd; font-weight: 700; position: relative;}
+#admin_home .contentpage .widget .header p{padding: 0; margin: 0}
+#admin_home .contentpage .widget .widgetContent{padding: 25px 23px;}
+
+/*dashboard*/
+#admin_home .contentpage{margin: 25px 0 25px 280px;}
+#admin_home .contentpage .summary {display: flex; justify-content: space-between;}
+#admin_home .contentpage .summary .box{width: calc(80%/4);padding: 7px 22px; opacity: 0.9}
+#admin_home .contentpage .summary .box h4{font-size: 15px; color: #fff; text-align: left}
+#admin_home .contentpage .summary .box h4>span{text-decoration: underline; font-weight: 700; font-family: Arial}
+#admin_home .contentpage .summary .box1{background: #00C0EF;}
+#admin_home .contentpage .summary .box2{background: #00A65A;}
+#admin_home .contentpage .summary .box3{background: #F39C12;}
+#admin_home .contentpage .summary .box4{background: #DD4B39;}
+#admin_home .contentpage .summary .box .innercont{width: 100%; display: flex;justify-content: space-between;align-items: baseline; margin-top: 10px;}
+#admin_home .contentpage .summary .box .innercont>span{font-size: 27px; color: #fff}
+#admin_home .contentpage .summary .box .innercont>i{color: #fff; font-size: 50px;}
+    
+    /* dashboard widget */
+#admin_home .contentpage .dashboardWidget{display: flex;justify-content: space-between; margin-top: 40px;}
+#admin_home .contentpage .dashboardWidget .contleft {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px; width: 63%;}
+#admin_home .contentpage .dashboardWidget .contleft .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #5b5b5b;background: #f6f6f6;border-bottom: 1px solid #ddd; font-weight: 700;}
+#admin_home .contentpage .dashboardWidget .contleft .header p{padding: 0; margin: 0}
+#admin_home .contentpage .dashboardWidget .contright{width: 35%}
+#admin_home .contentpage .dashboardWidget .contright .innercont2 {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px;}
+#admin_home .contentpage .dashboardWidget .contright .innercont2 .header {padding: 10px 23px;text-align: left; font-size: 15px;color: #5b5b5b;background: #f6f6f6;border-bottom: 1px solid #ddd; font-weight: 700;}
+#admin_home .contentpage .dashboardWidget .contright .innercont2 .header p{padding: 0; margin: 0}
+#admin_home .contentpage .dashboardWidget .contright .innercont2 .eventcontent{padding: 10px 20px}
+#admin_home .contentpage .dashboardWidget .contright .innercont2 .eventcontent>p{font-weight: 400; font-size: 14px; text-align: left; text-transform: uppercase; border-bottom: 1px solid #ddd; border-bottom-style: dashed;}
+
+/*statemen of accounts*/
+#admin_home .contentpage .widget .widgetContent .cont1{width: 345px;display: flex;justify-content: space-between;align-items: center;}
+#admin_home .contentpage .widget .widgetContent .cont1 p{font-size: 15px; padding: 0;margin: 0; letter-spacing: 1px;}
+#admin_home .contentpage .widget .widgetContent .cont1 span{font-family: Arial; font-weight: 700}
+#admin_home .contentpage .widget .widgetContent .cont1 button{background: #0089DA; border: none; color: #fff;padding: 7px 12px;letter-spacing: 1px;}
+/* #admin_home .contentpage .widget .widgetContent .cont2 select{width: 66px;height: 32px; font-size: 15px;}
+#admin_home .contentpage .widget .widgetContent .cont2 span{ color: #000}
+#admin_home .contentpage .widget .widgetContent .cont2 {display: flex;justify-content: space-between;align-items: center; padding: 17px 0;}
+#admin_home .contentpage .widget .widgetContent .cont2 .box2{display: flex;justify-content: space-between;width: 215px;align-items: center;}
+#admin_home .contentpage .widget .widgetContent .cont2 .box2 input{padding: 6px 0;}
+#admin_home .contentpage .widget .widgetContent .cont3 .table-scroll{border: 1px solid #C5C5C5;max-width: 100%}
+#admin_home .contentpage .widget .widgetContent .cont3 .table-wrap{width: 100%; overflow: auto}
+#admin_home .contentpage .widget .widgetContent .cont3 table{width: 100%;border-spacing:0;margin:auto; border-collapse: separate; margin:auto;overflow:hidden;}
+#admin_home .contentpage .widget .widgetContent .cont3 tr:nth-child(even) {background-color: #f2f2f2}
+#admin_home .contentpage .widget .widgetContent .cont3 th{white-space:nowrap;font-size: 14px; border: 1px solid #ddd; font-family: Arial; font-weight: 700; padding: 9px 18px;}
+#admin_home .contentpage .widget .widgetContent .cont3 th>i{padding-left: 10px}
+#admin_home .contentpage .widget .widgetContent .cont3 td{white-space:nowrap;height: 36px;font-size: 14px; border: 1px solid #ddd;}
+#admin_home .contentpage .widget .widgetContent .cont4 {display: flex;justify-content: space-between; align-items: baseline; margin-top: 20px;}
+#admin_home .contentpage .widget .widgetContent .cont4 .pagination {display: inline-flex;}
+#admin_home .contentpage .widget .widgetContent .cont4 .btn{font-size: 14px; color: #000; background: #E4E4E4; border: 1px solid #d1d3d6; cursor: pointer; padding:8px 12px; margin-left: -1px;}
+#admin_home .contentpage .widget .widgetContent .cont4 .btn:first-of-type,#admin_page #admin_home .contentpage .widget .content .cont4 .btn:last-of-type{background: #fff;}
+#admin_home .contentpage .widget .widgetContent .cont4 .active{background: #337AB7; color: #fff;}
+#admin_home .contentpage .widget .widgetContent .cont4 p{font-size: 14px;} */
+
+/*classes*/
+/* #admin_home .contentpage .widget .hclass {padding-bottom: 5px; padding-top: 5px}
+#admin_home .contentpage .widget  .header nav {position: absolute; left: 0; right: 0; margin: 0 auto;}
+#admin_home .contentpage .widget  .header ul {margin: 0 auto; padding: 0; background: #fff; font-size: 14px; display: inline-flex;}
+#admin_home .contentpage .widget  .header ul li {display: block;vertical-align: middle; text-align: left; color:#000;padding: 5px 15px; cursor: pointer; position: relative;}
+#admin_home .contentpage .widget  .header ul .active{color:#fff; background: #337AB7;}
+#admin_home .contentpage .widget .content .cont3 .table-scroll {border: unset;}
+#admin_home .contentpage .widget .classcontent{padding: 25px 35px;}
+#admin_home .contentpage .widget .classcontent .cont1{text-align: left; display: flex;}
+#admin_home .contentpage .widget .classcontent .cont1 button{background: #0089DA; margin-right: 20px; border: none; color: #fff;letter-spacing: 1px;padding: 7px 29px; text-align: left; cursor: pointer} */
+/*classcontentBot*/
+#admin_home .contentpage .widget .classcontentBot .cont1 {width: 100%}
+#admin_home .contentpage .widget .classcontentBot .cont1 .innerCont span {font-weight: 700; font-size: 15px; letter-spacing: 1px}
+#admin_home .contentpage .widget .classcontentBot .cont1 .innerCont select{padding: 9px 0; width: 280px}
+#admin_home .contentpage .widget .classcontentBot .cont1 .innerCont{width: 480px; display: flex;justify-content: space-between;align-items: center;}
+#admin_home .contentpage .widget .classcontentBot .totalSummary p{font-size: 14px; font-weight: 700; letter-spacing: 1px; text-align: right; font-family: "Arial"}
+#admin_home .contentpage .widget .classcontentBot .totalSummary span{font-weight: 400; letter-spacing: unset;}
+#footer{margin: 25px 0 25px 280px; }
+#footer p.copy{font-size: 15px;color: #575a60;}
+/********end content page******/
+/*responsive*/
+@media only screen and (max-width: 1400px) {
+	#admin_home .contentpage .conttop .box {
+    		width: calc(87%/4);
+    		padding: 10px;
+	}
+}
+
