@@ -178,6 +178,36 @@ class AdminFunct {
 		}, 5000);
 		</script>";
 	}
+	public function showPaidStudents($stud_lrno, $first_name, $middle_name, $last_name, $year_level, $sec_name, $pay_amt, $bal_amt, $bal_status){
+
+		$sql="SELECT stud_lrno, CONCAT(first_name, middle_name, last_name) AS Name, year_level, sec_name, pay_amt, bal_amt, bal_status from student JOIN payment JOIN balance JOIN section WHERE bal_status='Cleared'";
+		$q = $this->conn->query($sql) or die("failed!");
+
+		while($r = $q->fetch(PDO::FETCH_ASSOC)){
+			$data[]=$r;
+		}
+		return $data;
+	}
+	public function showUnpaidStudents($stud_lrno, $first_name, $middle_name, $last_name, $year_level, $sec_name, $pay_amt, $bal_amt, $bal_status){
+
+		$sql="SELECT stud_lrno, CONCAT(first_name, middle_name, last_name) AS Name, year_level, sec_name, pay_amt, bal_amt, bal_status from student JOIN payment JOIN balance JOIN section WHERE bal_status='Not Cleared'";
+		$q = $this->conn->query($sql) or die("failed!");
+
+		while($r = $q->fetch(PDO::FETCH_ASSOC)){
+			$data[]=$r;
+		}
+		return $data;
+	}
+	public function showEnrolledStudents($stud_lrno, $first_name, $middle_name, $last_name, $year_level, $sec_name, $pay_amt, $bal_amt, $bal_status){
+
+		$sql="SELECT stud_lrno, CONCAT(first_name, middle_name, last_name) AS Name, year_level, sec_name, gender, religion, stud_status, curr_stat from student join section where stud_status='Officially Enrolled'";
+		$q = $this->conn->query($sql) or die("failed!");
+
+		while($r = $q->fetch(PDO::FETCH_ASSOC)){
+			$data[]=$r;
+		}
+		return $data;
+	}
 	
 }
 ?>
