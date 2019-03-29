@@ -169,7 +169,7 @@ class FacultyFunct {
 			</div>
 		</div>
 		<script>
-		var sec = 120;
+		var sec = 4;
 		var timer = setInterval(function() {
 			$('.modal-box .count').text(sec--);
 			if (sec == -1) {
@@ -178,7 +178,7 @@ class FacultyFunct {
 		}, 1000);
 		setTimeout(function(){
 		   window.location = '".$newUrl."';
-		}, 120000);
+		}, 5000);
 		</script>";
 	}
 }
