@@ -23,7 +23,7 @@ a {color:inherit;text-decoration: none}
 a:hover {text-decoration: none;color:inherit;}
 h1,h2,h3,h4,h5{ padding:0; margin:0; }
 .row {width: 95%; margin: 0 auto}
-.customButton{background: #0089DA; border: none; color: #fff;padding: 7px 12px;letter-spacing: 1px; cursor: pointer; font-family: 'Open Sans'}
+.customButton{background: #0089DA; border: none; color: #fff;padding: 7px 12px;letter-spacing: 1px; cursor: pointer; font-family: 'Open Sans'; font-size: 14px;}
 .tooltip {position: relative;display: inline-block;}
 .tooltip .tooltiptext {visibility: hidden;width: 73px;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;bottom: 150%;left: 50%;margin-left: -39px;}
 .tooltip .tooltiptext::after {content: "";position: absolute;top: 100%;left: 50%;margin-left: -5px;border-width: 5px;border-style: solid;border-color: black transparent transparent transparent;}

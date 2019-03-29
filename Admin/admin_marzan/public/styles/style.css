@@ -101,7 +101,13 @@ header nav ul li ul li.active-menu a{border-left-color: #ECF0F5 !important}
 .contentpage .summary .box .innercont > span{font-size: 27px; color: #fff}
 .contentpage .summary .box .innercont > i{color: #fff; font-size: 50px;}
 
-/*Content API Styles*/
+div[data-type=modal] { background: rgba(0, 0, 0, 0.50); display: none; position: absolute; width: 100%; height: 100%; z-index: 99999999; top: 0; left: 0;  font-family: 'Montserrat', sans-serif; }
+div[data-type=modal] .container { background: #fff; position: relative; margin: 0 auto; top: 50%; transform: translateY(-50%); width: 200px; }
+div[data-type=modal] .container .exit-modal { color: rgb(255, 0, 0); position: absolute; right: 10px; top: 5px; cursor: pointer; }
+div[data-type=modal] h2 { background: rgb(195, 195, 195); padding: 15px 10px; }
+div[data-type=modal] div.modal-cont { padding: 20px; }
+
+.modal-enabled { overflow-y: hidden; height: 100%; }
 
 /*footer*/
 #footer p.copy{font-size: 15px;color: #575a60;}

@@ -54,7 +54,7 @@ switch($page[0]) {
 		echo '<ul class="sidebar-submenu">';
 		echo '<li '.$this->helpers->isActiveMenu("admin-faculty").'><a href="'.URL.'admin-faculty"><i class="fas fa-plus fnt"></i>Faculty</a></li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-parent").'><a href="'.URL.'admin-parent"><i class="fas fa-plus fnt"></i>Parent</a></li>';
-		echo '<li '.$this->helpers->isActiveMenu("admin-teacher").'><a href="'.URL.'admin-teacher"><i class="fas fa-plus fnt"></i>Teacher</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-student").'><a href="'.URL.'admin-student"><i class="fas fa-plus fnt"></i>Student</a></li>';
 		echo '</ul>';
 		echo '</li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-events").'><a href="'.URL.'admin-events"><i class="far fa-calendar-alt fnt"></i>Events</a></li>';
