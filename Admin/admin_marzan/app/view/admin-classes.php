@@ -2,7 +2,11 @@
 	<?php 
 		if(isset($_POST['submit-button'])){
 			extract($_POST);
-			$obj->addClass($sec_name, $sec_type, $grade_lvl, $fac_idv);
+			$obj->addClass($sec_id, $fac_idv);
+		}
+		if(isset($_POST['update-button'])){
+			extract($_POST);
+			$obj->updateClass($sec_id, $fac_idv);
 		}
 	?>
 	<div class="contentpage" id="contentpage">
@@ -22,33 +26,18 @@
 							<div name="dialog" title="Add Class">
 								<form action="admin-classes" method="POST">
 									<span>Choose Adviser</span>
-									<select name="fac_idv" value="">
-										<option selected disabled hidden>Choose Adviser</option>\
+									<select name="fac_idv" required>
+										<option selected disabled hidden value="">Choose Adviser</option>
 										<?php 
 											$obj->facultylist();
 										?>
-										<!-- <?php
-											/*$facultylist=$obj->facultylist();
-											for ($c = 0; $c < sizeof($facultylist); $c++) {
-												echo '<option value="'.$facultylist[$c].'">'.$facultylist[$c].'</option>';
-											}	*/
-										?> -->
 									</select>
 									<span>Section Name:</span>
-									<input type="text" name="sec_name" value="" placeholder="Section Name" required>
-									<span>Section Type:</span>
-									<select name="sec_type" value="" required>
-										<option selected disabled hidden>Select Section Type</option>
-										<option value="A">A</option>
-										<option value="B">B</option>
-									</select>
-									<span>Grade Level</span>
-									<select name="grade_lvl">
-										<option selected disabled hidden>Select Grade Level</option>
-										<option value="7">7</option>
-										<option value="8">8</option>
-										<option value="9">9</option>
-										<option value="10">10</option>
+									<select name="sec_id" required>
+										<option selected disabled hidden value="">Select Section Name</option>
+										<?php
+											$obj->section();	
+										?> 	
 									</select>
 									<button name="submit-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
 								</form>
@@ -69,17 +58,57 @@
 							<tbody>
 <?php foreach ($obj->showClasses() as $value) {
 extract($value);
-echo <<<show
+$faculty_id = $obj->faculty_id();
+$facultyname = $obj->facultyname();
+$section_type=['A','B'];
+echo '
 	<tr>
-		<td>$fac_no</td>
-		<td>$fac_fname $fac_midname $fac_lname</td>
-		<td>$sec_name</td>
-		<td>$grade_lvl</td>
-		<td></td>
+		<td>'.$fac_no.'</td>
+		<td>'.$fullname.'</td>
+		<td>'.$sec_name.'</td>
+		<td>'.$grade_lvl.'</td>
+		<td>
+			<div name="content">
+				<button name="opener">
+					<div class="tooltip">
+						<i class="fas fa-edit"></i>
+						<span class="tooltiptext">edit</span>
+					</div>
+				</button>
+				<div name="dialog" title="Update class data">
+					<form action="admin-classes" method="POST" required>
+						<input type="hidden" name="sec_id" value="'.$sec_id.'">
+						<span>Employee ID</span>
+						<input type="text" name="" value="'.$fac_no.'" disabled="disabled">
+						<span>Adviser Name</span>
+						<select name="fac_idv">
+							';
+							for ($c = 0; $c < sizeof($faculty_id); $c++) {
+								if($fac_id==$faculty_id[$c]){
+									echo '<option value="'.$faculty_id[$c].'" selected>';
+								}else{
+									echo '<option value="'.$faculty_id[$c].'"">';
+								}
+								echo ''.$facultyname[$c].'</option>';
+							}
+							echo '
+						</select>
+						<span>Section Name</span>
+						<select name="" disabled="disabled">
+							<option value="">'.$sec_name.'</option>
+						</select>
+						<span>Grade Level:</span>
+						<select name="" disabled="disabled">
+							<option value="">'.$grade_lvl.'</option>
+						</select>
+						<button name="update-button" class="customButton">Update <i class="fas fa-save fnt"></i></button>
+					</form>
+				</div>  
+			</div>
+		</td>
 	</tr>
-show;
+	';
 }
-
 ?>
 							</tbody>
 						</table>

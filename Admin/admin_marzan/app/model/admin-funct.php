@@ -13,7 +13,7 @@ class AdminFunct {
 		return $editRow;
 	}
 	public function showSingleTable($table){
-		$sql = $this->conn("SELECT * FROM $table") or die ("failed!");
+		$sql = $this->conn->prepare("SELECT * FROM $table") or die ("failed!");
 		$sql->execute();
 		if($sql->rowCount()>0){
 			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
@@ -40,8 +40,61 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
+	public function addSection($sec_name,$grade_lvl){
+		try {
+			$created=date('Y-m-d H:i:s');	
+			$sql1=$this->conn->prepare("INSERT INTO Section SET sec_name=:sec_name, grade_lvl=:grade_lvl, timestamp_sec=:timestamp_sec");
+			if($sql1->execute(array(
+				':sec_name' => $sec_name,
+				':grade_lvl' => $grade_lvl,
+				':timestamp_sec' => $created
+			))){
+				$sql2=$this->conn->prepare("SELECT * FROM section");
+				$sql2->execute();
+				$this->Prompt("A new section has been created! Class = <span class='prompt'>$sec_name</span> Grade Level = <span class='prompt'>$grade_lvl</span>", "rgb(1, 58, 6)", "admin-section");
+			}else{	
+				$this->Prompt("Failed to add section!", "rgb(175, 0, 0)", "admin-section");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
+	public function updateSection($id, $sec_name, $grade_lvl){
+		try {
+			$sql=$this->conn->prepare("UPDATE Section 
+			SET  sec_name=:sec_name, 
+				grade_lvl=:grade_lvl
+			WHERE sec_id=:sec_id");	
+			if($sql->execute(array(
+				':sec_name'=> $sec_name, 
+				':grade_lvl'=> $grade_lvl,
+				':sec_id' => $id
+			))){
+				$this->Prompt("Section has been updated", "rgb(1, 58, 6)", "admin-section");
+			}else{
+				$this->Prompt("Failed to update section", "rgb(175, 0, 0)", "admin-section");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}	
+	public function deleteSection($id){
+		try {
+			$sql = $this->conn->prepare("
+				DELETE FROM Section WHERE sec_id =:sec_id");
+			if($sql->execute(array(
+				':sec_id'=>$id
+			))){
+				$this->Message("The section has been deleted!", "rgb(175, 0, 0)", "admin-section");
+			}else{	
+				$this->Prompt("Failed to delete section!", "rgb(175, 0, 0)", "admin-section");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
 	public function showClasses(){
-		$sql=$this->conn->prepare("SELECT * FROM faculty JOIN section ON fac_id=fac_idv WHERE fac_adviser='Yes'");
+		$sql=$this->conn->prepare("SELECT fac_no, CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS fullname, sec_name, grade_lvl, fac_id, sec_id FROM faculty JOIN section ON fac_id=fac_idv WHERE fac_adviser='Yes'");
 		$sql->execute();
 		if($sql->rowCount()>0){
 			while($r=$sql->fetch(PDO::FETCH_ASSOC)){
@@ -52,25 +105,66 @@ class AdminFunct {
 			echo 'Nothing to display!';
 		}
 	}
-	public function addClass($sec_name, $sec_type, $grade_lvl, $fac_idv){
+	public function section() {
+		$sql = $this->conn->prepare("SELECT sec_id, sec_name, grade_lvl FROM Section");
+		$sql->execute();
+		while ($row = $sql->fetch()) {
+			echo "<option value='" . $row['sec_id'] . "'>".$row['grade_lvl']." - " . $row['sec_name'] . "</option>";
+		}
+	}
+	public function faculty_id() {
+		$query = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty");
+		$query->execute();
+		$facultyname = array();
+		while ($row = $query->fetch()) {
+			$faculty_id[]=$row['fac_id'];
+		}
+		return $faculty_id;
+	}
+	public function facultyname() {
+		$query = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty");
+		$query->execute();
+		$facultyname = array();
+		while ($row = $query->fetch()) {
+			$facultyname[] = $row['facultyname'];
+		}
+		return $facultyname;
+	}
+	public function addClass($sec_id, $fac_idv){	
 		try {
-			$created=date('Y-m-d H:i:s');	
-			$sql=$this->conn->prepare("INSERT INTO Section SET sec_name=:sec_name, sec_type=:sec_type, grade_lvl=:grade_lvl, timestamp_sec=:timestamp_sec, fac_idv=:fac_idv");
+			$sql=$this->conn->prepare("UPDATE Section 
+			SET  fac_idv=:fac_idv
+			WHERE sec_id=:sec_id");
 			if($sql->execute(array(
-				':sec_name' => $sec_name,
-				':sec_type' => $sec_type,
-				':grade_lvl' => $grade_lvl,
-				':timestamp_sec' => $created,	
-				':fac_idv' => $fac_idv
+				':fac_idv'=> $fac_idv,
+				':sec_id' => $sec_id
 			))){
-				$sql2=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
+				$sql2=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
 				$sql2->bindParam(1, $fac_idv);
 				$sql2->execute();
 				$row = $sql2->fetch();
 				$facultyName = $row['facultyname'];
-				$this->Promt("A new class has been created! Class = <span class='prompt'>$sec_name</span> Teacher-in-charge = <span class='prompt'>$facultyName</span>", "rgb(1, 58, 6)", "admin-classes");
+				$sec_name = $row['sec_name'];
+				$this->Prompt("A new class has been created! Class = <span class='prompt'>$sec_name</span> Teacher-in-charge = <span class='prompt'>$facultyName</span>", "rgb(1, 58, 6)", "admin-classes");
 			}else{
-				$this->Promt("Failed to add faculty data", "rgb(175, 0, 0)", "admin-classes");
+				$this->Prompt("Failed to add class", "rgb(175, 0, 0)", "admin-classes");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}	
+	public function updateClass($sec_id, $fac_idv){
+		try {
+			$sql=$this->conn->prepare("UPDATE Section 
+			SET  fac_idv=:fac_idv
+			WHERE sec_id=:sec_id");
+			if($sql->execute(array(
+				':fac_idv'=> $fac_idv,
+				':sec_id' => $sec_id
+			))){
+				$this->Prompt("Class has been updated", "rgb(1, 58, 6)", "admin-classes");
+			}else{
+				$this->Prompt("Failed to update class", "rgb(175, 0, 0)", "admin-classes");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -82,17 +176,7 @@ class AdminFunct {
 		while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
 			echo "<option value='" . $row['fac_id'] . "'>" . $row['facultyname'] . "</option>";
 		}
-		/*$facultylist = array();
-		while ($row = $sql->fetch()) {
-			$facultylist[] = $row['facultyname'];
-		}
-		return $facultylist;	*/
 	}
-	public function updateClasses($table){
-		$sql=$this->conn->prepare("UPDATE $table 
-		SET fac_id=:fac_id, sec_name=:sec_name, sec_type=:sec_type, grade_lvl=:grade_lvl");
-	}
-	
 	public function createAccount($username, $password){
 		$newPass = password_hash($password, PASSWORD_DEFAULT);
 		$queryInsert = $this->conn->prepare("INSERT INTO accounts (username, password, acc_status, acc_type) VALUES (?, ?, 'Active', 'Faculty')");
@@ -129,14 +213,13 @@ class AdminFunct {
 				'timestamp_fac' => $created,
 				'acc_idz' => $FacultyAccid
 			))){
-				$this->Promt("Account has been created! Username = <span class='prompt'>$usernameFac</span> Password = <span class='prompt'>$password </span>", "rgb(1, 58, 6)", "admin-faculty");
+				$this->Prompt("Account has been created! Username = <span class='prompt'>$usernameFac</span> Password = <span class='prompt'>$password </span>", "rgb(1, 58, 6)", "admin-faculty");
 			}else{
-				$this->Promt("Failed to add faculty data", "rgb(175, 0, 0)", "admin-faculty");
+				$this->Prompt("Failed to add faculty data", "rgb(175, 0, 0)", "admin-faculty");
 			}
 		} catch (PDOException $exception){
 			die('ERROR: ' . $exception->getMessage());
-		}
-		
+		}	
 	}
 	public function updateFacultyData($id, $fac_no, $fac_fname, $fac_midname, $fac_lname, $fac_dept, $fac_adviser){
 		try {
@@ -159,7 +242,7 @@ class AdminFunct {
 			))){
 				$this->Message("You have updated the account of <span class='prompt'>$fac_fname $fac_lname</span>", "rgb(1, 58, 6)", "admin-faculty");	
 			}else{
-				$this->Promt("Failed to update faculty data", "rgb(175, 0, 0)", "admin-faculty");
+				$this->Prompt("Failed to update faculty data", "rgb(175, 0, 0)", "admin-faculty");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -176,7 +259,7 @@ class AdminFunct {
 			))){
 				$this->Message("You have successfully changed the account status!", "rgb(1, 58, 6)", "admin-faculty");	
 			}else{	
-				$this->Promt("Failed to change status!", "rgb(175, 0, 0)", "admin-faculty");
+				$this->Prompt("Failed to change status!", "rgb(175, 0, 0)", "admin-faculty");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -195,7 +278,7 @@ class AdminFunct {
 			))){
 				$this->Message("The account has been deleted!", "rgb(175, 0, 0)", "admin-faculty");
 			}else{	
-				$this->Promt("Failed to delete Faculty Data!", "rgb(175, 0, 0)", "admin-faculty");
+				$this->Prompt("Failed to delete Faculty Data!", "rgb(175, 0, 0)", "admin-faculty");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -210,7 +293,7 @@ class AdminFunct {
 		}
 		return $department;
 	}
-	private function Promt($message, $color, $page) {
+	private function Prompt($message, $color, $page) {
 		$newUrl = URL.$page;
 		echo "
 			<div data-type='error-message' style='position: fixed; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999999;'>

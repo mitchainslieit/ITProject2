@@ -123,7 +123,8 @@ span.prompt{font-weight: 700; text-decoration: underline;}
 #admin_home .contentpage .widget .classcontentBot .totalSummary span{font-weight: 400; letter-spacing: unset;}
 
 /* faculty */
-#admin_home .contentpage .widget .widgetContent .cont2 table td.action{display: flex;justify-content: space-around;}
+#admin_home .contentpage .widget .widgetContent .cont2 table td.action{display: flex;justify-content: center;}
+#admin_home .contentpage .widget .widgetContent .cont2 table td.action > *{padding: 0px 5px;}
 .ui-widget-content{text-align: left; font-size: 15px;}
 .ui-widget-content span{font-weight: 700; padding-top: 17px;font-family: "Open Sans"}
 .ui-widget-content input,.ui-widget-content select{width: 100%; padding: 10px 15px; font-family: "Open Sans"; margin-top: 10px; margin-bottom: 20px}
