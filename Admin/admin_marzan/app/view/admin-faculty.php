@@ -33,7 +33,7 @@
 						<div name="content">
 							<button name="opener" class="customButton">Create new account<i class="fas fa-plus fnt"></i></button>
 							<div name="dialog" title="Create new faculty account">
-								<form action="admin-faculty" method="POST" required>
+								<form action="admin-faculty" method="POST">
 									<span>Employee ID:</span>
 									<input type="text" name="fac_no" value="" placeholder="Employee ID" required>
 									<span>First name:</span>
@@ -80,9 +80,7 @@
 							<thead>
 								<tr>
 									<th>Employee ID</th>
-									<th>First Name</th>
-									<th>Middle Name</th>
-									<th>Last Name</th>
+									<th>Name</th>
 									<th>Department</th>
 									<th>Username</th>
 									<th>Adviser</th>
@@ -101,9 +99,7 @@
  echo '
  <tr>
  	<td>'.$fac_no.'</td>
- 	<td>'.$fac_fname.'</td>
- 	<td>'.$fac_midname.'</td>
- 	<td>'.$fac_lname.'</td>
+ 	<td>'.$fac_fname.' '.$fac_midname.' '.$fac_lname.'</td>
  	<td>'.$fac_dept.'</td>
  	<td>'.$username.'</td>
  	<td>'.$fac_adviser.'</td>

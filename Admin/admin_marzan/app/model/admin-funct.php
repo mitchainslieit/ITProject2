@@ -177,11 +177,13 @@ class AdminFunct {
 			echo "<option value='" . $row['fac_id'] . "'>" . $row['facultyname'] . "</option>";
 		}
 	}
-	public function createAccount($username, $password){
+	public function createFacultyAccount($username, $password){
+		$created=date('Y-m-d H:i:s');
 		$newPass = password_hash($password, PASSWORD_DEFAULT);
-		$queryInsert = $this->conn->prepare("INSERT INTO accounts (username, password, acc_status, acc_type) VALUES (?, ?, 'Active', 'Faculty')");
+		$queryInsert = $this->conn->prepare("INSERT INTO accounts (username, password, acc_status, acc_type, timestamp_acc) VALUES (?, ?, 'Active', 'Faculty',?)");
 		$queryInsert->bindParam(1, $username);
 		$queryInsert->bindParam(2, $newPass);
+		$queryInsert->bindParam(3, $created);
 		$queryInsert->execute();
 		$querySearch = $this->conn->prepare("SELECT acc_id FROM accounts WHERE username=?");
 		$querySearch->bindParam(1, $username);
@@ -200,7 +202,7 @@ class AdminFunct {
 			$created=date('Y-m-d H:i:s');
 			$password = 'password';
 			$usernameFac= str_replace(' ', ' ', ($fac_fname.$fac_midname.$fac_lname));
-			$FacultyAccid = $this->createAccount($usernameFac, $password, 'Faculty');
+			$FacultyAccid = $this->createFacultyAccount($usernameFac, $password, 'Faculty');
 			$sql = $this->conn->prepare("INSERT INTO faculty SET fac_no=:fac_no, fac_fname=:fac_fname, fac_lname=:fac_lname, fac_midname=:fac_midname, fac_dept=:fac_dept, fac_adviser=:fac_adviser, timestamp_fac=:timestamp_fac, acc_idz=:acc_idz");
 			
 			if($sql->execute(array(
@@ -292,6 +294,59 @@ class AdminFunct {
 			$department[] = $row['fac_dept'];
 		}
 		return $department;
+	}
+	public function createPTAAccount($username, $password){
+		$created=date('Y-m-d H:i:s');
+		$newPass = password_hash($password, PASSWORD_DEFAULT);
+		$queryInsert = $this->conn->prepare("INSERT INTO accounts (username, password, acc_status, acc_type, timestamp_acc) VALUES (?, ?, 'Active', 'Treasurer', ?)");
+		$queryInsert->bindParam(1, $username);
+		$queryInsert->bindParam(2, $newPass);
+		$queryInsert->bindParam(3, $created);
+		$queryInsert->execute();
+		$querySearch = $this->conn->prepare("SELECT acc_id FROM accounts WHERE username=?");
+		$querySearch->bindParam(1, $username);
+		$querySearch->execute();
+		$row = $querySearch->fetch();
+		$newUsername = $username.$row['acc_id'];
+		$getaccid = $row['acc_id'];
+		$queryUpdate = $this->conn->prepare("UPDATE accounts SET username=? WHERE username=?");
+		$queryUpdate->bindParam(1, $newUsername);
+		$queryUpdate->bindParam(2, $username);
+		$queryUpdate->execute();
+		return $getaccid;
+	}
+	public function insertPTAData($pr_fname, $pr_midname, $pr_lname, $pr_address, $stude_id) {
+		try {
+			$created=date('Y-m-d H:i:s');
+			$password = 'password';
+			$usernamePTA= str_replace(' ', ' ', ($pr_fname.$pr_midname.$pr_lname));
+			$PTAAccid = $this->createPTAAccount($usernamePTA, $password, 'Parent');
+			$sql = $this->conn->prepare("INSERT INTO parent SET pr_fname=:pr_fname, pr_lname=:pr_lname, pr_midname=:pr_midname, pr_address=:pr_address, timestamp_pr=:timestamp_pr, acc_idx=:acc_idx, stude_id=:stude_id");
+			
+			if($sql->execute(array(
+				':pr_fname' => $pr_fname,
+				':pr_lname' => $pr_lname,  
+				':pr_midname' => $pr_midname,
+				':pr_address' => $pr_address,
+				':timestamp_pr' => $created,
+				':acc_idx' => $PTAAccid,
+				':stude_id' => $stude_id
+				
+			))){
+				$this->Prompt("Account has been created! Username = <span class='prompt'>$usernamePTA</span> Password = <span class='prompt'>$password </span>", "rgb(1, 58, 6)", "admin-parent");
+			}else{
+				$this->Prompt("Failed to add faculty data", "rgb(175, 0, 0)", "admin-parent");
+			}
+		} catch (PDOException $exception){
+			die('ERROR: ' . $exception->getMessage());
+		}	
+	}
+	public function studentList() {
+		$sql = $this->conn->prepare("SELECT stud_id, CONCAT(first_name,' ',middle_name,' ',last_name) as studentName FROM student");
+		$sql->execute();
+		while ($row = $sql->fetch()) {
+			echo "<option value='" . $row['stud_id'] . "'>" . $row['studentName'] . "</option>";
+		}
 	}
 	private function Prompt($message, $color, $page) {
 		$newUrl = URL.$page;

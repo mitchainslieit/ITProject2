@@ -9,7 +9,7 @@
 					</div>
 					<p>School Year: 2019-2020</p>
 				</div>
-				<div class="widgetContent">
+				<div class="widgetContent studentContent">
 					<div class="cont1">
 						
 					</div>
@@ -44,7 +44,7 @@
 	<td>$stud_address</td>
 	<td>$stud_bday</td>
 	<td>$nationality</td>
-	<td>$religion</td>
+	<td>$ethnicity</td>
 	<td>$guar_name</td>
 	<td>$guar_mobno</td>
 	<td>$stud_status</td>

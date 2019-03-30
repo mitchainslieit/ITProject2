@@ -29,6 +29,7 @@ h1,h2,h3,h4,h5{ padding:0; margin:0; }
 .tooltip .tooltiptext::after {content: "";position: absolute;top: 100%;left: 50%;margin-left: -5px;border-width: 5px;border-style: solid;border-color: black transparent transparent transparent;}
 .tooltip:hover .tooltiptext {visibility: visible;}
 span.prompt{font-weight: 700; text-decoration: underline;}
+i.fnt{padding-left: 9px;}
 
 /*clearings*/
 .clear{ clear:both;}
@@ -51,7 +52,7 @@ span.prompt{font-weight: 700; text-decoration: underline;}
 #admin_home .contentpage .widget .header {display: flex; justify-content: space-between;padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
 #admin_home .contentpage .widget .header p{padding: 0; margin: 0}
 #admin_home .contentpage .widget .widgetContent{padding: 25px 23px;}
-#admin_home .contentpage .widget .widgetContent .cont1 button > i.fnt{padding-left: 9px;}
+
 
 /*dashboard*/
 #admin_home .contentpage .summary {display: flex; justify-content: space-between;}
@@ -131,6 +132,18 @@ span.prompt{font-weight: 700; text-decoration: underline;}
 .ui-widget-content input{width: 95%;}
 .ui-widget-content input::placeholder{letter-spacing: 2px}
 .ui-widget-content button{float: right; letter-spacing: 0px; border-radius: 2px; font-family: 'Open Sans' !important;}
+
+/* student */
+.studentContent .dataTables_wrapper{overflow-x: auto;}
+
+/* parent */
+#admin_home .contentpage .widget .parentContent .customTable{width: 100%;border-spacing:0;margin:auto; border-collapse: separate; margin:auto;overflow:hidden;}
+#admin_home .contentpage .widget .parentContent .customTable tr:nth-child(even) {background-color: #f2f2f2}
+#admin_home .contentpage .widget .parentContent .customTable th{white-space:nowrap;font-size: 14px; border: 1px solid #ddd; font-family: Arial; font-weight: 700; padding: 9px 18px;}
+#admin_home .contentpage .widget .parentContent .customTable th>i{padding-left: 10px}
+#admin_home .contentpage .widget .parentContent .customTable td{white-space:nowrap;height: 36px;font-size: 14px; border: 1px solid #ddd;}
+/* student */
+.parentContent > [name="content"]{text-align: left;}
 /**************************************************END CONTENT PAGE**********************************************************************/
 
 /* footer */
