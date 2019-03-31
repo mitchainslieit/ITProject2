@@ -105,8 +105,6 @@
  	<td>'.$fac_adviser.'</td>
  	<td>'.$acc_status.'</td>
  	<td class="action">
- 	';
- 	echo '
  		<div name="content">
 			<button name="opener">
 				<div class="tooltip">

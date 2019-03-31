@@ -5,6 +5,8 @@ class AdminFunct {
 		$this->conn = new Connection;
 		$this->conn = $this->conn->connect();
 	}
+	
+	/************************************************* GENERAL ************************************************/
 	public function getById($id){
 
 		$sql=$this->conn->prepare("SELECT * FROM Faculty WHERE fac_id = :fac_id");
@@ -40,6 +42,10 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
+	/************************************************* END GENERAL ********************************************/
+	
+	
+	/************************************************* SECTION ************************************************/
 	public function addSection($sec_name,$grade_lvl){
 		try {
 			$created=date('Y-m-d H:i:s');	
@@ -85,7 +91,7 @@ class AdminFunct {
 			if($sql->execute(array(
 				':sec_id'=>$id
 			))){
-				$this->Message("The section has been deleted!", "rgb(175, 0, 0)", "admin-section");
+				$this->Message("The section has been deleted!", "rgb(1, 58, 6)", "admin-section");
 			}else{	
 				$this->Prompt("Failed to delete section!", "rgb(175, 0, 0)", "admin-section");
 			}
@@ -93,6 +99,10 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
+	/************************************************* END SECTION ************************************************/
+	
+	
+	/************************************************* CLASS ******************************************************/
 	public function showClasses(){
 		$sql=$this->conn->prepare("SELECT fac_no, CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS fullname, sec_name, grade_lvl, fac_id, sec_id FROM faculty JOIN section ON fac_id=fac_idv WHERE fac_adviser='Yes'");
 		$sql->execute();
@@ -170,6 +180,10 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
+	/************************************************* END CLASS *****************************************************/
+	
+	
+	/************************************************* FACULTY ACCOUNT ************************************************/
 	public function facultylist(){
 		$sql = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty WHERE fac_adviser='Yes' and fac_id NOT IN (SELECT fac_idv FROM section JOIN faculty ON fac_id=fac_idv) ");
 		$sql->execute();
@@ -278,7 +292,7 @@ class AdminFunct {
 			if($sql->execute(array(
 				':acc_idz'=>$id
 			))){
-				$this->Message("The account has been deleted!", "rgb(175, 0, 0)", "admin-faculty");
+				$this->Message("The account has been deleted!", "rgb(1, 58, 6)", "admin-faculty");
 			}else{	
 				$this->Prompt("Failed to delete Faculty Data!", "rgb(175, 0, 0)", "admin-faculty");
 			}
@@ -295,6 +309,9 @@ class AdminFunct {
 		}
 		return $department;
 	}
+	/************************************************* END FACULTY ACCOUNT ************************************************/
+	
+	/************************************************* PTA/PARENT ACCOUNT *************************************************/
 	public function createPTAAccount($username, $password){
 		$created=date('Y-m-d H:i:s');
 		$newPass = password_hash($password, PASSWORD_DEFAULT);
@@ -317,23 +334,49 @@ class AdminFunct {
 	}
 	public function insertPTAData($pr_fname, $pr_midname, $pr_lname, $pr_address, $stude_id) {
 		try {
-			$created=date('Y-m-d H:i:s');
 			$password = 'password';
 			$usernamePTA= str_replace(' ', ' ', ($pr_fname.$pr_midname.$pr_lname));
-			$PTAAccid = $this->createPTAAccount($usernamePTA, $password, 'Parent');
-			$sql = $this->conn->prepare("INSERT INTO parent SET pr_fname=:pr_fname, pr_lname=:pr_lname, pr_midname=:pr_midname, pr_address=:pr_address, timestamp_pr=:timestamp_pr, acc_idx=:acc_idx, stude_id=:stude_id");
+			$PTAAccid = $this->createFacultyAccount($usernamePTA, $password, 'Faculty');
+			$sql = $this->conn->prepare("INSERT INTO parent SET pr_fname=:pr_fname, pr_lname=:pr_lname, pr_midname=:pr_midname, pr_address=:pr_address, acc_idx=:acc_idx, stude_id=:stude_id");
 			
 			if($sql->execute(array(
 				':pr_fname' => $pr_fname,
 				':pr_lname' => $pr_lname,  
 				':pr_midname' => $pr_midname,
 				':pr_address' => $pr_address,
-				':timestamp_pr' => $created,
 				':acc_idx' => $PTAAccid,
 				':stude_id' => $stude_id
 				
 			))){
 				$this->Prompt("Account has been created! Username = <span class='prompt'>$usernamePTA</span> Password = <span class='prompt'>$password </span>", "rgb(1, 58, 6)", "admin-parent");
+			}else{
+				$this->Prompt("Failed to add faculty data", "rgb(175, 0, 0)", "admin-parent");
+			}
+		} catch (PDOException $exception){
+			die('ERROR: ' . $exception->getMessage());
+		}	
+	}
+	public function updatePTAData($pr_id, $pr_fname, $pr_midname, $pr_lname, $pr_address, $stude_id) {
+		try {
+			$sql1 = $this->conn->prepare("UPDATE parent SET 
+					pr_fname=:pr_fname, 
+					pr_lname=:pr_lname, 
+					pr_midname=:pr_midname, 
+					pr_address=:pr_address, 
+					stude_id=:stude_id 
+				WHERE pr_id=:pr_id
+				");
+			
+			if($sql1->execute(array(
+				':pr_fname' => $pr_fname,
+				':pr_lname' => $pr_lname,  
+				':pr_midname' => $pr_midname,
+				':pr_address' => $pr_address,
+				':stude_id' => $stude_id,
+				':pr_id' => $pr_id
+			))){
+				$sql2 = $this->conn->prepare("Se");
+				$this->Prompt("Successfully updated the account of <span class='prompt'>$pr_fname $pr_midname $pr_lname</span>", "rgb(1, 58, 6)", "admin-parent");
 			}else{
 				$this->Prompt("Failed to add faculty data", "rgb(175, 0, 0)", "admin-parent");
 			}
@@ -348,6 +391,78 @@ class AdminFunct {
 			echo "<option value='" . $row['stud_id'] . "'>" . $row['studentName'] . "</option>";
 		}
 	}
+	public function showParentList(){
+		$sql=$this->conn->query("SELECT * FROM accounts JOIN parent ON acc_id=acc_idx JOIN student ON stude_id=stud_id");
+		$sql->execute();
+		if($sql->rowCount()>0){
+			while($r=$sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+			return $data;
+		}else{
+			echo 'Nothing to display!';
+		}
+	}
+	public function studentId(){
+		$sql=$this->conn->prepare("SELECT stud_id FROM student");
+		$sql->execute();
+		$studentId = array();
+		while($row = $sql->fetch()){
+			$studentId[] = $row["stud_id"];
+		}
+		return $studentId;
+	}
+	public function studentName(){
+		$sql=$this->conn->prepare("SELECT CONCAT(first_name,' ',middle_name,' ',last_name) AS studentName FROM student");
+		$sql->execute();
+		$studentName = array();
+		while($row = $sql->fetch()){
+			$studentName[] = $row["studentName"];
+		}
+		return $studentName;
+	}
+	public function deletePTAData($id){
+		try {
+			$sql = $this->conn->prepare("
+				DELETE a.*, b.* 
+				FROM parent a 
+				LEFT JOIN accounts b 
+				ON b.acc_id = a.acc_idx 
+				WHERE a.acc_idx =:acc_idx");
+			if($sql->execute(array(
+				':acc_idx'=>$id
+			))){
+				$this->Message("The account has been deleted!", "rgb(1, 58, 6)", "admin-parent");
+			}else{	
+				$this->Prompt("Failed to delete Faculty Data!", "rgb(175, 0, 0)", "admin-parent");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
+	/************************************************* END PTA/PARENT ACCOUNT ****************************************/
+	
+	/************************************************* STUDENT PAGE **************************************************/
+	public function showStudentList(){
+		try {
+			$sql=$this->conn->query("SELECT * FROM student JOIN accounts ON accc_id=acc_id") or die("failed!");
+			$sql->execute();
+			if($sql->rowCount()>0){
+				while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+					$data[]=$r;
+				}
+				return $data;
+			}else{
+				echo 'Nothing to display!';
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
+	
+	/************************************************* END STUDENT PAGE **********************************************/
+	
+	/************************************************* PROMPT / MESSAGE **********************************************/
 	private function Prompt($message, $color, $page) {
 		$newUrl = URL.$page;
 		echo "
@@ -394,6 +509,7 @@ class AdminFunct {
 		}, 5000);
 		</script>";
 	}
+	/************************************************* END PROMPT / MESSAGE **********************************************/
 	
 }
 ?>

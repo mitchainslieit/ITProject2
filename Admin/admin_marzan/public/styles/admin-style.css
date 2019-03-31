@@ -30,6 +30,8 @@ h1,h2,h3,h4,h5{ padding:0; margin:0; }
 .tooltip:hover .tooltiptext {visibility: visible;}
 span.prompt{font-weight: 700; text-decoration: underline;}
 i.fnt{padding-left: 9px;}
+td.action{display: flex;justify-content: center;}
+td.action > *{padding: 0px 5px;}
 
 /*clearings*/
 .clear{ clear:both;}
@@ -124,8 +126,6 @@ i.fnt{padding-left: 9px;}
 #admin_home .contentpage .widget .classcontentBot .totalSummary span{font-weight: 400; letter-spacing: unset;}
 
 /* faculty */
-#admin_home .contentpage .widget .widgetContent .cont2 table td.action{display: flex;justify-content: center;}
-#admin_home .contentpage .widget .widgetContent .cont2 table td.action > *{padding: 0px 5px;}
 .ui-widget-content{text-align: left; font-size: 15px;}
 .ui-widget-content span{font-weight: 700; padding-top: 17px;font-family: "Open Sans"}
 .ui-widget-content input,.ui-widget-content select{width: 100%; padding: 10px 15px; font-family: "Open Sans"; margin-top: 10px; margin-bottom: 20px}
@@ -137,13 +137,13 @@ i.fnt{padding-left: 9px;}
 .studentContent .dataTables_wrapper{overflow-x: auto;}
 
 /* parent */
+.ptaContent > [name="content"], .parentContent > [name="content"]{text-align: left;}
+.widgetParent{margin-bottom: 30px;}
 #admin_home .contentpage .widget .parentContent .customTable{width: 100%;border-spacing:0;margin:auto; border-collapse: separate; margin:auto;overflow:hidden;}
 #admin_home .contentpage .widget .parentContent .customTable tr:nth-child(even) {background-color: #f2f2f2}
 #admin_home .contentpage .widget .parentContent .customTable th{white-space:nowrap;font-size: 14px; border: 1px solid #ddd; font-family: Arial; font-weight: 700; padding: 9px 18px;}
 #admin_home .contentpage .widget .parentContent .customTable th>i{padding-left: 10px}
 #admin_home .contentpage .widget .parentContent .customTable td{white-space:nowrap;height: 36px;font-size: 14px; border: 1px solid #ddd;}
-/* student */
-.parentContent > [name="content"]{text-align: left;}
 /**************************************************END CONTENT PAGE**********************************************************************/
 
 /* footer */
