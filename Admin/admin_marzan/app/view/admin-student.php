@@ -19,6 +19,7 @@
 								<tr>
 									<th>LRN No.</th>
 									<th>Student Name</th>
+									<th>Username</th>
 									<th>Gender</th>
 									<th>Year Level</th>
 									<th>Address</th>
@@ -33,12 +34,13 @@
 							</thead>
 							<tbody>
 <?php
- foreach($obj->showTwoTables("student", "section", "secc_id", "sec_id") as $value){
+ foreach($obj->showStudentList() as $value){
  extract($value);
  echo <<<show
  <tr>
  	<td>$stud_lrno</td>
 	<td>$first_name $middle_name. $last_name</td>
+	<td>$username</td>
 	<td>$gender</td>
 	<td>$year_level</td>
 	<td>$stud_address</td>

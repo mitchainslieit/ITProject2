@@ -42,7 +42,9 @@ $( document ).ready(function() {
 		changeYear: true,
 		yearRange: "-100:+0"
 	});
-
+	$('#ptaTable').DataTable( {
+		
+   	});
 	var datatable = $( "#stud-list, #adv-table-1, #adv-table-2, #admin-table" ).DataTable({
 		dom: "lBfrtip",
 		buttons: [
@@ -77,7 +79,7 @@ $( document ).ready(function() {
 			}
 		});
 	});
-
+	
 	$( '.sidebar-menu li' ).has('li.active-menu').addClass('active');
 });
 
