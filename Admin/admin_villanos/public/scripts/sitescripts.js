@@ -43,7 +43,7 @@ $( document ).ready(function() {
 		yearRange: "-100:+0"
 	});
 
-	var datatable = $( "#stud-list, #adv-table-1, #adv-table-2, #admin-table" ).DataTable({
+	var datatable = $( "#stud-list, #adv-table-1, #adv-table-2" ).DataTable({
 		dom: "lBfrtip",
 		buttons: [
         	'excel','pdf','print'
@@ -60,6 +60,24 @@ $( document ).ready(function() {
 		events: 'app/model/unstructured/load.php',
 		selectHelper:true,
 		height: 500
+	});
+
+	var adminTable = $('#admin-table').DataTable();
+
+/* script for filter in reports: payment status */
+	$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('click', '.customButton', function(e) {
+		var data = new Array($(this).siblings('select:first-of-type').val(), $(this).siblings('select:last-of-type').val());
+
+		$.ajax({
+			type: 'POST',
+			url: 'app/model/admin-stud-table.php',
+			data: {data:data},
+			success: function(result) {
+				adminTable.clear().draw();
+				adminTable.rows.add($.parseJSON(result)); 
+				adminTable.columns.adjust().draw();
+			}
+		});
 	});
 
 	$( '#faculty_home .contentpage .widget .studentContent .cont .filtStudTable' ).change(function() {
@@ -85,3 +103,4 @@ function replacePageTitle() {
 	$('title').empty();
 	$('title').append($( '.leftmenu nav ul li.active-menu' ).text());
 }
+
