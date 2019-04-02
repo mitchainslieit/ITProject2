@@ -362,6 +362,31 @@ class AdminFunct {
 	/**************** END FACULTY ACCOUNT ****************/
 	
 	/*************** PTA/PARENT ACCOUNT *****************/
+	public function studentList() {
+		$sql = $this->conn->prepare("SELECT stud_id, CONCAT(first_name,' ',middle_name,' ',last_name) as studentName FROM student");
+		$sql->execute();
+		while ($row = $sql->fetch()) {
+			echo "<option value='" . $row['stud_id'] . "'>" . $row['studentName'] . "</option>";
+		}
+	}
+	public function studentId(){
+		$sql=$this->conn->prepare("SELECT stud_id FROM student");
+		$sql->execute();
+		$studentId = array();
+		while($row = $sql->fetch()){
+			$studentId[] = $row["stud_id"];
+		}
+		return $studentId;
+	}
+	public function studentName(){
+		$sql=$this->conn->prepare("SELECT CONCAT(first_name,' ',middle_name,' ',last_name) AS studentName FROM student");
+		$sql->execute();
+		$studentName = array();
+		while($row = $sql->fetch()){
+			$studentName[] = $row["studentName"];
+		}
+		return $studentName;
+	}
 	public function createPTAAccount($username, $password){
 		$created=date('Y-m-d H:i:s');
 		$newPass = password_hash($password, PASSWORD_DEFAULT);
@@ -434,13 +459,59 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}	
 	}
-	public function studentList() {
-		$sql = $this->conn->prepare("SELECT stud_id, CONCAT(first_name,' ',middle_name,' ',last_name) as studentName FROM student");
-		$sql->execute();
-		while ($row = $sql->fetch()) {
-			echo "<option value='" . $row['stud_id'] . "'>" . $row['studentName'] . "</option>";
+	public function deletePTAData($id){
+		try {
+			$sql = $this->conn->prepare("
+				DELETE a.*, b.* 
+				FROM parent a 
+				LEFT JOIN accounts b 
+				ON b.acc_id = a.acc_idx 
+				WHERE a.acc_idx =:acc_idx");
+			if($sql->execute(array(
+				':acc_idx'=>$id
+			))){
+				$this->Message("The account has been deleted!", "rgb(1, 58, 6)", "admin-parent");
+			}else{	
+				$this->Prompt("Failed to delete Faculty Data!", "rgb(175, 0, 0)", "admin-parent");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
 		}
 	}
+	public function showParentList(){
+		$sql=$this->conn->query("SELECT * FROM accounts JOIN parent ON acc_id=acc_idx JOIN student ON stude_id=stud_id");
+		$sql->execute();
+		if($sql->rowCount()>0){
+			while($r=$sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+			return $data;
+		}else{
+			echo 'Nothing to display!';
+		}
+	}
+	/**************** END PTA ACCOUNT ****************/
+	
+	/*************** STUDENT  ***********************/
+	public function showStudentList(){
+		try {
+			$sql=$this->conn->query("SELECT * FROM student JOIN accounts ON accc_id=acc_id") or die("failed!");
+			$sql->execute();
+			if($sql->rowCount()>0){
+				while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+					$data[]=$r;
+				}
+				return $data;
+			}else{
+				echo 'Nothing to display!';
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
+	/**************** END STUDENT ****************/
+	
+	/*************** PROMT / MESSAGE  **************/
 	private function Prompt($message, $color, $page) {
 		$newUrl = URL.$page;
 		echo "
