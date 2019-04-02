@@ -5,7 +5,6 @@ class AdminFunct {
 		$this->conn = new Connection;
 		$this->conn = $this->conn->connect();
 	}
-	
 	/**************** GENERAL ****************/
 	public function getById($id){
 
@@ -442,78 +441,6 @@ class AdminFunct {
 			echo "<option value='" . $row['stud_id'] . "'>" . $row['studentName'] . "</option>";
 		}
 	}
-	public function showParentList(){
-		$sql=$this->conn->query("SELECT * FROM accounts JOIN parent ON acc_id=acc_idx JOIN student ON stude_id=stud_id");
-		$sql->execute();
-		if($sql->rowCount()>0){
-			while($r=$sql->fetch(PDO::FETCH_ASSOC)){
-				$data[]=$r;
-			}
-			return $data;
-		}else{
-			echo 'Nothing to display!';
-		}
-	}
-	public function studentId(){
-		$sql=$this->conn->prepare("SELECT stud_id FROM student");
-		$sql->execute();
-		$studentId = array();
-		while($row = $sql->fetch()){
-			$studentId[] = $row["stud_id"];
-		}
-		return $studentId;
-	}
-	public function studentName(){
-		$sql=$this->conn->prepare("SELECT CONCAT(first_name,' ',middle_name,' ',last_name) AS studentName FROM student");
-		$sql->execute();
-		$studentName = array();
-		while($row = $sql->fetch()){
-			$studentName[] = $row["studentName"];
-		}
-		return $studentName;
-	}
-	public function deletePTAData($id){
-		try {
-			$sql = $this->conn->prepare("
-				DELETE a.*, b.* 
-				FROM parent a 
-				LEFT JOIN accounts b 
-				ON b.acc_id = a.acc_idx 
-				WHERE a.acc_idx =:acc_idx");
-			if($sql->execute(array(
-				':acc_idx'=>$id
-			))){
-				$this->Message("The account has been deleted!", "rgb(1, 58, 6)", "admin-parent");
-			}else{	
-				$this->Prompt("Failed to delete Faculty Data!", "rgb(175, 0, 0)", "admin-parent");
-			}
-		} catch (PDOException $exception) {
-			die('ERROR: ' . $exception->getMessage());
-		}
-	}
-	/**************** END PTA/PARENT ACCOUNT ****************/
-	
-	/**************** STUDENT PAGE **************************/
-	public function showStudentList(){
-		try {
-			$sql=$this->conn->query("SELECT * FROM student JOIN accounts ON accc_id=acc_id") or die("failed!");
-			$sql->execute();
-			if($sql->rowCount()>0){
-				while($r = $sql->fetch(PDO::FETCH_ASSOC)){
-					$data[]=$r;
-				}
-				return $data;
-			}else{
-				echo 'Nothing to display!';
-			}
-		} catch (PDOException $exception) {
-			die('ERROR: ' . $exception->getMessage());
-		}
-	}
-	
-	/**************** END STUDENT PAGE ****************/
-	
-	/**************** PROMPT / MESSAGE ****************/
 	private function Prompt($message, $color, $page) {
 		$newUrl = URL.$page;
 		echo "
