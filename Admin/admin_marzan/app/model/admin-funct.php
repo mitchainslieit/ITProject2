@@ -6,7 +6,7 @@ class AdminFunct {
 		$this->conn = $this->conn->connect();
 	}
 	
-	/************************************************* GENERAL ************************************************/
+	/**************** GENERAL ****************/
 	public function getById($id){
 
 		$sql=$this->conn->prepare("SELECT * FROM Faculty WHERE fac_id = :fac_id");
@@ -42,10 +42,63 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
-	/************************************************* END GENERAL ********************************************/
+	/**************** END GENERAL ****************/
 	
+	/**************** SUBJECT *******************/
+	public function addSubject($subjcode, $subj_name){
+		try {
+			$created=date('Y-m-d H:i:s');	
+			$sql1=$this->conn->prepare("INSERT INTO Subject SET subjcode=:subjcode, subj_name=:subj_name, timestamp_subj=:timestamp_subj");
+			if($sql1->execute(array(
+				':subjcode' => $subjcode,
+				':subj_name' => $subj_name,
+				':timestamp_subj' => $created
+			))){
+				$this->Prompt("A new subject has been created! Subject Code = <span class='prompt'>$subjcode</span> Subject Name  = <span class='prompt'>$subj_name</span>", "rgb(1, 58, 6)", "admin-subjects");
+			}else{	
+				$this->Prompt("Failed to add subject!", "rgb(175, 0, 0)", "admin-subjects");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
+	public function updateSubject($subj_id, $subjcode, $subj_name){
+		try {
+			$sql=$this->conn->prepare("UPDATE Subject 
+			SET  subjcode=:subjcode, 
+				subj_name=:subj_name
+			WHERE subj_id=:subj_id");	
+			if($sql->execute(array(
+				':subjcode' => $subjcode,
+				':subj_name' => $subj_name,
+				':subj_id' => $subj_id
+			))){
+				$this->Prompt("Subject has been updated", "rgb(1, 58, 6)", "admin-subjects");
+			}else{
+				$this->Prompt("Failed to update subject", "rgb(175, 0, 0)", "admin-subjects");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}	
+	public function deleteSubject($subj_id){
+		try {
+			$sql = $this->conn->prepare("
+				DELETE FROM Subject WHERE subj_id =:subj_id");
+			if($sql->execute(array(
+				':subj_id'=>$subj_id
+			))){
+				$this->Message("The subject has been deleted!", "rgb(1, 58, 6)", "admin-subjects");
+			}else{	
+				$this->Prompt("Failed to delete subject!", "rgb(175, 0, 0)", "admin-subjects");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
+	/**************** END SUBJECT ****************/
 	
-	/************************************************* SECTION ************************************************/
+	/**************** SECTION *******************/
 	public function addSection($sec_name,$grade_lvl){
 		try {
 			$created=date('Y-m-d H:i:s');	
@@ -99,10 +152,9 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
-	/************************************************* END SECTION ************************************************/
+	/**************** END SECTION ****************/
 	
-	
-	/************************************************* CLASS ******************************************************/
+	/**************** CLASS **********************/
 	public function showClasses(){
 		$sql=$this->conn->prepare("SELECT fac_no, CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS fullname, sec_name, grade_lvl, fac_id, sec_id FROM faculty JOIN section ON fac_id=fac_idv WHERE fac_adviser='Yes'");
 		$sql->execute();
@@ -120,6 +172,13 @@ class AdminFunct {
 		$sql->execute();
 		while ($row = $sql->fetch()) {
 			echo "<option value='" . $row['sec_id'] . "'>".$row['grade_lvl']." - " . $row['sec_name'] . "</option>";
+		}
+	}
+	public function facultylist(){
+		$sql = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty WHERE fac_adviser='Yes' and fac_id NOT IN (SELECT fac_idv FROM section JOIN faculty ON fac_id=fac_idv) ");
+		$sql->execute();
+		while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
+			echo "<option value='" . $row['fac_id'] . "'>" . $row['facultyname'] . "</option>";
 		}
 	}
 	public function faculty_id() {
@@ -180,17 +239,9 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
-	/************************************************* END CLASS *****************************************************/
+	/**************** END CLASS *********************/
 	
-	
-	/************************************************* FACULTY ACCOUNT ************************************************/
-	public function facultylist(){
-		$sql = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty WHERE fac_adviser='Yes' and fac_id NOT IN (SELECT fac_idv FROM section JOIN faculty ON fac_id=fac_idv) ");
-		$sql->execute();
-		while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
-			echo "<option value='" . $row['fac_id'] . "'>" . $row['facultyname'] . "</option>";
-		}
-	}
+	/****************FACULTY ACCOUNT ****************/
 	public function createFacultyAccount($username, $password){
 		$created=date('Y-m-d H:i:s');
 		$newPass = password_hash($password, PASSWORD_DEFAULT);
@@ -309,9 +360,9 @@ class AdminFunct {
 		}
 		return $department;
 	}
-	/************************************************* END FACULTY ACCOUNT ************************************************/
+	/**************** END FACULTY ACCOUNT ****************/
 	
-	/************************************************* PTA/PARENT ACCOUNT *************************************************/
+	/*************** PTA/PARENT ACCOUNT *****************/
 	public function createPTAAccount($username, $password){
 		$created=date('Y-m-d H:i:s');
 		$newPass = password_hash($password, PASSWORD_DEFAULT);
@@ -440,9 +491,9 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
-	/************************************************* END PTA/PARENT ACCOUNT ****************************************/
+	/**************** END PTA/PARENT ACCOUNT ****************/
 	
-	/************************************************* STUDENT PAGE **************************************************/
+	/**************** STUDENT PAGE **************************/
 	public function showStudentList(){
 		try {
 			$sql=$this->conn->query("SELECT * FROM student JOIN accounts ON accc_id=acc_id") or die("failed!");
@@ -460,9 +511,9 @@ class AdminFunct {
 		}
 	}
 	
-	/************************************************* END STUDENT PAGE **********************************************/
+	/**************** END STUDENT PAGE ****************/
 	
-	/************************************************* PROMPT / MESSAGE **********************************************/
+	/**************** PROMPT / MESSAGE ****************/
 	private function Prompt($message, $color, $page) {
 		$newUrl = URL.$page;
 		echo "
@@ -509,7 +560,7 @@ class AdminFunct {
 		}, 5000);
 		</script>";
 	}
-	/************************************************* END PROMPT / MESSAGE **********************************************/
+	/**************** END PROMPT / MESSAGE ****************/
 	
 }
 ?>

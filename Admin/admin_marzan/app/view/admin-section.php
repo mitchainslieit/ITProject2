@@ -69,7 +69,7 @@ echo '
 						<span class="tooltiptext">edit</span>
 					</div>
 				</button>
-				<div name="dialog" title="Update class data">
+				<div name="dialog" title="Update section data">
 					<form action="admin-section" method="POST" required>
 						<input type="hidden" value="'.$sec_id.'" name="sec_id">
 						<span>Section Name</span>

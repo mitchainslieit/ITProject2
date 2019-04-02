@@ -29,7 +29,7 @@
 									<select name="fac_idv" required>
 										<option selected disabled hidden value="">Choose Adviser</option>
 										<?php 
-											$obj->studentList();
+											$obj->facultyList();
 										?>
 									</select>
 									<span>Section Name:</span>

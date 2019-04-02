@@ -80,7 +80,7 @@ echo '
 				</button>
 				<div name="dialog" title="Update PTA Treasurer data">
 					<form action="admin-parent" method="POST" required>
-						<input type="" value="'.$pr_id.'" name="pr_id">
+						<input type="hidden" value="'.$pr_id.'" name="pr_id">
 						<span>First name:</span>
 						<input type="text" name="pr_fname" value="'.$pr_fname.'" placeholder="First name" required>
 						<span>Middle Name:</span>
