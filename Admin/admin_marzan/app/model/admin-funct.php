@@ -21,9 +21,8 @@ class AdminFunct {
 				$data[]=$r;
 			}
 			return $data;
-		}else{
-			echo 'Nothing to display!';
 		}
+		return $sql;
 	}
 	public function showTwoTables($table1, $table2, $id1, $id2){
 		try {
@@ -34,9 +33,8 @@ class AdminFunct {
 					$data[]=$r;
 				}
 				return $data;
-			}else{
-				echo 'Nothing to display!';
 			}
+			return $sql;
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
 		}
@@ -162,9 +160,8 @@ class AdminFunct {
 				$data[]=$r;
 			}
 			return $data;
-		}else{
-			echo 'Nothing to display!';
 		}
+		return $sql;
 	}
 	public function section() {
 		$sql = $this->conn->prepare("SELECT sec_id, sec_name, grade_lvl FROM Section");
@@ -249,7 +246,7 @@ class AdminFunct {
 		$queryInsert->bindParam(2, $newPass);
 		$queryInsert->bindParam(3, $created);
 		$queryInsert->execute();
-		$querySearch = $this->conn->prepare("SELECT acc_id FROM accounts WHERE username=?");
+		/*$querySearch = $this->conn->prepare("SELECT acc_id FROM accounts WHERE username=?");
 		$querySearch->bindParam(1, $username);
 		$querySearch->execute();
 		$row = $querySearch->fetch();
@@ -259,13 +256,13 @@ class AdminFunct {
 		$queryUpdate->bindParam(1, $newUsername);
 		$queryUpdate->bindParam(2, $username);
 		$queryUpdate->execute();
-		return $getaccid;
+		return $getaccid;*/
 	}
 	public function insertFacultyData($fac_no, $fac_fname, $fac_midname, $fac_lname, $fac_dept, $fac_adviser) {
 		try {
 			$created=date('Y-m-d H:i:s');
 			$password = 'password';
-			$usernameFac= str_replace(' ', ' ', ($fac_fname.$fac_midname.$fac_lname));
+			$usernameFac= str_replace(' ', ' ', ($fac_fname[0].$fac_midname[0].$fac_lname));
 			$FacultyAccid = $this->createFacultyAccount($usernameFac, $password, 'Faculty');
 			$sql = $this->conn->prepare("INSERT INTO faculty SET fac_no=:fac_no, fac_fname=:fac_fname, fac_lname=:fac_lname, fac_midname=:fac_midname, fac_dept=:fac_dept, fac_adviser=:fac_adviser, timestamp_fac=:timestamp_fac, acc_idz=:acc_idz");
 			
@@ -281,7 +278,7 @@ class AdminFunct {
 			))){
 				$this->Prompt("Account has been created! Username = <span class='prompt'>$usernameFac</span> Password = <span class='prompt'>$password </span>", "rgb(1, 58, 6)", "admin-faculty");
 			}else{
-				$this->Prompt("Failed to add faculty data", "rgb(175, 0, 0)", "admin-faculty");
+				$this->Prompt("This user already exist!", "rgb(175, 0, 0)", "admin-faculty");
 			}
 		} catch (PDOException $exception){
 			die('ERROR: ' . $exception->getMessage());
@@ -486,13 +483,12 @@ class AdminFunct {
 				$data[]=$r;
 			}
 			return $data;
-		}else{
-			echo 'Nothing to display!';
 		}
+		return $sql;
 	}
 	/**************** END PTA ACCOUNT ****************/
 	
-	/*************** STUDENT  ***********************/
+	/**************** STUDENT  ***********************/
 	public function showStudentList(){
 		try {
 			$sql=$this->conn->query("SELECT * FROM student JOIN accounts ON accc_id=acc_id") or die("failed!");
@@ -502,16 +498,30 @@ class AdminFunct {
 					$data[]=$r;
 				}
 				return $data;
-			}else{
-				echo 'Nothing to display!';
 			}
+			return $sql;
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
 	/**************** END STUDENT ****************/
 	
-	/*************** PROMT / MESSAGE  **************/
+	/**************** ANNOUNCEMENT **************/
+	public function insertEvent($title, $post, $date_start, $date_end, $view_lim){
+		$sql=$this->conn->prepare("INSERT INTO announcements SET title=:title, date_start=:date_start, date_end=:date_end, post=:post, view_lim=:view_lim, post_adminid=:post_adminid");
+		$sql->execute(array(
+			':title'  => $title,
+			':date_start' => $date_start,
+			':date_end' => $date_end,
+			':post' => $post,
+			':view_lim' => $view_lim,
+			':post_adminid' => $_SESSION['accid']
+		));
+	}
+	
+	/**************** END ANNOUNCEMENT **********/
+	
+	/*************** PROMT / MESSAGE  ***********/
 	private function Prompt($message, $color, $page) {
 		$newUrl = URL.$page;
 		echo "

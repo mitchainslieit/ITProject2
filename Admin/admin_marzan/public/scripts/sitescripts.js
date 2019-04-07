@@ -1,5 +1,19 @@
 replacePageTitle();
 $( document ).ready(function() {
+	
+	$('[name=opener]').each(function () {
+		var panel = $(this).siblings('[name=dialog]');
+		$(this).click(function () {
+			panel.dialog('open');
+			$('.ui-widget-overlay').addClass('custom-overlay');
+		});
+	});
+
+	$('[name=dialog]').dialog({
+		autoOpen: false,
+		modal: true
+	});
+	
 	$( ".se-pre-con" ).fadeOut("slow");
 
 
@@ -54,14 +68,88 @@ $( document ).ready(function() {
 	});
 
 	var calendar = $('#calendar').fullCalendar({
+		editable:true,
 		header:{
 			left:'prev,next today',
 			center:'title',
 			right:'month,agendaWeek,agendaDay'
 		},
-		events: 'app/model/unstructured/load.php',
+		events: 'app/model/unstructured/loadEvent.php',
+		selectable:true,
 		selectHelper:true,
-		height: 500
+		select: function(start, end, allDay)
+		{
+			var title = prompt("Enter Event Title");
+			if(title)
+			{
+				var start = $.fullCalendar.formatDate(start, "Y-MM-DD HH:mm:ss");
+				var end = $.fullCalendar.formatDate(end, "Y-MM-DD HH:mm:ss");
+				$.ajax({
+					url:"insert.php",
+					type:"POST",
+					data:{title:title, start:start, end:end},
+					success:function()
+					{
+						calendar.fullCalendar('refetchEvents');
+						alert("Added Successfully");
+					}
+				})
+			}
+		},
+		editable:true,
+		eventResize:function(event)
+		{
+			var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
+			var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
+			var title = event.title;
+			var id = event.id;
+			$.ajax({
+				url:"app/model/unstructured/updateEvent.php",
+				type:"POST",
+				data:{title:title, start:start, end:end, id:id},
+				success:function(){
+					calendar.fullCalendar('refetchEvents');
+					alert('Event Update');
+				}
+			})
+		},
+
+		eventDrop:function(event)
+		{
+			var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
+			var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
+			var title = event.title;
+			var id = event.id;
+			$.ajax({
+				url:"app/model/unstructured/updateEvent.php",
+				type:"POST",
+				data:{title:title, start:start, end:end, id:id},
+				success:function()
+				{
+					calendar.fullCalendar('refetchEvents');
+					alert("Event Updated");
+				}
+			});
+		},
+
+		eventClick:function(event)
+		{
+			if(confirm("Are you sure you want to remove it?"))
+			{
+				var id = event.id;
+				$.ajax({
+					url:"app/model/unstructured/deleteEvent.php",
+					type:"POST",
+					data:{id:id},
+					success:function()
+					{
+						calendar.fullCalendar('refetchEvents');
+						alert("Event Removed");
+					}
+				})
+			}
+		},
+
 	});
 
 	$( '#faculty_home .contentpage .widget .studentContent .cont .filtStudTable' ).change(function() {

@@ -60,7 +60,8 @@
 							</tr>
 						</thead>
 						<tbody>
-<?php foreach ($obj->showParentList() as $value) {
+<?php 
+foreach ($obj->showParentList() as $value) {
 extract($value);
 $studentId = $obj->studentId();
 $studentName = $obj->studentName();

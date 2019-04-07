@@ -1,12 +1,12 @@
 <?php
-$connect = new PDO('mysql:host=localhost;dbname=bnhs', 'root', '');
+$connect = new PDO('mysql:host=localhost;dbname=bnhs_v4', 'root', '');
 $data = array();
 $query = "SELECT * FROM announcements ORDER BY ann_id";
 $statement = $connect->prepare($query);
 $statement->execute();
 $result = $statement->fetchAll();
-
-foreach($result as $row) {
+foreach($result as $row)
+{
 	$data[] = array(
 		'id'   => $row["ann_id"],
 		'title'   => $row["title"],
@@ -14,6 +14,6 @@ foreach($result as $row) {
 		'end'   => $row["date_end"]
 	);
 }
-
 echo json_encode($data);
+
 ?>

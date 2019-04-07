@@ -7,18 +7,7 @@
 </div>
 </div>
 <script>
-$('[name=opener]').each(function () {
-  var panel = $(this).siblings('[name=dialog]');
-  $(this).click(function () {
-      panel.dialog('open');
-      $('.ui-widget-overlay').addClass('custom-overlay');
-  });
-});
 
-$('[name=dialog]').dialog({
-  autoOpen: false,
-  modal: true
-});
 </script>
 <script src="<?php echo URL; ?>public/libs/sidebar-menu/sidebar-menu.js"></script>
 <script> $.sidebarMenu($('.sidebar-menu')); </script>

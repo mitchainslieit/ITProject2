@@ -25,5 +25,3 @@
 	<script type="text/javascript" src="<?php echo URL; ?>public/vendors/js/moment.min.js"></script>
 
 	<script type="text/javascript" src="<?php echo URL; ?>public/vendors/js/fullcalendar.min.js"></script>
-
-	

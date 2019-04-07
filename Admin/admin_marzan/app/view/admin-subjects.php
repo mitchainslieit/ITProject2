@@ -39,7 +39,7 @@
 						</div>
 					</div>
 					<div class="cont2">
-						<table id="admin-table" class="display">
+						<table id="admin-table" class="stripe row-border order-column">
 							<thead>
 								<tr>
 									<th>Subject Code</th>

@@ -69,6 +69,7 @@ table.dataTable tbody tr.selected {
 }
 table.dataTable tbody th,
 table.dataTable tbody td {
+  white-space: nowrap;
   padding: 8px;
   font-size: 14px;
   border: 1px solid #ddd;
