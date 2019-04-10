@@ -62,7 +62,7 @@
 										<option value="Math">Math</option>
 										<option value="English">English</option>
 										<option value="TLE">TLE</option>
-										<option value="Math">Math</option>
+										<option value="Values">Values</option>
 									</select>
 									<span>Adviser</span>
 									<select name="fac_adviser" value="" required>
@@ -93,7 +93,7 @@
  $department = $obj->department();
  foreach($obj->showTwoTables("faculty","accounts", "acc_idz", "acc_id") as $row){
  extract($row);
- $department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 'TLE', 'Math'];
+ $department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 'TLE', 'Values'];
  $adviser = ['Yes', 'No'];
  $status = ['Active','Deactivated','Denied'];
  echo '

@@ -41,11 +41,12 @@ switch($page[0]) {
 		break;
 	case 'admin':
 		echo '<li '.$this->helpers->isActiveMenu("admin-dashboard").'><a href="'.URL.'"><i class="fas fa-home fnt"></i>Dashboard</a></li>';
+
 		echo '<li>';
 		echo '<a href="'.' '.'"><i class="fas fa-money-bill fnt"></i>Statement Of Accounts<i class="fa fa-angle-left pull-right"></i></a>';
 		echo '<ul class="sidebar-submenu">';
 		echo '<li '.$this->helpers->isActiveMenu("admin-feetype").'><a href="'.URL.'admin-feetype"><i class="fas fa-money-check fnt"></i>Fee Type</a></li>';
-		echo '<li '.$this->helpers->isActiveMenu("admin-paymenthistory").'><a href="'.URL.'admin-paymenthistory"><i class="fas fa-history fnt"></i>Payment History</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-balstatus").'><a href="'.URL.'admin-balstatus"><i class="fas fa-money-check fnt"></i>Student Payment Status</a></li>';
 		echo '</ul>';
 		echo '</li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-section").'><a href="'.URL.'admin-section"><i class="fas fa-book-open fnt"></i>Section</a></li>';
@@ -62,7 +63,12 @@ switch($page[0]) {
 		echo '</ul>';
 		echo '</li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-events").'><a href="'.URL.'admin-events"><i class="far fa-calendar-alt fnt"></i>Events</a></li>';
-		echo '<li '.$this->helpers->isActiveMenu("admin-reports").'><a href="'.URL.'admin-reports"><i class="fab fa-blogger-b fnt"></i>Reports</a></li>';
+		echo '<li>';
+		echo '<a href="'.' '.'"><i class="fab fa-blogger-b fntt"></i>Reports<i class="fa fa-angle-left pull-right"></i></a>';
+		echo '<ul class="sidebar-submenu">';
+		echo '<li '.$this->helpers->isActiveMenu("admin-paymenthistory").'><a href="'.URL.'admin-paymenthistory"><i class="fas fa-history fnt"></i>Payment History</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-enrolledstudents").'><a href="'.URL.'admin-enrolledstudents"><i class="fas fa-check-square fnt"></i>Enrolled Students</a></li>';
+		echo '</ul>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-logs").'><a href="'.URL.'admin-logs"><i class="fas fa-book fnt"></i>Logs</a></li>';
 		break;
 	default: break;

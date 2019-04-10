@@ -2,7 +2,7 @@
 
 //update.php
 
-$connect = new PDO('mysql:host=localhost;dbname=bnhs_v4', 'root', '');
+$connect = new PDO('mysql:host=localhost;dbname=bnhs_v5', 'root', '');
 
 if(isset($_POST["id"]))
 {

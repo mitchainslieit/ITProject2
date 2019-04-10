@@ -1,5 +1,5 @@
 <?php
-$connect = new PDO('mysql:host=localhost;dbname=bnhs_v4', 'root', '');
+$connect = new PDO('mysql:host=localhost;dbname=bnhs_v5', 'root', '');
 $data = array();
 $query = "SELECT * FROM announcements ORDER BY ann_id";
 $statement = $connect->prepare($query);

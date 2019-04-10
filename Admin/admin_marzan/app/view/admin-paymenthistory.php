@@ -1,297 +1,57 @@
+	<?php require 'app/model/admin-funct.php'; $obj = new AdminFunct;?>
+
+	<?php
+	if (isset($_POST['update-button'])){
+			extract($_POST);
+		}
+	?>
+
 	<div class="contentpage">
 		<div class="row">	
 			<div class="widget">	
 				<div class="header">	
 					<p>	
 						<i class="fas fa-money-bill fnt"></i>
-						<span>Tuition Fee</span>
+						<span>Payment History</span>
 					</p>
 					<p>School Year: 2019-2020</p>
 				</div>	
-				<div class="widgetContent eventcontent">
+				<div class="widgetContent">
 					<div class="cont1">
-						<p>Mischellaneos Fee: <span>P1,993.00</span></p>
-						<button>Update</button>
-					</div>
+						<p>Miscellaneous Fee: &#x20B1; <?php $obj->getMiscFee(); ?></p>
+			         </div>
 					<div class="cont2">
 						<table id="admin-table" class="display">
 							<thead>
 								<tr>
-									<th>LRN(Learner Reference No.)</th>
+									<th>LRN</th>
 									<th>Name</th>
 									<th>Grade Level</th>
-									<th>Amount Received</th>
-									<th>Amount Paid</th>
-									<th>Change</th>
+									<th>Section Name</th>
 									<th>OR Number</th>
-									<th>Payment Date</th>
-									<th>PTA Treasurer</th>
-									<th>Balance</th>
-									<th>Balance Status</th>
+									<th>Payment Timestamp</th>
+									<th>Amount Paid</th>									
+									<th>Remaining Balance</th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr>
-									<td>852741963159</td>
-									<td>Elvis Andrade</td>
-									<td>7</td>
-									<td>0</td>
-									<td>0</td>
-									<td>0</td>
-									<td>05278945LK</td>
-									<td>August 20, 2019</td>
-									<td>Adam Roswell</td>
-									<td>Php 1193.00</td>
-									<td></td>	
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								<tr>
-									<td>sample 1</td>
-									<td>sample 2</td>
-									<td>sample 3</td>
-									<td>sample 4</td>
-									<td>sample 5</td>
-									<td>sample 6</td>
-									<td>sample 7</td>
-									<td>sample 8</td>
-									<td>sample 9</td>
-									<td>sample 10</td>
-									<td>sample 11</td>
-								</tr>
-								
+
+<?php
+ foreach($obj->showPaymentHistory('stud_lrno', 'first_name', 'middle_name', 'last_name', 'year_level', 'sec_name', 'orno', 'pay_date', 'pay_amt', 'bal_amt') as $value){
+ extract($value);
+ echo '
+ <tr>
+	 <td>'.$stud_lrno.'</td>
+	 <td>'.$first_name,' ', $middle_name,' ', $last_name.'</td>
+	 <td>'.$year_level.'</td>
+	 <td>'.$sec_name.'</td>
+	 <td>'.$orno.'</td>
+ 	 <td>'.$payment_date.'</td>
+	 <td align="right">&#8369;'.number_format($pay_amt, 2).'</td>
+ 	 <td align="right">&#8369;'.number_format($remain_bal, 2).'</td>
+ </tr> ';
+ }
+ ?>	
 							</tbody>
 						</table>
 					</div>

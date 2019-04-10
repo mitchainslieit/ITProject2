@@ -2,11 +2,11 @@
 	<?php 
 		if(isset($_POST['submit-button'])){
 			extract($_POST);
-			$obj->addSubject($subjcode, $subj_name);
+			$obj->addSubject($subj_dept, $subj_name);
 		}
 		if(isset($_POST['update-button'])){
 			extract($_POST);
-			$obj->updateSubject($subj_id, $subjcode, $subj_name);
+			$obj->updateSubject($subj_id, $subj_dept, $subj_name);
 		}
 		if(isset($_POST['delete-button'])){
 			extract($_POST);
@@ -29,8 +29,19 @@
 							<button name="opener" class="customButton">Add subject <i class="fas fa-plus fnt"></i></button>
 							<div name="dialog" title="Add Class">
 								<form action="admin-subjects" method="POST">
-									<span>Subject Code:</span>
-									<input type="text" name="subjcode" value="" required placeholder="Subject Code">
+									<span>Subject Department:</span>
+									<select name="subj_dept" value="" required>
+										<option selected disabled hidden>Select Department</option>
+										<option value="Filipino">Filipino</option>
+										<option value="Math">Math</option>
+										<option value="MAPEH">MAPEH</option>
+										<option value="Science">Science</option>
+										<option value="AP">AP</option>
+										<option value="Math">Math</option>
+										<option value="English">English</option>
+										<option value="TLE">TLE</option>
+										<option value="Math">Math</option>
+									</select>
 									<span>Subject Name:</span>
 									<input type="text" name="subj_name" value="" required placeholder="Subject Name">
 									<button name="submit-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
@@ -42,7 +53,7 @@
 						<table id="admin-table" class="stripe row-border order-column">
 							<thead>
 								<tr>
-									<th>Subject Code</th>
+									<th>Subject Department</th>
 									<th>Subject Name</th>
 									<th>Actions</th>
 								</tr>
@@ -50,9 +61,10 @@
 							<tbody>
 <?php foreach ($obj->showSingleTable("subject") as $value) {
 extract($value);
+$department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 'TLE', 'Values'];
 echo '
 	<tr>
-		<td>'.$subjcode.'</td>
+		<td>'.$subj_dept.'</td>
 		<td>'.$subj_name.'</td>
 		<td class="action">
 			<div name="content">
@@ -65,8 +77,14 @@ echo '
 				<div name="dialog" title="Update subjects data">
 					<form action="admin-subjects" method="POST" required>
 						<input type="hidden" name="subj_id" value="'.$subj_id.'" required>
-						<span>Subject Code:</span>
-						<input type="text" name="subjcode" value="'.$subjcode.'" required>
+						<span>Subject Department:</span>
+						<select name="subj_dept">
+						';
+						for ($c = 0; $c < sizeof($department); $c++) {
+							echo $subj_dept === $department[$c] ? '<option value="'.$department[$c].'" selected="selected">'.$department[$c].'</option>' : '<option value="'.$department[$c].'">'.$department[$c].'</option>';	
+						}
+						echo '
+						</select>
 						<span>Subject Name:</span>
 						<input type="text" name="subj_name" value="'.$subj_name.'" required>
 						<button name="update-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>

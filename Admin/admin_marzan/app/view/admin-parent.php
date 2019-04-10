@@ -3,11 +3,11 @@
 		
 		if(isset($_POST['submit-button'])){
 			extract($_POST);
-			$obj->insertPTAData($pr_fname, $pr_midname, $pr_lname, $pr_address, $stude_id);
+			$obj->insertPTAData($pr_fname, $pr_midname, $pr_lname, $pr_address);
 		}
 		if(isset($_POST['update-button'])){
 			extract($_POST);
-			if($obj->updatePTAData($pr_id, $pr_fname, $pr_midname, $pr_lname, $pr_address, $stude_id));
+			if($obj->updatePTAData($pr_id, $pr_fname, $pr_midname, $pr_lname, $pr_address));
 		}
 		if(isset($_POST['delete-button'])){
 			extract($_POST);
@@ -38,13 +38,13 @@
 								<input type="text" name="pr_lname" value="" placeholder="Last name" required>
 								<span>Address:</span>
 								<input type="text" name="pr_address" value="" placeholder="Address" required>
-								<span>Student Name:</span>
+								<!-- <span>Student Name:</span>
 								<select name="stude_id" id="" required>
 									<option value="" selected disabled hidden>Choose Student</option>
 									<?php 
-										$obj->studentList();
+										//$obj->studentList();
 									?>
-								</select>
+								</select> -->
 								<button name="submit-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
 							</form>
 						</div>
@@ -55,22 +55,20 @@
 								<th>PTA Treasurer</th>
 								<th>Address</th>
 								<th>Username</th>
-								<th>Mobile Number</th>
 								<th>Action</th>
 							</tr>
 						</thead>
 						<tbody>
 <?php 
-foreach ($obj->showParentList() as $value) {
+foreach ($obj->showTreasurerList() as $value) {
 extract($value);
-$studentId = $obj->studentId();
-$studentName = $obj->studentName();
+/*$studentId = $obj->studentId();
+$studentName = $obj->studentName();*/
 echo '
 	<tr>
 		<td>'.$pr_fname.' '.$pr_midname.' '.$pr_lname.'</td>
 		<td>'.$pr_address.'</td>
 		<td>'.$username.'</td>
-		<td>'.$guar_mobno.'</td>
 		<td class="action">
 			<div name="content">
 				<button name="opener">
@@ -90,19 +88,7 @@ echo '
 						<input type="text" name="pr_lname" value="'.$pr_lname.'" placeholder="Last name" required>
 						<span>Address:</span>
 						<input type="text" name="pr_address" value="'.$pr_address.'" placeholder="Last name" required>
-						<span>Student Name</span>
-						<select name="stude_id">
-						';
-						for ($c = 0; $c < sizeof($studentId); $c++) {
-								if($stud_id==$studentId[$c]){
-									echo '<option value="'.$studentId[$c].'" selected>';
-								}else{
-									echo '<option value="'.$studentId[$c].'"">';
-								}
-								echo ''.$studentName[$c].'</option>';
-							}
-						echo '
-						</select>
+						
 						<button name="update-button" class="customButton">Update <i class="fas fa-save fnt"></i></button>
 					</form>
 				</div>  
@@ -127,6 +113,19 @@ echo '
 ';
 }
 ?>
+<!-- <span>Student Name</span>
+<select name="stude_id">
+';
+for ($c = 0; $c < sizeof($studentId); $c++) {
+		if($stud_id==$studentId[$c]){
+			echo '<option value="'.$studentId[$c].'" selected>';
+		}else{
+			echo '<option value="'.$studentId[$c].'"">';
+		}	
+		echo ''.$studentName[$c].'</option>';
+	}
+echo '
+</select>-->				
 						</tbody>
 					</table> 
 				</div>

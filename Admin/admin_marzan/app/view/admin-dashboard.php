@@ -62,7 +62,7 @@
 							</p>
 						</div>
 						<div class="eventcontent">
-							<p>ATTENTION TO ALL GRADE 7 STUDENTS, YOU ARE ALL REQUIRED TO ATTEND THE MEETING.</p>
+							<p></p>
 						</div>
 					</div>
 				</div>

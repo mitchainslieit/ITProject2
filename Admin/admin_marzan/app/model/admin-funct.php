@@ -39,19 +39,89 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
+	public function showThreeTables($table1, $table2, $table3, $id1, $id2, $id3){
+
+		$sql="SELECT * from $table1 JOIN $table2 ON $id1=$id2 JOIN $table3 ON $id2=$id3";
+		$q = $this->conn->query($sql) or die("failed!");
+
+		while($r = $q->fetch(PDO::FETCH_ASSOC)){
+			$data[]=$r;
+		}
+		return $data;
+	}
+	public function showFourTables($table1, $table2, $table3, $table4, $id1, $id2, $id3, $id4){
+
+		$sql="SELECT * from $table1 JOIN $table2 ON $id1=$id2 JOIN $table3 ON $id2=$id3 JOIN $table4 on $id3=$id4";
+		$q = $this->conn->query($sql) or die("failed!");
+
+		while($r = $q->fetch(PDO::FETCH_ASSOC)){
+			$data[]=$r;
+		}
+		return $data;
+	}
 	/**************** END GENERAL ****************/
 	
+	/**************** FEE TYPE *******************/
+	public function addFeeType($budget_name, $acc_amount, $table) {
+		$query = $this->conn->prepare("INSERT INTO $table (budget_name, acc_amount) VALUES (:budget_name, :acc_amount)");
+		$query->execute(array(
+			'budget_name' => $budget_name,
+			'acc_amount' => $acc_amount
+		));
+		$this->Message("Fee Type has been added!", "rgb(66, 244, 128)", "admin-feetype");
+	}
+	public function updateFeeType($id, $budget_name, $acc_amount, $table){
+		try {
+			$sql = $this->conn->prepare("UPDATE $table SET 	
+				budget_name=:budget_name,
+				acc_amount=:acc_amount
+			WHERE 	
+				budget_id=:budget_id");
+			$sql->execute(array(
+				':budget_name'=>$budget_name,
+				':acc_amount'=>$acc_amount,
+				':budget_id'=>$id
+			));
+			return true;
+		} catch (PDOException $e) {
+			echo $e->getMessage();	
+			return false;
+		}
+		$this->Message("Account has been updated!", "rgb(66, 244, 128)", "admin-feetype");
+	}
+	public function deleteFeeType($id, $table){
+		$sql = $this->conn->prepare("DELETE FROM $table WHERE budget_id=:budget_id");
+		$sql->execute(array(
+			':budget_id'=>$id
+		));
+	}
+	/**************** END FEE TYPE **************/
+
+	/******** STUDENT PAYMENT STATUS ***********/
+	public function showPaymentStatus(){
+		$sql=$this->conn->query("SELECT *
+				FROM student JOIN balance ON student.stud_id = balance.stud_idb 
+				JOIN section on section.sec_id = student.secc_id 
+				JOIN balpay bp ON bp.bal_ida = balance.stud_idb 
+				JOIN payment ON payment.pay_id = bp.pay_ida GROUP BY 1") or die ("failed!");
+		while($row=$sql->fetch(PDO::FETCH_ASSOC)){
+			$data[]=$row;
+		}
+		return $data;
+	}
+	/********* END STUDENT PAYMENT STATUS **********/
+
 	/**************** SUBJECT *******************/
-	public function addSubject($subjcode, $subj_name){
+	public function addSubject($subj_dept, $subj_name){
 		try {
 			$created=date('Y-m-d H:i:s');	
-			$sql1=$this->conn->prepare("INSERT INTO Subject SET subjcode=:subjcode, subj_name=:subj_name, timestamp_subj=:timestamp_subj");
+			$sql1=$this->conn->prepare("INSERT INTO Subject SET subj_dept=:subj_dept, subj_name=:subj_name, timestamp_subj=:timestamp_subj");
 			if($sql1->execute(array(
-				':subjcode' => $subjcode,
+				':subj_dept' => $subj_dept,
 				':subj_name' => $subj_name,
 				':timestamp_subj' => $created
 			))){
-				$this->Prompt("A new subject has been created! Subject Code = <span class='prompt'>$subjcode</span> Subject Name  = <span class='prompt'>$subj_name</span>", "rgb(1, 58, 6)", "admin-subjects");
+				$this->Prompt("A new subject has been created! Subject Code = <span class='prompt'>$subj_dept</span> Subject Name  = <span class='prompt'>$subj_name</span>", "rgb(1, 58, 6)", "admin-subjects");
 			}else{	
 				$this->Prompt("Failed to add subject!", "rgb(175, 0, 0)", "admin-subjects");
 			}
@@ -59,14 +129,14 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
-	public function updateSubject($subj_id, $subjcode, $subj_name){
+	public function updateSubject($subj_id, $subj_dept, $subj_name){
 		try {
 			$sql=$this->conn->prepare("UPDATE Subject 
-			SET  subjcode=:subjcode, 
+			SET  subj_dept=:subj_dept, 
 				subj_name=:subj_name
 			WHERE subj_id=:subj_id");	
 			if($sql->execute(array(
-				':subjcode' => $subjcode,
+				':subj_dept' => $subj_dept,
 				':subj_name' => $subj_name,
 				':subj_id' => $subj_id
 			))){
@@ -404,20 +474,18 @@ class AdminFunct {
 		$queryUpdate->execute();
 		return $getaccid;
 	}
-	public function insertPTAData($pr_fname, $pr_midname, $pr_lname, $pr_address, $stude_id) {
+	public function insertPTAData($pr_fname, $pr_midname, $pr_lname, $pr_address) {
 		try {
 			$password = 'password';
-			$usernamePTA= str_replace(' ', ' ', ($pr_fname.$pr_midname.$pr_lname));
-			$PTAAccid = $this->createFacultyAccount($usernamePTA, $password, 'Faculty');
-			$sql = $this->conn->prepare("INSERT INTO parent SET pr_fname=:pr_fname, pr_lname=:pr_lname, pr_midname=:pr_midname, pr_address=:pr_address, acc_idx=:acc_idx, stude_id=:stude_id");
-			
+			$usernamePTA= str_replace(' ', ' ', ($pr_fname[0].$pr_midname[0].$pr_lname));
+			$PTAAccid = $this->createPTAAccount($usernamePTA, $password, 'parent');
+			$sql = $this->conn->prepare("INSERT INTO parent SET pr_fname=:pr_fname, pr_lname=:pr_lname, pr_midname=:pr_midname, pr_address=:pr_address, acc_idx=:acc_idx");
 			if($sql->execute(array(
 				':pr_fname' => $pr_fname,
 				':pr_lname' => $pr_lname,  
 				':pr_midname' => $pr_midname,
 				':pr_address' => $pr_address,
-				':acc_idx' => $PTAAccid,
-				':stude_id' => $stude_id
+				':acc_idx' => $PTAAccid
 				
 			))){
 				$this->Prompt("Account has been created! Username = <span class='prompt'>$usernamePTA</span> Password = <span class='prompt'>$password </span>", "rgb(1, 58, 6)", "admin-parent");
@@ -428,14 +496,13 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}	
 	}
-	public function updatePTAData($pr_id, $pr_fname, $pr_midname, $pr_lname, $pr_address, $stude_id) {
+	public function updatePTAData($pr_id, $pr_fname, $pr_midname, $pr_lname, $pr_address) {
 		try {
 			$sql1 = $this->conn->prepare("UPDATE parent SET 
 					pr_fname=:pr_fname, 
 					pr_lname=:pr_lname, 
 					pr_midname=:pr_midname, 
-					pr_address=:pr_address, 
-					stude_id=:stude_id 
+					pr_address=:pr_address
 				WHERE pr_id=:pr_id
 				");
 			
@@ -444,10 +511,9 @@ class AdminFunct {
 				':pr_lname' => $pr_lname,  
 				':pr_midname' => $pr_midname,
 				':pr_address' => $pr_address,
-				':stude_id' => $stude_id,
 				':pr_id' => $pr_id
 			))){
-				$sql2 = $this->conn->prepare("Se");
+				$sql2 = $this->conn->prepare("SELECT * FROM parent");
 				$this->Prompt("Successfully updated the account of <span class='prompt'>$pr_fname $pr_midname $pr_lname</span>", "rgb(1, 58, 6)", "admin-parent");
 			}else{
 				$this->Prompt("Failed to add faculty data", "rgb(175, 0, 0)", "admin-parent");
@@ -476,7 +542,18 @@ class AdminFunct {
 		}
 	}
 	public function showParentList(){
-		$sql=$this->conn->query("SELECT * FROM accounts JOIN parent ON acc_id=acc_idx JOIN student ON stude_id=stud_id");
+		$sql=$this->conn->query("SELECT * FROM student s JOIN parent p ON s.pr_id=p.pr_id JOIN accounts ON acc_idx=acc_id;");
+		$sql->execute();
+		if($sql->rowCount()>0){
+			while($r=$sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+			return $data;
+		}
+		return $sql;
+	}
+	public function showTreasurerList(){
+		$sql=$this->conn->query("SELECT * FROM parent ]JOIN accounts c ON acc_idx=acc_id WHERE c.acc_type='Treasurer'");
 		$sql->execute();
 		if($sql->rowCount()>0){
 			while($r=$sql->fetch(PDO::FETCH_ASSOC)){
@@ -507,20 +584,137 @@ class AdminFunct {
 	/**************** END STUDENT ****************/
 	
 	/**************** ANNOUNCEMENT **************/
-	public function insertEvent($title, $post, $date_start, $date_end, $view_lim){
-		$sql=$this->conn->prepare("INSERT INTO announcements SET title=:title, date_start=:date_start, date_end=:date_end, post=:post, view_lim=:view_lim, post_adminid=:post_adminid");
-		$sql->execute(array(
+	public function insertEvent($title, $post, $date_start, $date_end, $view_lim, $attachment){
+		try{
+			$sql=$this->conn->prepare("INSERT INTO announcements SET title=:title, date_start=:date_start, date_end=:date_end, post=:post, view_lim=:view_lim, attachment=:attachment, post_adminid=:post_adminid");
+			if($sql->execute(array(
 			':title'  => $title,
 			':date_start' => $date_start,
 			':date_end' => $date_end,
 			':post' => $post,
 			':view_lim' => $view_lim,
-			':post_adminid' => $_SESSION['accid']
-		));
+			':attachment' => (empty($attachment['name']) ? null : $attachment['name']),
+			':post_adminid' => $_SESSION['accid']))){
+				$this->Prompt("An announcement has been posted! Title = <span class='prompt'>$title</span> Start Date = <span class='prompt'>$date_start </span> End Date = <span class='prompt'>$date_end </span>", "rgb(1, 58, 6)", "admin-events");
+			}else{
+				$this->Prompt("Failed to post announcement", "rgb(175, 0, 0)", "admin-events");
+			}
+		} catch (PDOException $exception){
+			die('ERROR: ' . $exception->getMessage());
+		}
+		/*if(!empty($attachment['name'])) move_uploaded_file($attachment['tmp_name'], 'attachment/'.$attachment['name']);*/
+		$file = $attachment["name"];
+		$size = $attachment["size"];
+		$temp = $attachment["tmp_name"];
+		$path = "attachment/".$file; //set upload folder path
+		if(!empty($attachment['name'])){
+			if(!file_exists($path)){
+				if($size < 20000000){
+					move_uploaded_file($temp, $path); //move temporary fie to your folder
+				}else{
+					$this->Prompt("Maximum file size 20mb!", "rgb(175, 0, 0)", "admin-events");
+					}
+			}else{	
+				$this->Prompt("Successfully posted the announcement  Title = <span class='prompt'>$title</span> Start Date = <span class='prompt'>$date_start </span> End Date = <span class='prompt'>$date_end </span>, but the attachment already exist! Please change the filename by using edit operation!", "rgb(175, 0, 0)", "admin-events");
+			}
+		}	
+	}
+	public function updateEvent($ann_id,$title, $post, $date_start, $date_end, $attachment){
+		try{
+			$sql=$this->conn->prepare("UPDATE announcements SET title=:title, date_start=:date_start, date_end=:date_end, post=:post, attachment=:attachment WHERE ann_id=:ann_id");
+			if($sql->execute(array(
+			':ann_id' => $ann_id,
+			':title'  => $title,
+			':date_start' => $date_start,
+			':date_end' => $date_end,
+			':post' => $post,
+			':attachment' => (empty($attachment['name']) ? null : $attachment['name'])
+			))){
+				$this->Prompt("Announcement has been updated! Title = <span class='prompt'>$title</span> Start Date = <span class='prompt'>$date_start </span> End Date = <span class='prompt'>$date_end </span>", "rgb(1, 58, 6)", "admin-events");
+			}else{
+				$this->Prompt("Failed to edit announcement", "rgb(175, 0, 0)", "admin-events");
+			}
+		} catch (PDOException $exception){
+			die('ERROR: ' . $exception->getMessage());
+		}
+		$directory="attachment/";
+		$sql=$this->conn->prepare("SELECT * FROM announcement");
+		$sql->execute();
+		$file_database = array();
+		while($row = $sql->fetch()){
+			$file_database[] = $row["attachment"];
+		}
+		/*if(!empty($attachment['name'])){*/
+			 unlink($directory.$file_database);
+			 move_uploaded_file($attachment['tmp_name'], 'attachment/'.$attachment['name']);
+		/*} */	
+		/*$file = $attachment["name"];
+		$size = $attachment["size"];
+		$temp = $attachment["tmp_name"];
+		$path = "attachment/".$file; //set upload folder path
+		if(!file_exists($path)){
+			if($size < 20000000){
+				move_uploaded_file($temp, $path); //move temporary fie to your folder
+			}else{
+				$this->Prompt("Maximum file size 20mb!", "rgb(175, 0, 0)", "admin-events");
+				}
+		}else{	
+			$this->Prompt("Successfully updated the announcement  Title = <span class='prompt'>$title</span> Start Date = <span class='prompt'>$date_start </span> End Date = <span class='prompt'>$date_end </span>", "rgb(175, 0, 0)", "admin-events");
+		}*/
 	}
 	
+	public function deleteEvent($id){
+		try {
+			$sql = $this->conn->prepare("
+				DELETE FROM announcements WHERE ann_id =:ann_id");
+			if($sql->execute(array(
+				':ann_id'=>$id
+			))){
+				$this->Message("The announcement has been deleted!", "rgb(1, 58, 6)", "admin-events");
+			}else{	
+				$this->Prompt("Failed to delete announcement!", "rgb(175, 0, 0)", "admin-events");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
 	/**************** END ANNOUNCEMENT **********/
 	
+	/**************** REPORTS **************/
+	public function showEnrolled(){
+		$sql=$this->conn->query("SELECT *
+				FROM student JOIN section ON section.sec_id = student.secc_id 
+      			WHERE stud_status='Officially Enrolled'") or die ("failed!");
+		while($row=$sql->fetch(PDO::FETCH_ASSOC)){
+			$data[]=$row;
+		}
+		return $data;
+	}
+	public function getMiscFee(){
+		$sql=$this->conn->prepare("SELECT * FROM balance");
+		$sql->execute();
+		$rowCount=$sql->fetch();
+		echo " ". number_format($rowCount['misc_fee'], 2) . " ";
+		}
+	public function getTotalBDOF(){
+		$sql=$this->conn->prepare("SELECT sum(acc_amount) FROM budget_info");
+		$sql->execute();
+		$rowCount=$sql->fetch();
+		echo " ". number_format($rowCount['sum(acc_amount)'], 2) . " ";
+	}
+	public function showPaymentHistory($stud_lrno, $first_name, $middle_name, $last_name, $year_level, $sec_name, $orno, $pay_date, $pay_amt, $bal_amt){
+		$sql=$this->conn->query("SELECT stud_lrno, first_name, middle_name, last_name, year_level, sec_name, orno, DATE_FORMAT(pay_date, '%M %e, %Y - %H:%i:%S') as payment_date, pay_amt, remain_bal
+				FROM student JOIN balance ON student.stud_id = balance.stud_idb 
+				JOIN section on section.sec_id = student.secc_id 
+				JOIN balpay bp ON bp.bal_ida = balance.stud_idb 
+				JOIN payment ON payment.pay_id = bp.pay_ida") or die ("failed!");
+		while($row=$sql->fetch(PDO::FETCH_ASSOC)){
+			$data[]=$row;
+		}
+		return $data;
+	}
+	/**************** END REPORTS ****************/
+
 	/*************** PROMT / MESSAGE  ***********/
 	private function Prompt($message, $color, $page) {
 		$newUrl = URL.$page;
@@ -544,8 +738,7 @@ class AdminFunct {
 		   window.location = '".$newUrl."';
 		}, 60000);
 		</script>";
-	}
-	
+	}	
 	private function Message($message, $color, $page) {
 		$newUrl = URL.$page;
 		echo "<div data-type='error-message' style='position: fixed; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999999;'>
