@@ -67,8 +67,6 @@ $( document ).ready(function() {
 		"lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
 	});
 
-	var adminTable = $('#admin-table').DataTable();
-
 	var calendar = $('#calendar').fullCalendar({
 		editable:true,
 		header:{
@@ -153,42 +151,6 @@ $( document ).ready(function() {
 		},
 
 	});
-
-	/* script for filter in reports: payment status */
-	$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('click', '.customButton', function(e) {
-		var data = new Array($(this).siblings('select:first-of-type').val(), $(this).siblings('select:last-of-type').val());
-
-		$.ajax({
-			type: 'POST',
-			url: 'app/model/admin-stud-table.php',
-			data: {data:data},
-			success: function(result) {
-				adminTable.clear().draw();
-				adminTable.rows.add($.parseJSON(result)); 
-				adminTable.columns.adjust().draw();
-			}
-		});
-	});
-
-	var adminTable2 = $('#admin-table').DataTable();
-
-	$( '#admin_home .contentpage .widget .widgetContent .cont1 .year_level' ).change(function() {
-		var grade = $(this).val();
-		var data = 'grade='+grade;
-		
-		$.ajax({
-			type: 'POST',
-			url: 'app/model/admin-stud-table2.php',
-			data: data,
-			success: function(result) {
-				adminTable2.clear().draw();
-				adminTable2.rows.add($.parseJSON(result)); 
-				adminTable2.columns.adjust().draw();
-			}
-		});
-	});
-	/* end of script for filter in reports: payment status */
-
 
 	$( '#faculty_home .contentpage .widget .studentContent .cont .filtStudTable' ).change(function() {
 		var grade = $(this).val();

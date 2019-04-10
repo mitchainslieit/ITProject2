@@ -22,8 +22,8 @@
 						<select name="year_level">
 							<option value="All">All</option>
 							<option value="Grade 7">Grade 7</option>
-				            <option value="Grade 8">Grade 8</option>
-				            <option value="Grade 9">Grade 9</option>
+				           	<option value="Grade 8">Grade 8</option>
+				            	<option value="Grade 9">Grade 9</option>
 			               	<option value="Grade 10">Grade 10</option>
 						</select>
 						<p>Balance Status:</p>
@@ -34,7 +34,7 @@
 						<button name="view-status" class="customButton">View</button>
 					</div>
 					<div class="cont2">
-						<table id="admin-table" class="display">
+						<table id="admin-table1" class="display">
 							<thead>	
 								<tr>
 									<th>LRN</th>
