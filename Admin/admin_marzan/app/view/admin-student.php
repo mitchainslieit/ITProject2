@@ -14,7 +14,7 @@
 						
 					</div>
 					<div class="cont2">
-						<table id="admin-table" class="display">
+						<table id="admin-table" class="display nowrap" style="width:100%">
 							<thead>
 								<tr>
 									<th>LRN No.</th>
@@ -39,7 +39,7 @@
  echo <<<show
  <tr>
  	<td>$stud_lrno</td>
-	<td>$first_name $middle_name. $last_name</td>
+	<td>$first_name $middle_name $last_name</td>
 	<td>$username</td>
 	<td>$gender</td>
 	<td>$year_level</td>

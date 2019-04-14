@@ -39,7 +39,7 @@
 						</div>
 					</div>
 					<div class="cont2">
-						<table id="admin-table" class="display">
+						<table id="noFilterTable" class="display">
 							<thead>
 								<tr>
 									<th>Fee Type</th>

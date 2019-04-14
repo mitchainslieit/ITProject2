@@ -34,7 +34,7 @@
 						<button name="view-status" class="customButton">View</button>
 					</div>
 					<div class="cont2">
-						<table id="admin-table1" class="display">
+						<table id="admin-table" class="display">
 							<thead>	
 								<tr>
 									<th>LRN</th>

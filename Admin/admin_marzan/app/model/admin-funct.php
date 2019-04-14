@@ -60,7 +60,6 @@ class AdminFunct {
 		return $data;
 	}
 	/**************** END GENERAL ****************/
-	
 	/**************** FEE TYPE *******************/
 	public function addFeeType($budget_name, $acc_amount, $table) {
 		$query = $this->conn->prepare("INSERT INTO $table (budget_name, acc_amount) VALUES (:budget_name, :acc_amount)");
@@ -603,9 +602,9 @@ class AdminFunct {
 			die('ERROR: ' . $exception->getMessage());
 		}
 		/*if(!empty($attachment['name'])) move_uploaded_file($attachment['tmp_name'], 'attachment/'.$attachment['name']);*/
-		$file = $attachment["name"];
-		$size = $attachment["size"];
-		$temp = $attachment["tmp_name"];
+		$file = $attachment['name'];
+		$size = $attachment['size'];
+		$temp = $attachment['tmp_name'];
 		$path = "attachment/".$file; //set upload folder path
 		if(!empty($attachment['name'])){
 			if(!file_exists($path)){
@@ -613,9 +612,9 @@ class AdminFunct {
 					move_uploaded_file($temp, $path); //move temporary fie to your folder
 				}else{
 					$this->Prompt("Maximum file size 20mb!", "rgb(175, 0, 0)", "admin-events");
-					}
-			}else{	
-				$this->Prompt("Successfully posted the announcement  Title = <span class='prompt'>$title</span> Start Date = <span class='prompt'>$date_start </span> End Date = <span class='prompt'>$date_end </span>, but the attachment already exist! Please change the filename by using edit operation!", "rgb(175, 0, 0)", "admin-events");
+				}
+			}else{
+				$this->Prompt("Successfully posted the announcement  Title = <span class='prompt'>$title</span> Start Date = <span class='prompt'>$date_start </span> End Date = <span class='prompt'>$date_end </span>, but the attachment already exist! Please change the filename and re-upload the file using the edit operator!", "rgb(175, 0, 0)", "admin-events");
 			}
 		}	
 	}
@@ -637,42 +636,28 @@ class AdminFunct {
 		} catch (PDOException $exception){
 			die('ERROR: ' . $exception->getMessage());
 		}
-		$directory="attachment/";
-		$sql=$this->conn->prepare("SELECT * FROM announcement");
-		$sql->execute();
-		$file_database = array();
-		while($row = $sql->fetch()){
-			$file_database[] = $row["attachment"];
-		}
-		/*if(!empty($attachment['name'])){*/
-			 unlink($directory.$file_database);
-			 move_uploaded_file($attachment['tmp_name'], 'attachment/'.$attachment['name']);
-		/*} */	
-		/*$file = $attachment["name"];
-		$size = $attachment["size"];
-		$temp = $attachment["tmp_name"];
-		$path = "attachment/".$file; //set upload folder path
-		if(!file_exists($path)){
-			if($size < 20000000){
-				move_uploaded_file($temp, $path); //move temporary fie to your folder
-			}else{
-				$this->Prompt("Maximum file size 20mb!", "rgb(175, 0, 0)", "admin-events");
-				}
-		}else{	
-			$this->Prompt("Successfully updated the announcement  Title = <span class='prompt'>$title</span> Start Date = <span class='prompt'>$date_start </span> End Date = <span class='prompt'>$date_end </span>", "rgb(175, 0, 0)", "admin-events");
-		}*/
+		$file = $attachment['name'];
+		$temp = $attachment['tmp_name'];
+		$path = "attachment/".$file;
+		move_uploaded_file($temp, $path);
 	}
 	
 	public function deleteEvent($id){
 		try {
-			$sql = $this->conn->prepare("
-				DELETE FROM announcements WHERE ann_id =:ann_id");
-			if($sql->execute(array(
+			$sql1= $this->conn->prepare('SELECT * FROM announcement WHERE ann_id =:ann_id'); //sql select query
+			$sql1->bindParam(':ann_id',$id);
+			$sql1->execute();	
+			$row=$sql1->fetch(PDO::FETCH_ASSOC);
+			$dir = "attachment/";
+			unlink($dir.$row['attachment']);
+			
+			$sql2 = $this->conn->prepare("DELETE FROM announcements WHERE ann_id =:ann_id");
+			if($sql2->execute(array(
 				':ann_id'=>$id
 			))){
-				$this->Message("The announcement has been deleted!", "rgb(1, 58, 6)", "admin-events");
+				/*$this->Message("The announcement has been deleted!", "rgb(1, 58, 6)", "admin-events");*/
 			}else{	
-				$this->Prompt("Failed to delete announcement!", "rgb(175, 0, 0)", "admin-events");
+				/*$this->Prompt("Failed to delete announcement!", "rgb(175, 0, 0)", "admin-events");*/
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());

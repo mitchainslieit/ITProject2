@@ -95,7 +95,7 @@
  extract($row);
  $department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 'TLE', 'Values'];
  $adviser = ['Yes', 'No'];
- $status = ['Active','Deactivated','Denied'];
+ $status = ['Active','Deactivated'];
  echo '
  <tr>
  	<td>'.$fac_no.'</td>

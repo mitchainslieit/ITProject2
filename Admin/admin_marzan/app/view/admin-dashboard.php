@@ -32,7 +32,7 @@
 				</div>
 			</div>
 			<div class="dashboardWidget">
-				<div class="contleft">
+				<div class="contright">
 					<div class="header">
 						<p>	
 							<i class="far fa-calendar-alt fnt"></i>
@@ -53,7 +53,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="contright">
+				<div class="contleft">
 					<div class="innercont2">
 						<div class="header">
 							<p>	

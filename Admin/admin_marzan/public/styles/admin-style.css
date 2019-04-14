@@ -35,6 +35,7 @@ td.action > *{padding: 0px 5px;}
 #ui-datepicker-div{display: none !important;}
 textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important; }
 
+
 /*clearings*/
 .clear{ clear:both;}
 .clearfix:after {content:"."; display:block; height:0; clear:both;visibility:hidden;font-size: 0;}
@@ -73,16 +74,16 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 
 /* dashboard widget */
 #admin_home .contentpage .dashboardWidget{display: flex;justify-content: space-between; margin-top: 40px;}
-#admin_home .contentpage .dashboardWidget .contleft {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px; width: 63%;}
-#admin_home .contentpage .dashboardWidget .contleft .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
-#admin_home .contentpage .dashboardWidget .contleft .header p{padding: 0; margin: 0}
-#admin_home .contentpage .dashboardWidget .contleft .eventcontent{padding: 10px 20px;}
-#admin_home .contentpage .dashboardWidget .contright{width: 35%}
-#admin_home .contentpage .dashboardWidget .contright .innercont2 {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px;}
-#admin_home .contentpage .dashboardWidget .contright .innercont2 .header {padding: 10px 23px;text-align: left; font-size: 15px;color: #fff; background: #003366;}
-#admin_home .contentpage .dashboardWidget .contright .innercont2 .header p{padding: 0; margin: 0}
-#admin_home .contentpage .dashboardWidget .contright .innercont2 .eventcontent{padding: 10px 20px}
-#admin_home .contentpage .dashboardWidget .contright .innercont2 .eventcontent>p{font-weight: 400; font-size: 14px; text-align: left; text-transform: uppercase; border-bottom: 1px solid #ddd; border-bottom-style: dashed;}
+#admin_home .contentpage .dashboardWidget .contright {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px; width: 42%; order: 2}
+#admin_home .contentpage .dashboardWidget .contright .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+#admin_home .contentpage .dashboardWidget .contright .header p{padding: 0; margin: 0}
+#admin_home .contentpage .dashboardWidget .contright .eventcontent{padding: 10px 20px;}
+#admin_home .contentpage .dashboardWidget .contleft{width: 56%; order: 1}
+#admin_home .contentpage .dashboardWidget .contleft .innercont2 {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px;}
+#admin_home .contentpage .dashboardWidget .contleft .innercont2 .header {padding: 10px 23px;text-align: left; font-size: 15px;color: #fff; background: #003366;}
+#admin_home .contentpage .dashboardWidget .contleft .innercont2 .header p{padding: 0; margin: 0}
+#admin_home .contentpage .dashboardWidget .contleft .innercont2 .eventcontent{padding: 10px 20px}
+#admin_home .contentpage .dashboardWidget .contleft .innercont2 .eventcontent>p{font-weight: 400; font-size: 14px; text-align: left; text-transform: uppercase; border-bottom: 1px solid #ddd; border-bottom-style: dashed;}
 
 /*statemen of accounts*/
 #admin_home .contentpage .widget .widgetContent .cont1{width: 345px;display: flex;justify-content: space-between;align-items: center;}
@@ -136,7 +137,7 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 .ui-widget-content button{float: right; letter-spacing: 0px; border-radius: 2px; font-family: 'Open Sans' !important;}
 
 /* student */
-/* .studentContent .dataTables_wrapper{overflow-x: auto;} */
+.studentContent .dataTables_wrapper{overflow-x: auto;}
 
 /* parent */
 .ptaContent > [name="content"], .parentContent > [name="content"]{text-align: left;}

@@ -6,7 +6,7 @@
 		}
 		if(isset($_POST['update-button'])){
 			extract($_POST);
-			$obj->updateEvent($ann_id, $title, $post, $date_start, $date_end, $_FILES);
+			$obj->updateEvent($ann_id, $title, $post, $date_start, $date_end, $attachment);
 		}
 		if(isset($_POST['delete-button'])){
 			extract($_POST);
@@ -113,11 +113,11 @@
 					<input type="file" name="attachment" value="'.$attachment.'" placeholder="Attachment(optional)">
 					<span>Users who can view:</span>
 					<div class="inp-grp">
-						<span>All</span><input type="checkbox" name="view_lim" value="0">'.$view_lim.'</label>
-						<span>Faculty</span><input type="checkbox" name="view_lim" value="1">'.$view_lim.'</label>
-						<span>Prent</span><input type="checkbox" name="view_lim" value="2">'.$view_lim.'</label>
-						<span>Student</span><input type="checkbox" name="view_lim" value="3">'.$view_lim.'</label>
-						<span>Treasurer</span><input type="checkbox" name="view_lim" value="4">'.$view_lim.'</label>
+						<span>All</span><input type="checkbox" name="" value="0">'.$view_lim.'</label>
+						<span>Faculty</span><input type="checkbox" name="" value="1">'.$view_lim.'</label>
+						<span>Prent</span><input type="checkbox" name="" value="2">'.$view_lim.'</label>
+						<span>Student</span><input type="checkbox" name="" value="3">'.$view_lim.'</label>
+						<span>Treasurer</span><input type="checkbox" name="" value="4">'.$view_lim.'</label>
 					</div>
 					<button name="update-button" class="customButton">Update <i class="fas fa-save fnt"></i></button>
 				</form>

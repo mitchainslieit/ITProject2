@@ -59,6 +59,16 @@ $( document ).ready(function() {
 	$('#ptaTable').DataTable( {
 		
    	});
+   	
+   	var noFilterTable = $("#noFilterTable").DataTable({
+   		dom: "lBfrtip",
+		"paging":   false,
+       	 "ordering": false,
+		buttons: [
+        	'excel','pdf','print'
+    	],
+   	});
+   	
 	var datatable = $( "#stud-list, #adv-table-1, #adv-table-2, #admin-table" ).DataTable({
 		dom: "lBfrtip",
 		buttons: [
