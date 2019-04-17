@@ -34,7 +34,9 @@ td.action{display: flex;justify-content: center;}
 td.action > *{padding: 0px 5px;}
 #ui-datepicker-div{display: none !important;}
 textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important; }
-
+.dataTables_wrapper th, td { white-space: nowrap; }
+.dataTables_wrapper thead tr th:first-of-type{background: #fff}
+#admin-table, #admin-table-withScroll{width: 100%}
 
 /*clearings*/
 .clear{ clear:both;}
@@ -136,8 +138,6 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 .ui-widget-content input::placeholder{letter-spacing: 2px}
 .ui-widget-content button{float: right; letter-spacing: 0px; border-radius: 2px; font-family: 'Open Sans' !important;}
 
-/* student */
-.studentContent .dataTables_wrapper{overflow-x: auto;}
 
 /* parent */
 .ptaContent > [name="content"], .parentContent > [name="content"]{text-align: left;}
@@ -150,6 +150,7 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 
 /* event */
 input[type="checkbox"]{width: 10% !important;}
+span.attachment{font-weight: 400; font-style: italic; display: block}
 /**************************************************END CONTENT PAGE**********************************************************************/
 
 /* footer */

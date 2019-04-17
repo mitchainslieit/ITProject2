@@ -6,7 +6,7 @@
 		}
 		if(isset($_POST['update-button'])){
 			extract($_POST);
-			$obj->updateEvent($ann_id, $title, $post, $date_start, $date_end, $attachment);
+			$obj->updateEvent($ann_id, $title, $post, $date_start, $date_end, $view_lim, $_FILES['attachment']);
 		}
 		if(isset($_POST['delete-button'])){
 			extract($_POST);
@@ -30,7 +30,7 @@
 						<div name="dialog" title="Create new faculty account" >
 							<form action="admin-events" method="POST" enctype="multipart/form-data">
 								<span>Title:</span>
-								<input type="text" name="title" value="" placeholder="Title" required>
+								<input type="text" name="title" value="" placeholder="Title" >
 								<span>Description:</span>
 								<textarea name="post" id="" cols="30" rows="5"></textarea>
 								<span>Start Date:</span>
@@ -41,34 +41,19 @@
 								<input type="file" name="attachment" id="" placeholder="Attachment(optional)">
 								<span>Users who can view:</span>
 								<div class="inp-grp">
-									<span>All</span><input type="checkbox" name="view_lim" value="0"></label>
-									<span>Faculty</span><input type="checkbox" name="view_lim" value="1"></label>
-									<span>Prent</span><input type="checkbox" name="view_lim" value="2"></label>
-									<span>Student</span><input type="checkbox" name="view_lim" value="3"></label>
-									<span>Treasurer</span><input type="checkbox" name="view_lim" value="4"></label>
+									<input type="checkbox" name="view_lim[]" value="0"></label><span>All</span>
+									<input type="checkbox" name="view_lim[]" value="1"></label><span>Faculty</span>
+									<input type="checkbox" name="view_lim[]" value="2"></label><span>Parent</span>
+									<input type="checkbox" name="view_lim[]" value="3"></label><span>Student</span>
+									<input type="checkbox" name="view_lim[]" value="4"></label><span>Treasurer</span>
 								</div>
-								<!-- <select name="view_lim" required>
-									<option selected disabled hidden value="">Select users who can view</option>
-									<option value="0">All</option>
-									<option value="1" >Faculty only</option>
-									<option value="2" >Student only</option>
-									<option value="3" >Parent only</option>
-									<option value="4" >Treasurer only</option>
-									<option value="1, 2">Faculty and Student</option>
-									<option value="1, 3">Faculty and Parent</option>
-									<option value="1, 4">Faculty and Treasurer</option>
-									<option value="2, 3">Student and Parent</option>
-									<option value="3, 4">Parent and Treasurer</option>
-									<option value="1, 2, 3">Faculty, Student and Parent</option>
-									<option value="1, 3, 4">Faculty, Parent and Treasurer</option>
-									<option value="2, 3, 4">Student, Parent and Treasurer</option>
-								</select> -->
+								</select>
 								<button name="submit-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
 							</form>
 						</div>
 					</div>
 					<div class="cont2">
-						<table id="admin-table" class="display">
+						<table id="admin-table-withScroll" class="display">
 							<thead>
 								<tr>
 									<th>Title</th>
@@ -76,11 +61,15 @@
 									<th>Date Start</th>
 									<th>Date End</th>
 									<th>Attachment</th>
+									<th>Users who can view</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
 							<tbody>
 <?php
+ $viewLimValue = array(0,1,2,3,4);
+/* $viewLimValue = array('0' => 0, '1,2' => 1,2);*/
+ $viewLimName = array('All', 'Faculty', 'Parent', 'Student', 'Treasurer');
  foreach($obj->showSingleTable("announcements") as $value){
  extract($value);
  echo '
@@ -90,6 +79,10 @@
 	<td>'.$date_start.'</td>
 	<td>'.$date_end.'</td>
 	<td>'.$attachment.'</td>
+	<td>';
+	$obj->viewLim($ann_id);
+	echo'
+	</td>
 	<td class=action>
 		<div name="content">
 			<button name="opener">
@@ -99,7 +92,7 @@
 				</div>
 			</button>
 			<div name="dialog" title="Update announcement">
-				<form action="admin-events" method="POST" required>
+				<form action="admin-events" method="POST" enctype="multipart/form-data" required>
 					<input type="hidden" value="'.$ann_id.'" name="ann_id">
 					<span>Title:</span>
 					<input type="text" name="title" value="'.$title.'" placeholder="Title" required>
@@ -110,14 +103,21 @@
 					<span>End Date:</span>
 					<input type="" name="date_end" id="datepicker" value="'.$date_end.'" placeholder="End Date" required> 
 					<span>Attachment:</span>
-					<input type="file" name="attachment" value="'.$attachment.'" placeholder="Attachment(optional)">
+					<span class="attachment">Current File: '.$attachment.'</span>
+					<input type="file" name="attachment" id="" value="'.$attachment.'" placeholder="Attachment(optional)">
 					<span>Users who can view:</span>
 					<div class="inp-grp">
-						<span>All</span><input type="checkbox" name="" value="0">'.$view_lim.'</label>
-						<span>Faculty</span><input type="checkbox" name="" value="1">'.$view_lim.'</label>
-						<span>Prent</span><input type="checkbox" name="" value="2">'.$view_lim.'</label>
-						<span>Student</span><input type="checkbox" name="" value="3">'.$view_lim.'</label>
-						<span>Treasurer</span><input type="checkbox" name="" value="4">'.$view_lim.'</label>
+					';
+					$checked_arr=array();
+					$checked_arr =	explode(",", $value['view_lim']);  
+					foreach ($viewLimValue as $val) {
+						$set_checked = "";
+						if(in_array($val, $checked_arr)) {
+					        	$set_checked = "checked";
+					     }
+						echo '<input type="checkbox" name="view_lim[]" value="'.$val.'" '.$set_checked.' > '.$viewLimName[$val].'';
+					}
+					echo'
 					</div>
 					<button name="update-button" class="customButton">Update <i class="fas fa-save fnt"></i></button>
 				</form>

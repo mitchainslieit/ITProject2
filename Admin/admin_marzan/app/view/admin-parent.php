@@ -3,15 +3,23 @@
 		
 		if(isset($_POST['submit-button'])){
 			extract($_POST);
-			$obj->insertPTAData($pr_fname, $pr_midname, $pr_lname, $pr_address);
+			$obj->insertPTAData($guar_fname, $guar_midname, $guar_lname, $guar_address, $guar_mobno, $guar_telno);
 		}
 		if(isset($_POST['update-button'])){
 			extract($_POST);
-			if($obj->updatePTAData($pr_id, $pr_fname, $pr_midname, $pr_lname, $pr_address));
+			$obj->updatePTAData($guar_id, $guar_fname, $guar_midname, $guar_lname, $guar_address,$guar_mobno, $guar_telno);
+		}
+		if(isset($_POST['reset-button'])){
+			extract($_POST);
+			$obj->updateParentAccount2($guar_id, $guar_fname, $guar_midname, $guar_lname, $guar_address, $guar_mobno, $guar_telno);
 		}
 		if(isset($_POST['delete-button'])){
 			extract($_POST);
 			$obj->deletePTAData($acc_idx);
+		}
+		if(isset($_POST['status-button'])){
+			extract($_POST);
+			if($obj->updateAccountStatus($acc_id, $acc_status));
 		}
 		
 	?>
@@ -31,13 +39,17 @@
 						<div name="dialog" title="Add a new PTA Treasurer">
 							<form action="admin-parent" method="POST">
 								<span>First name:</span>
-								<input type="text" name="pr_fname" value="" placeholder="First name" required>
+								<input type="text" name="guar_fname" value="" placeholder="First name" required>
 								<span>Middle Name:</span>
-								<input type="text" name="pr_midname" value="" placeholder="Middle name" required>
+								<input type="text" name="guar_midname" value="" placeholder="Middle name" required>
 								<span>Last name:</span>
-								<input type="text" name="pr_lname" value="" placeholder="Last name" required>
+								<input type="text" name="guar_lname" value="" placeholder="Last name" required>
 								<span>Address:</span>
-								<input type="text" name="pr_address" value="" placeholder="Address" required>
+								<input type="text" name="guar_address" value="" placeholder="Address" required>
+								<span>Mobile Number:</span>
+								<input type="text" name="guar_mobno" value="" placeholder="Mobile Number(optional)" >
+								<span>Telephone Number:</span>
+								<input type="text" name="guar_telno" value="" placeholder="Telephone Number(optional)" >
 								<!-- <span>Student Name:</span>
 								<select name="stude_id" id="" required>
 									<option value="" selected disabled hidden>Choose Student</option>
@@ -54,6 +66,8 @@
 							<tr>
 								<th>PTA Treasurer</th>
 								<th>Address</th>
+								<th>Mobile Number</th>
+								<th>Telephone Number</th>
 								<th>Username</th>
 								<th>Action</th>
 							</tr>
@@ -66,8 +80,10 @@ extract($value);
 $studentName = $obj->studentName();*/
 echo '
 	<tr>
-		<td>'.$pr_fname.' '.$pr_midname.' '.$pr_lname.'</td>
-		<td>'.$pr_address.'</td>
+		<td>'.$guar_fname.' '.$guar_midname.' '.$guar_lname.'</td>
+		<td>'.$guar_address.'</td>
+		<td>'.$guar_mobno.'</td>
+		<td>'.$guar_telno.'</td>
 		<td>'.$username.'</td>
 		<td class="action">
 			<div name="content">
@@ -79,16 +95,19 @@ echo '
 				</button>
 				<div name="dialog" title="Update PTA Treasurer data">
 					<form action="admin-parent" method="POST" required>
-						<input type="hidden" value="'.$pr_id.'" name="pr_id">
+						<input type="hidden" value="'.$guar_id.'" name="guar_id">
 						<span>First name:</span>
-						<input type="text" name="pr_fname" value="'.$pr_fname.'" placeholder="First name" required>
+						<input type="text" name="guar_fname" value="'.$guar_fname.'" placeholder="First name" required>
 						<span>Middle Name:</span>
-						<input type="text" name="pr_midname" value="'.$pr_midname.'" placeholder="Middle name" required>
+						<input type="text" name="guar_midname" value="'.$guar_midname.'" placeholder="Middle name" required>
 						<span>Last name:</span>
-						<input type="text" name="pr_lname" value="'.$pr_lname.'" placeholder="Last name" required>
+						<input type="text" name="guar_lname" value="'.$guar_lname.'" placeholder="Last name" required>
 						<span>Address:</span>
-						<input type="text" name="pr_address" value="'.$pr_address.'" placeholder="Last name" required>
-						
+						<input type="text" name="guar_address" value="'.$guar_address.'" placeholder="Last name" required>
+						<span>Mobile Number:</span>
+						<input type="text" name="guar_mobno" value="'.$guar_mobno.'" placeholder="" >
+						<span>Telephone Number:</span>
+						<input type="text" name="guar_telno" value="'.$guar_telno.'" placeholder="" >
 						<button name="update-button" class="customButton">Update <i class="fas fa-save fnt"></i></button>
 					</form>
 				</div>  
@@ -139,26 +158,86 @@ echo '
 					<p>School Year: 2019-2020</p>
 				</div>
 				<div class="widgetContent parentContent">
-					<table id="admin-table" class="display">
+					<table id="admin-table-withScroll" class="display">
 						<thead>
 							<tr>
 								<th>Parent Name</th>
+								<th>Address</th>
+								<th>Mobile Number</th>
+								<th>Telephone Number</th>
+								<th>Child Name</th>
 								<th>Username</th>
-								<th>Guardian Mobile Number</th>
-								<th>Parent Address</th>
-								<th>Student Name</th>
+								<th>Status</th>
+								<th>Action</th>
 							</tr>
 						</thead>
 						<tbody>
 <?php foreach ($obj->showParentList() as $value) {
 extract($value);
+ $status = ['Active','Deactivated'];
 echo '
 <tr>
-	<td>'.$pr_fname.' '.$pr_midname.' '.$pr_lname.'</td>
-	<td>'.$username.'</td>
+	<td>'.$guar_fname.' '.$guar_midname.' '.$guar_lname.'</td>
+	<td>'.$guar_address.'</td>
 	<td>'.$guar_mobno.'</td>
-	<td>'.$pr_address.'</td>
+	<td>'.$guar_telno.'</td>
 	<td>'.$first_name.' '.$last_name.'</td>
+	<td>'.$username.'</td>
+	<td>'.$acc_status.'</td>
+	<td class="action">
+		<div name="content">
+			<button name="opener">
+				<div class="tooltip">
+					<i class="fas fa-retweet"></i>
+					<span class="tooltiptext">Reset</span>
+				</div>
+			</button>
+			<div name="dialog" title="Reset Parent Account">
+				<form action="admin-parent" method="POST" required>
+					<input type="hidden" value="'.$guar_id.'" name="guar_id">
+					<span>First name:</span>
+					<input type="text" name="guar_fname" value="'.$guar_fname.'" placeholder="First name" required>
+					<span>Middle Name:</span>
+					<input type="text" name="guar_midname" value="'.$guar_midname.'" placeholder="Middle name" required>
+					<span>Last name:</span>
+					<input type="text" name="guar_lname" value="'.$guar_lname.'" placeholder="Last name" required>
+					<span>Address:</span>
+					<input type="text" name="guar_address" value="'.$guar_address.'" placeholder="Last name" required>
+					<span>Mobile Number:</span>
+					<input type="text" name="guar_mobno" value="'.$guar_mobno.'" placeholder="" >
+					<span>Telephone Number:</span>
+					<input type="text" name="guar_telno" value="'.$guar_telno.'" placeholder="" >
+					<span>Child name:</span>
+					<input type="text" name="guar_fname" value="'.$first_name.' '.$last_name.'" placeholder="First name" required disabled>
+					<button name="reset-button" class="customButton">Reset <i class="fas fa-save fnt"></i></button>
+				</form>
+			</div>  
+		</div>
+		<div name="content">
+			<button name="opener">
+				<div class="tooltip">
+					<i class="fas fa-exchange-alt"></i>
+					<span class="tooltiptext">Status</span>
+				</div>
+			</button>
+			<div name="dialog" title="Change Status">
+				<form action="admin-parent" method="POST" required>
+					<input type="hidden" value="'.$acc_id.'" name="acc_id">
+					<select name="acc_status">
+					';
+					for ($c = 0; $c < sizeof($status); $c++) {
+						echo $acc_status === $status[$c] ? 
+						'<option value="'.$status[$c].'" selected="selected">'.$status[$c].'</option>' 
+						:
+						'<option value="'.$status[$c].'">'.$status[$c].'</option>';	
+					}
+					echo '
+					</select>
+					<button name="status-button" class="customButton">Change Status <i class="fas fa-save fnt"></i></button>
+				</form>
+			</div>
+		</div>
+	</td>
 </tr>
 ';
 }

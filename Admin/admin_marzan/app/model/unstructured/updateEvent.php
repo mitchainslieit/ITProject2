@@ -2,12 +2,13 @@
 
 //update.php
 
-$connect = new PDO('mysql:host=localhost;dbname=bnhs_v5', 'root', '');
+/*$conn = new PDO("mysql:host=localhost; dbname=bnhs_v6","root","");*/
+$conn = new PDO("mysql:host=192.168.254.106; dbname=bnhs","bnhs","bnhs");
 
 if(isset($_POST["id"]))
 {
 	$query = "UPDATE announcements SET title=:title, date_start=:date_start, date_end=:date_end WHERE ann_id=:ann_id";
-	$statement = $connect->prepare($query);
+	$statement = $conn->prepare($query);
 	$statement->execute(
 		array(
 			':title'  => $_POST['title'],

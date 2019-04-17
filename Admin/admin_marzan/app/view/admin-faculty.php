@@ -3,11 +3,11 @@
 		
 		if(isset($_POST['submit-button'])){
 			extract($_POST);
-			$obj->insertFacultyData($fac_no, $fac_fname,$fac_midname,$fac_lname,$fac_dept, $fac_adviser);
+			$obj->insertFacultyData($fac_no, $fac_fname, $fac_midname, $fac_lname, $fac_dept, $fac_adviser);
 		}
 		if(isset($_POST['update-button'])){
 			extract($_POST);
-			if($obj->updateFacultyData($fac_id, $fac_no, $fac_fname,$fac_midname,$fac_lname,$fac_dept, $fac_adviser));
+			if($obj->updateFacultyData($fac_id, $fac_no, $fac_fname,$fac_midname,$fac_lname,$fac_dept, $fac_adviser, $sec_privilege));
 		}
 		if(isset($_POST['delete-button'])){
 			extract($_POST);
@@ -85,6 +85,7 @@
 									<th>Username</th>
 									<th>Adviser</th>
 									<th>Status</th>
+									<th>Can Edit Section</th>
 									<th>Action</th>
 								</tr>
 							</thead>
@@ -95,6 +96,7 @@
  extract($row);
  $department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 'TLE', 'Values'];
  $adviser = ['Yes', 'No'];
+ $privilege = ['Yes', 'No'];
  $status = ['Active','Deactivated'];
  echo '
  <tr>
@@ -104,6 +106,7 @@
  	<td>'.$username.'</td>
  	<td>'.$fac_adviser.'</td>
  	<td>'.$acc_status.'</td>
+ 	<td>'.$sec_privilege.'</td>
  	<td class="action">
  		<div name="content">
 			<button name="opener">
@@ -139,6 +142,14 @@
 					}
 					echo '
 					</select>
+					<span>Can edit section:</span>
+					<select name="sec_privilege" value="" required>
+					';
+						for ($c = 0; $c < sizeof($privilege); $c++) {
+							echo $sec_privilege === $privilege[$c] ? '<option value="'.$privilege[$c].'" selected="selected">'.$privilege[$c].'</option>' : '<option value="'.$privilege[$c].'">'.$privilege[$c].'</option>';	
+						}
+					echo '
+					</select>
 					<button name="update-button" class="customButton">Update <i class="fas fa-save fnt"></i></button>
 				</form>
 			</div>  
@@ -162,7 +173,7 @@
 			<button name="opener">
 				<div class="tooltip">
 					<i class="fas fa-exchange-alt"></i>
-					<span class="tooltiptext">Change Status</span>
+					<span class="tooltiptext">Status</span>
 				</div>
 			</button>
 			<div name="dialog" title="Change Status">

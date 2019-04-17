@@ -1,8 +1,9 @@
 <?php
-$connect = new PDO('mysql:host=localhost;dbname=bnhs_v5', 'root', '');
+/*$conn = new PDO("mysql:host=192.168.254.106; dbname=bnhs","bnhs","bnhs");*/
+$conn = new PDO("mysql:host=192.168.254.106; dbname=bnhs","bnhs","bnhs");
 $data = array();
 $query = "SELECT * FROM announcements ORDER BY ann_id";
-$statement = $connect->prepare($query);
+$statement = $conn->prepare($query);
 $statement->execute();
 $result = $statement->fetchAll();
 foreach($result as $row)

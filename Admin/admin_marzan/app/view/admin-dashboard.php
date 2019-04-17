@@ -1,32 +1,60 @@
-
+<?php require 'app/model/admin-funct.php'; $obj = new AdminFunct;?>
+	<?php 
+		$this->conn = new Connection;
+		$this->conn = $this->conn->connect();	
+	?>
 	<div class="contentpage">
 		<div class="row">	
 			<div class="summary">
 				<div class="box box1">
-					<h4>TOTAL <span>No. Of Students</span></h4>
+					<a href="admin-enrolledstudents"><h4>TOTAL <span>No. Of Enrolled Students</span></h4></a>
 					<div class="innercont">	
-						<span>319</span>
+						<span><?php 
+								$sql=$this->conn->query("SELECT count(stud_id) FROM student") or die ("failed!");
+								$sql->execute();
+								while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+								echo "".$row['count(stud_id)']."";
+								}
+							   ?></span>
 						<i class="fas fa-user-tie"></i>
 					</div>	
 				</div>
 				<div class="box box2">
-					<h4>TOTAL <span>No. Of Parents</span></h4>
+					<a href="admin-parent"><h4>TOTAL <span>No. Of Parents</span></h4></a>
 					<div class="innercont">	
-						<span>319</span>
+						<span><?php 
+								$sql=$this->conn->query("SELECT count(stud_id) FROM student") or die ("failed!");
+								$sql->execute();
+								while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+								echo "".$row['count(stud_id)']."";
+								}
+							   ?></span>
 						<i class="fas fa-users-cog"></i>
 					</div>	
 				</div>
 				<div class="box box3">
-					<h4>TOTAL <span>No. Of Teachers</span></h4>
+					<a href="admin-faculty"><h4>TOTAL <span>No. Of Teachers</span></h4></a>
 					<div class="innercont">	
-						<span>13</span>
+						<span><?php 
+								$sql=$this->conn->query("SELECT count(fac_id) FROM faculty") or die ("failed!");
+								$sql->execute();
+								while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+								echo "".$row['count(fac_id)']."";
+								}
+							   ?></span>
 						<i class="fas fa-male"></i>
 					</div>	
 				</div>
 				<div class="box box4">
-					<h4>TOTAL <span>No. Of Active Classes</span></h4>
+					<a href="admin-classes"><h4>TOTAL <span>No. Of Classes</span></h4></a>
 					<div class="innercont">	
-						<span>651</span>
+						<span><?php 
+								$sql=$this->conn->query("SELECT count(sec_id) FROM section") or die ("failed!");
+								$sql->execute();
+								while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+								echo "".$row['count(sec_id)']."";
+								}
+							   ?></span>
 						<i class="fas fa-users"></i>
 					</div>	
 				</div>

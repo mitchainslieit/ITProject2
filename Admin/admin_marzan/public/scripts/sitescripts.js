@@ -69,12 +69,29 @@ $( document ).ready(function() {
     	],
    	});
    	
-	var datatable = $( "#stud-list, #adv-table-1, #adv-table-2, #admin-table" ).DataTable({
+   	var datatable = $( "#admin-table-withScroll" ).DataTable({
+		"scrollX": true,
 		dom: "lBfrtip",
+		fixedColumns: {
+       		leftColumns: 1
+        	},
 		buttons: [
         	'excel','pdf','print'
     	],
 		"lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+		
+	});
+   	
+	var datatable = $( "#stud-list, #adv-table-1, #adv-table-2, #admin-table" ).DataTable({
+		dom: "lBfrtip",
+		fixedColumns: {
+       		leftColumns: 1
+        	},
+		buttons: [
+        	'excel','pdf','print'
+    	],
+		"lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+		
 	});
 
 	var calendar = $('#calendar').fullCalendar({

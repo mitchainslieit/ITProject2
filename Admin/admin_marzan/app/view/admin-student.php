@@ -14,7 +14,7 @@
 						
 					</div>
 					<div class="cont2">
-						<table id="admin-table" class="display nowrap" style="width:100%">
+						<table id="admin-table-withScroll" class="display">
 							<thead>
 								<tr>
 									<th>LRN No.</th>
@@ -24,10 +24,12 @@
 									<th>Year Level</th>
 									<th>Address</th>
 									<th>Birth Day</th>
+									<th>Mother's Name</th>
+									<th>Father's Name</th>
 									<th>Nationality</th>
-									<th>Religion</th>
-									<th>Guardian Name</th>
-									<th>Guardian Mobile No.</th>
+									<th>Ethnicity</th>
+									<th>Blood Type</th>
+									<th>Medical Status</th>
 									<th>Student Acct Status</th>
 									<th>Current Status</th>
 								</tr>
@@ -45,10 +47,12 @@
 	<td>$year_level</td>
 	<td>$stud_address</td>
 	<td>$stud_bday</td>
+	<td>$mother_name</td>
+	<th>$father_name</th>
 	<td>$nationality</td>
 	<td>$ethnicity</td>
-	<td>$guar_name</td>
-	<td>$guar_mobno</td>
+	<td>$blood_type</td>
+	<td>$medical_stat</td>
 	<td>$stud_status</td>
 	<td>$curr_stat</td>
 	
