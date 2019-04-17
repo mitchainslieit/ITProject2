@@ -2,19 +2,6 @@
 <div class="contentpage">
   <div class="row">  
     <div class="dashboard widget">
-      <div class="container contleft">
-        <div class="header">
-          <p> 
-            <i class="far fa-calendar-alt fnt"></i>
-            <span>Event Calendar</span>
-          </p>
-        </div>
-        <div class="eventcontent">
-          <div class="cont4">
-          <div id="calendar"></div>
-        </div>
-        </div>
-      </div>
       <div class="container contright">
         <div class="innercont1">
           <div class="header">
@@ -34,6 +21,19 @@
             </div>
           </div>
         </div>
+              <div class="container contleft">
+        <div class="header">
+          <p> 
+            <i class="far fa-calendar-alt fnt"></i>
+            <span>Event Calendar</span>
+          </p>
+        </div>
+        <div class="eventcontent">
+          <div class="cont4">
+          <div id="calendar"></div>
+        </div>
+        </div>
+      </div>  
       </div>  
     </div>  
   </div>

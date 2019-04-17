@@ -1,6 +1,24 @@
 <?php require 'app/model/parent_funct.php'; $run= new ParentFunct ?>
 <div class="contentpage">
     <div class="row">
+            <div class="attendance widget">
+      <div class="innercont1">
+         <div class="sample">
+            <div class="tl"> <b>Child Name: </b>
+               <select name="student" class="student" id="select-children">
+                  <?php 
+                  foreach($run->getNameOfStud() as $row) {
+                     extract($row);
+                     echo '
+                     <option value="'.$stud_lrno.'" name="stud_name"> '.$name.' - '.$section.'  </option>
+                     ';
+                  }
+                  ?>
+               </select>
+            </div>
+         </div>
+      </div>
+   </div>
         <div class="account widget">
             <div class="container contleft">
                 <div class="innercont1">
@@ -13,18 +31,6 @@
                     </div>
                         <div class="eventcontent">
                                 <span><b>Miscellaneous Fee: <u> &#x20B1; <?php $run->getMiscellaneousFee(); ?></u></b></span>
-                                <div class="tl"><b>Name:</b> 
-                                    <select name="student" class="student" id="select-children">
-                                    <?php 
-                                        foreach($run->getNameOfStud() as $row) {
-                                            extract($row);
-                                        echo '
-                                            <option value="'.$stud_lrno.'" name="stud_name"> '.$name.' - '.$section.'  </option>
-                                        ';
-                                        }
-                                    ?>
-                                </select>
-                            </div>
                         <div id="children-totals">
                             <div class="container">
                                 <?php $lrno = !isset($_SESSION['child_lrno']) ? $run->getLRNOfStud() : $_SESSION['child_lrno']; ?>
@@ -33,19 +39,20 @@
                                     <table id="customParentTable" class="display">
                                             <thead>
                                                 <tr>
+                                                    <th>Payment Date</th>
                                                     <th>Current Balance</th>
                                                     <th>Amount Paid</th>
-                                                    <th>Payment Date</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php $run->getPaymentHistory($lrno); ?>
-                                                <tr>
-                                                    <td><b>TOTAL AMOUNT:</b></td>
-                                                    <td><b><font color="green"><?php $run->getTotalPayment($lrno); ?></font></b></td>
-                                                    <td></td>
-                                                </tr>
                                             </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="2"><b>TOTAL AMOUNT:</b></td>
+                                                    <td><b><font color="green"><?php $run->getTotalPayment($lrno); ?></font></b></td>
+                                                </tr>
+                                            </tfoot>
                                         </table>
                                 </div>
                             </div>
