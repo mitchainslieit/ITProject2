@@ -1,12 +1,26 @@
 <?php
 require 'app/model/connection.php';
-class AdminFunct {
+class AdminFunct{
 	public function __construct() {
 		$this->conn = new Connection;
 		$this->conn = $this->conn->connect();
-		$this->conn->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
+		/*$this->conn->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );*/
+		/*error_reporting(0);*/
 	}
 	/**************** GENERAL ****************/
+	public function insertLogs($log_event, $log_desc){
+		try {
+			$admin_id=$_SESSION['accid'];
+			$sql3=$this->conn->prepare("INSERT INTO logs SET log_event=:log_event, log_desc=:log_desc, user_id=:user_id");
+			$sql3->execute(array(
+				':log_event' => $log_event, 
+				':log_desc' => $log_desc, 
+				':user_id' => $admin_id
+			)); 	
+		}catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
 	public function getById($id){
 
 		$sql=$this->conn->prepare("SELECT * FROM Faculty WHERE fac_id = :fac_id");
@@ -112,37 +126,61 @@ class AdminFunct {
 	/********* END STUDENT PAYMENT STATUS **********/
 
 	/**************** SUBJECT *******************/
-	public function addSubject($subj_dept, $subj_name){
+	public function addSubject($subj_level, $subj_dept, $subj_name){
 		try {
 			$created=date('Y-m-d H:i:s');	
-			$sql1=$this->conn->prepare("INSERT INTO Subject SET subj_dept=:subj_dept, subj_name=:subj_name, timestamp_subj=:timestamp_subj");
+			$sql1=$this->conn->prepare("INSERT INTO Subject SET subj_level=:subj_level, subj_dept=:subj_dept, subj_name=:subj_name, timestamp_subj=:timestamp_subj");
 			if($sql1->execute(array(
+				':subj_level' => $subj_level,
 				':subj_dept' => $subj_dept,
 				':subj_name' => $subj_name,
 				':timestamp_subj' => $created
 			))){
-				$this->Prompt("A new subject has been created! Subject Code = <span class='prompt'>$subj_dept</span> Subject Name  = <span class='prompt'>$subj_name</span>", "rgb(1, 58, 6)", "admin-subjects");
+				$sql2=$this->conn->prepare("SELECT * FROM subject ORDER BY 1 DESC LIMIT 1");
+				$sql2->execute(); 
+				$row=$sql2->fetch(PDO::FETCH_ASSOC);
+				$subj_name=$row['subj_name'];
+				$log_event="Insert";
+				$log_desc="Added Subject ".$subj_name;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "A new subject has been created! Subject Department: $subj_dept, Subject Name: $subj_name", "success", "admin-subjects");
 			}else{	
-				$this->Prompt("Failed to add subject!", "rgb(175, 0, 0)", "admin-subjects");
+				$this->alert("Error!", "Failed to add subject!", "error", "admin-subjects");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
-	public function updateSubject($subj_id, $subj_dept, $subj_name){
+	public function updateSubject($subj_id,$subj_level, $subj_dept, $subj_name){
 		try {
-			$sql=$this->conn->prepare("UPDATE Subject 
-			SET  subj_dept=:subj_dept, 
+			$sql1=$this->conn->prepare("SELECT * FROM subject WHERE subj_id=?");
+			$sql1->bindParam(1, $subj_id);				
+			$sql1->execute(); 
+			$row1=$sql1->fetch(PDO::FETCH_ASSOC);
+			$subjNameToDel=$row1['subj_name'];
+			
+			$sql2=$this->conn->prepare("UPDATE Subject 
+			SET  subj_level=:subj_level,
+				subj_dept=:subj_dept, 
 				subj_name=:subj_name
 			WHERE subj_id=:subj_id");	
-			if($sql->execute(array(
+			if($sql2->execute(array(
+				':subj_level' => $subj_level,
 				':subj_dept' => $subj_dept,
 				':subj_name' => $subj_name,
 				':subj_id' => $subj_id
 			))){
-				$this->Prompt("Subject has been updated", "rgb(1, 58, 6)", "admin-subjects");
+				$sql3=$this->conn->prepare("SELECT * FROM subject WHERE subj_id=?");
+				$sql3->bindParam(1, $subj_id);
+				$sql3->execute(); 
+				$row3=$sql3->fetch(PDO::FETCH_ASSOC);
+				$subj_name=$row3['subj_name'];
+				$log_event="Update";
+				$log_desc="Updated Subject ".$subjNameToDel." to ".$subj_name;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "Subject has been updated", "success", "admin-subjects");
 			}else{
-				$this->Prompt("Failed to update subject", "rgb(175, 0, 0)", "admin-subjects");
+				$this->alert("Error!", "Subject has been updated", "error", "admin-subjects");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -150,14 +188,23 @@ class AdminFunct {
 	}	
 	public function deleteSubject($subj_id){
 		try {
-			$sql = $this->conn->prepare("
+			$sql1=$this->conn->prepare("SELECT * FROM subject WHERE subj_id=?");
+			$sql1->bindParam(1, $subj_id);				
+			$sql1->execute(); 
+			$row1=$sql1->fetch(PDO::FETCH_ASSOC);
+			$subjNameToDel=$row1['subj_name'];
+			
+			$sql2 = $this->conn->prepare("
 				DELETE FROM Subject WHERE subj_id =:subj_id");
-			if($sql->execute(array(
+			if($sql2->execute(array(
 				':subj_id'=>$subj_id
 			))){
-				$this->Message("The subject has been deleted!", "rgb(1, 58, 6)", "admin-subjects");
+				$log_event="Delete";
+				$log_desc="Deleted Subject ".$subjNameToDel;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "The Subject has been deleted", "success", "admin-subjects");
 			}else{	
-				$this->Prompt("Failed to delete subject!", "rgb(175, 0, 0)", "admin-subjects");
+				$this->alert("Error!", "Failed to delete the subject", "error", "admin-subjects");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -175,11 +222,16 @@ class AdminFunct {
 				':grade_lvl' => $grade_lvl,
 				':timestamp_sec' => $created
 			))){
-				$sql2=$this->conn->prepare("SELECT * FROM section");
-				$sql2->execute();
-				$this->Prompt("A new section has been created! Class = <span class='prompt'>$sec_name</span> Grade Level = <span class='prompt'>$grade_lvl</span>", "rgb(1, 58, 6)", "admin-section");
-			}else{	
-				$this->Prompt("Failed to add section!", "rgb(175, 0, 0)", "admin-section");
+				$sql2=$this->conn->prepare("SELECT * FROM section ORDER BY 1 DESC LIMIT 1");
+				$sql2->execute(); 
+				$row=$sql2->fetch(PDO::FETCH_ASSOC);
+				$sec_name=$row['sec_name'];
+				$log_event="Insert";
+				$log_desc="Added Section ".$sec_name;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "A new section has been created! Class: $sec_name, Grade Level: $grade_lvl", "success", "admin-section");
+			}else{
+				$this->alert("Error!", "Failed to add section! This section already exist", "error", "admin-section");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -187,18 +239,33 @@ class AdminFunct {
 	}
 	public function updateSection($id, $sec_name, $grade_lvl){
 		try {
-			$sql=$this->conn->prepare("UPDATE Section 
+			$sql2=$this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
+			$sql2->execute(array(
+				':sec_id' => $id
+			)); 
+			$row=$sql2->fetch(PDO::FETCH_ASSOC);
+			$secToUpdate=$row['sec_name'];
+			$sql2=$this->conn->prepare("UPDATE Section 
 			SET  sec_name=:sec_name, 
 				grade_lvl=:grade_lvl
 			WHERE sec_id=:sec_id");	
-			if($sql->execute(array(
+			if($sql2->execute(array(
 				':sec_name'=> $sec_name, 
 				':grade_lvl'=> $grade_lvl,
 				':sec_id' => $id
 			))){
-				$this->Prompt("Section has been updated", "rgb(1, 58, 6)", "admin-section");
+				$sql3=$this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
+				$sql3->execute(array(
+					':sec_id' => $id
+				)); 
+				$row3=$sql3->fetch(PDO::FETCH_ASSOC);
+				$sec_name=$row3['sec_name'];
+				$log_event="Update";
+				$log_desc="Updated Section ".$secToUpdate." to ".$sec_name;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "Section has been successfully updated", "success", "admin-section");
 			}else{
-				$this->Prompt("Failed to update section", "rgb(175, 0, 0)", "admin-section");
+				$this->alert("Error!", "Failed to update section", "error", "admin-section");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -206,14 +273,23 @@ class AdminFunct {
 	}	
 	public function deleteSection($id){
 		try {
-			$sql = $this->conn->prepare("
+			$sql = $this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
+			$sql->execute(array(
+				':sec_id' => $id
+			));
+			$row=$sql->fetch(PDO::FETCH_ASSOC);
+			$secToDel=$row['sec_name'];
+			$sql1 = $this->conn->prepare("
 				DELETE FROM Section WHERE sec_id =:sec_id");
-			if($sql->execute(array(
+			if($sql1->execute(array(
 				':sec_id'=>$id
 			))){
-				$this->Message("The section has been deleted!", "rgb(1, 58, 6)", "admin-section");
+				$log_event="Delete";
+				$log_desc="Deleted Section ".$secToDel;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "The section has been deleted", "success", "admin-section");
 			}else{	
-				$this->Prompt("Failed to delete section!", "rgb(175, 0, 0)", "admin-section");
+				$this->alert("Error!", "Failed to delete section!", "error", "admin-section");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -274,15 +350,65 @@ class AdminFunct {
 				':fac_idv'=> $fac_idv,
 				':sec_id' => $sec_id
 			))){
-				$sql2=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
+				$sql2=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name, fac_id, sec_id FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
 				$sql2->bindParam(1, $fac_idv);
 				$sql2->execute();
-				$row = $sql2->fetch();
-				$facultyName = $row['facultyname'];
-				$sec_name = $row['sec_name'];
-				$this->Prompt("A new class has been created! Class = <span class='prompt'>$sec_name</span> Teacher-in-charge = <span class='prompt'>$facultyName</span>", "rgb(1, 58, 6)", "admin-classes");
+				$row1 = $sql2->fetch();
+				$facultyName = $row1['facultyname'];
+				$sec_name = $row1['sec_name'];
+				$section_id = $row1['sec_id'];
+				$faculty_id = $row1['fac_id'];
+				
+				$sql3=$this->conn->prepare("SELECT * FROM section JOIN schedule ON sched_yrlevel=grade_lvl WHERE fac_idv=:fac_idv");
+				$sql3->execute(array(
+					':fac_idv' => $fac_idv,
+				));
+				$row2=$sql3->fetch();
+				$schedsubja_id = $row2['sched_id'];
+				
+				$sql4=$this->conn->prepare("SELECT * FROM section JOIN faculty ON fac_idv=fac_id JOIN subject ON fac_dept=subj_dept WHERE grade_lvl=subj_level and fac_idv=:fac_idv");
+				$sql4->execute(array(
+					':fac_idv' => $fac_idv,
+				));
+				$row3=$sql4->fetch();
+				$schedsubjb_id = $row3['subj_id'];
+			
+				$created=date('Y-m-d H:i:s');
+				$day='Monday,Tuesday,Wednesday,Thursday,Friday';
+				$time_start='07:40:00';
+				$time_end='08:40:00';
+				$sql6=$this->conn->prepare("INSERT INTO schedsubj SET schedsubja_id=:schedsubja_id, schedsubjb_id=:schedsubjb_id, day=:day,time_start=:time_start, time_end=:time_end, fw_id=:fw_id, sw_id=:sw_id, timestamp_ss=:timestamp_ss");
+				$sql6->execute(array(
+					':schedsubja_id' => $schedsubja_id,
+					':schedsubjb_id' => $schedsubjb_id,
+					':day' => $day,
+					':time_start' =>$time_start,
+					':time_end' =>$time_end,
+					':fw_id' => $faculty_id,
+					':sw_id' => $section_id,
+					':timestamp_ss' => $created
+				));
+				$sql5=$this->conn->prepare("INSERT INTO facsec SET fac_idy=:fac_idy, sec_idy=:sec_idy");
+				$sql5->execute(array(
+					':fac_idy' => $faculty_id,
+					':sec_idy' => $section_id
+				));
+				
+				$sql7=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name, grade_lvl FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
+				$sql7->bindParam(1, $fac_idv);				
+				$sql7->execute(); 
+				$row7=$sql7->fetch(PDO::FETCH_ASSOC);
+				$sec_adviser=$row7['facultyname'];
+				$sec_name =$row7['sec_name'];
+				$grade_lvl=$row7['grade_lvl'];
+				$log_event="Insert";
+				
+				$log_desc="Added ".$sec_adviser." as an adviser in Grade: ".$grade_lvl.", Section: ".$sec_name;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "A new class has been created! Class: $sec_name, Teacher-in-charge: $facultyName", "success", "admin-classes");
+			
 			}else{
-				$this->Prompt("Failed to add class", "rgb(175, 0, 0)", "admin-classes");
+				$this->alert("Error!", "Failed to add class!", "error", "admin-classes");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -297,9 +423,55 @@ class AdminFunct {
 				':fac_idv'=> $fac_idv,
 				':sec_id' => $sec_id
 			))){
-				$this->Prompt("Class has been updated", "rgb(1, 58, 6)", "admin-classes");
+				$sql2=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name, fac_id, sec_id FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
+				$sql2->bindParam(1, $fac_idv);
+				$sql2->execute();
+				$row1 = $sql2->fetch();
+				$facultyName = $row1['facultyname'];
+				$sec_name = $row1['sec_name'];
+				$section_id = $row1['sec_id'];
+				$faculty_id = $row1['fac_id'];
+				/*var_dump($faculty_id);*/
+				$sql3=$this->conn->prepare("SELECT * FROM section JOIN schedule ON sched_yrlevel=grade_lvl WHERE fac_idv=:fac_idv");
+				$sql3->execute(array(
+					':fac_idv' => $fac_idv,
+				));
+				$row2=$sql3->fetch();
+				$schedsubja_id = $row2['sched_id'];
+				$sql4=$this->conn->prepare("SELECT * FROM section JOIN faculty ON fac_idv=fac_id JOIN subject ON fac_dept=subj_dept WHERE grade_lvl=subj_level and fac_idv=:fac_idv");
+				$sql4->execute(array(
+					':fac_idv' => $fac_idv,
+				));
+				$row3=$sql4->fetch();
+				$schedsubjb_id = $row3['subj_id'];
+				
+				$day='Monday,Tuesday,Wednesday,Thursday,Friday';
+				$time_start='07:40:00';
+				$time_end='08:40:00';
+				$sql6=$this->conn->prepare("UPDATE schedsubj SET schedsubja_id=:schedsubja_id, schedsubjb_id=:schedsubjb_id, day=:day,time_start=:time_start, time_end=:time_end, fw_id=:fw_id, sw_id=:sw_id WHERE sw_id=:sw_id");
+				$sql6->execute(array(
+					':schedsubja_id' => $schedsubja_id,
+					':schedsubjb_id' => $schedsubjb_id,
+					':day' => $day,
+					':time_start' =>$time_start,
+					':time_end' =>$time_end,
+					':fw_id' => $fac_idv,
+					':sw_id' => $sec_id,
+					':sw_id' => $sec_id
+				));
+				$sql7=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name, grade_lvl FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
+				$sql7->bindParam(1, $fac_idv);				
+				$sql7->execute(); 
+				$row7=$sql7->fetch(PDO::FETCH_ASSOC);
+				$sec_adviser=$row7['facultyname'];
+				$sec_name =$row7['sec_name'];
+				$grade_lvl=$row7['grade_lvl'];
+				$log_event="Update";
+				$log_desc="Updated ".$sec_adviser." as an adviser in Grade: ".$grade_lvl.", Section: ".$sec_name;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "Class has been updtaed", "success", "admin-classes");
 			}else{
-				$this->Prompt("Failed to update class", "rgb(175, 0, 0)", "admin-classes");
+				$this->alert("Error!", "Failed to update class!", "error", "admin-classes");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -308,6 +480,11 @@ class AdminFunct {
 	/**************** END CLASS *********************/
 	
 	/****************FACULTY ACCOUNT ****************/
+	public function priv(){
+		$sql=$this->conn->prepare("SELECT * FROM faculty WHERE sec_privilege='Yes'");
+		$sql->execute();
+		return $sql->rowCount() > 0 ? true : false; 
+	}
 	public function createFacultyAccount($username, $password){
 		$created=date('Y-m-d H:i:s');
 		$newPass = password_hash($password, PASSWORD_DEFAULT);
@@ -345,13 +522,20 @@ class AdminFunct {
 				':timestamp_fac' => $created,
 				':acc_idz' => $FacultyAccid
 			))){
-				$sql2=$this->conn->prepare("SELECT * FROM faculty JOIN accounts ON acc_idz=acc_id ORDER BY 1 DESC LIMIT 1");
+				$sql2=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname FROM faculty ORDER BY fac_id DESC LIMIT 1");
+				$sql2->execute();
+				$row=$sql2->fetch(PDO::FETCH_ASSOC);
+				$facultyname=$row['facultyname'];
+				$log_event="Insert";
+				$log_desc="Added an account of faculty member ".$facultyname;
+				$this->insertLogs($log_event, $log_desc);
+				$sql2=$this->conn->prepare("SELECT username FROM accounts ORDER BY acc_id DESC LIMIT 1");
 				$sql2->execute();
 				$row=$sql2->fetch(PDO::FETCH_ASSOC);
 				$username=$row['username'];
-				$this->Prompt("Account has been created! Username = <span class='prompt'>$username</span> Password = <span class='prompt'>$password </span>", "rgb(1, 58, 6)", "admin-faculty");
+				$this->Prompt("Account has been created! Username = <span class='prompt'>$username</span> Password: $password", "rgb(1, 58, 6)", "admin-parent");
 			}else{
-				$this->Prompt("This user already exist!", "rgb(175, 0, 0)", "admin-faculty");
+				$this->alert("Error!", "Failed to insert faculty! This user already exist!", "error", "admin-faculty");
 			}
 		} catch (PDOException $exception){
 			die('ERROR: ' . $exception->getMessage());
@@ -359,7 +543,7 @@ class AdminFunct {
 	}
 	public function updateFacultyData($id, $fac_no, $fac_fname, $fac_midname, $fac_lname, $fac_dept, $fac_adviser, $sec_privilege){
 		try {
-			$sql = $this->conn->prepare("UPDATE faculty
+			$sql1 = $this->conn->prepare("UPDATE faculty
 			SET 	fac_no=:fac_no,
 				fac_fname=:fac_fname,
 				fac_midname=:fac_midname,
@@ -368,7 +552,7 @@ class AdminFunct {
 				fac_adviser=:fac_adviser,
 				sec_privilege=:sec_privilege
 			WHERE fac_id=:fac_id");
-			if($sql->execute(array(
+			if($sql1->execute(array(
 				':fac_no'=>$fac_no,
 				':fac_fname'=>$fac_fname,
 				':fac_midname'=>$fac_midname,
@@ -378,9 +562,17 @@ class AdminFunct {
 				':sec_privilege'=>$sec_privilege,
 				':fac_id'=>$id
 			))){
-				$this->Message("You have updated the account of <span class='prompt'>$fac_fname $fac_lname</span>", "rgb(1, 58, 6)", "admin-faculty");	
+				$sql2=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname FROM faculty WHERE fac_id=?");
+				$sql2->bindParam(1, $id);
+				$sql2->execute();
+				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+				$facultyname=$row2['facultyname'];
+				$log_event="Update";
+				$log_desc="Updated account details (Name:".$facultyname.", Employee ID:".$fac_no.", Department:".$fac_dept.", Adviser:".$fac_adviser.", Edit section privilege:".$sec_privilege.") of Employee ID: ".$fac_no;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "Account has been updated", "success", "admin-faculty");
 			}else{
-				$this->Prompt("Failed to update faculty data", "rgb(175, 0, 0)", "admin-faculty");
+				$this->alert("Error!", "Failed to update account", "error", "admin-faculty");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -388,16 +580,31 @@ class AdminFunct {
 	}
 	public function updateAccountStatus($id, $acc_status){
 		try {
-			$sql = $this->conn->prepare("UPDATE accounts
+			$sql1=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, acc_status FROM faculty JOIN accounts ON acc_idz=acc_id WHERE acc_id=?");
+			$sql1->bindParam(1, $id);
+			$sql1->execute();
+			$row1=$sql1->fetch(PDO::FETCH_ASSOC);
+			$facultyname=$row1['facultyname'];
+			$acc_status_prev=$row1['acc_status'];
+			$sql2 = $this->conn->prepare("UPDATE accounts
 			SET acc_status=:acc_status
 			WHERE acc_id=:acc_id");
-			if($sql->execute(array(
+			if($sql2->execute(array(
 				':acc_status'=>$acc_status,
 				':acc_id'=>$id
 			))){
-				$this->Message("You have successfully changed the account status!", "rgb(1, 58, 6)", "admin-faculty");	
+				$sql3=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, acc_status FROM faculty JOIN accounts ON acc_idz=acc_id WHERE acc_id=?");
+				$sql3->bindParam(1, $id);
+				$sql3->execute();
+				$row3=$sql3->fetch(PDO::FETCH_ASSOC);
+				$facultyname=$row3['facultyname'];
+				$acc_status_latest=$row3['acc_status'];
+				$log_event="Update";
+				$log_desc="Updated account status of ".$facultyname." to ".$acc_status_latest;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "Successfully changed the account status", "success", "admin-faculty");	
 			}else{	
-				$this->Prompt("Failed to change status!", "rgb(175, 0, 0)", "admin-faculty");
+				$this->alert("Error!", "Failed to change the account status", "error", "admin-faculty");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -405,18 +612,27 @@ class AdminFunct {
 	}
 	public function deleteFacultyData($id){
 		try {
-			$sql = $this->conn->prepare("
+			$sql1=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname  FROM faculty JOIN accounts ON acc_idz=acc_id WHERE acc_idz=?");
+			$sql1->bindParam(1, $id);
+			$sql1->execute();
+			$row1=$sql1->fetch(PDO::FETCH_ASSOC);
+			$facultyname=$row1['facultyname'];
+			
+			$sql2 = $this->conn->prepare("
 				DELETE a.*, b.* 
 				FROM faculty a 
 				LEFT JOIN accounts b 
 				ON b.acc_id = a.acc_idz 
 				WHERE a.acc_idz =:acc_idz");
-			if($sql->execute(array(
+			if($sql2->execute(array(
 				':acc_idz'=>$id
 			))){
-				$this->Message("The account has been deleted!", "rgb(1, 58, 6)", "admin-faculty");
+				$log_event="Delete";
+				$log_desc="Deleted the account of ".$facultyname;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "Account has been updated", "success", "admin-faculty");
 			}else{	
-				$this->Prompt("Failed to delete Faculty Data!", "rgb(175, 0, 0)", "admin-faculty");
+				$this->alert("Error!", "Failed to delete Faculty Data!", "error", "admin-faculty");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -479,57 +695,62 @@ class AdminFunct {
 		$queryUpdate->execute();
 		return $getaccid;
 	}
-	public function insertPTAData($guar_fname, $guar_midname, $guar_lname, $guar_address) {
+	
+	public function insertPTAData($tr_fname, $tr_midname, $tr_lname) {
 		try {
+			$tr_sy=date("Y");
 			$password = 'password';
-			$usernamePTA= str_replace(' ', ' ', ($guar_fname[0].$guar_midname[0].$guar_lname));
-			$PTAAccid = $this->createPTAAccount($usernamePTA, $password, 'guardian');
-			$sql = $this->conn->prepare("INSERT INTO guardian SET guar_fname=:guar_fname, guar_lname=:guar_lname, guar_midname=:guar_midname, guar_address=:guar_address, acc_idx=:acc_idx");
+			$usernamePTA= str_replace(' ', ' ', ($tr_fname[0].$tr_midname[0].$tr_lname));
+			$PTAAccid = $this->createPTAAccount($usernamePTA, $password, 'treasurer');
+			$sql = $this->conn->prepare("INSERT INTO treasurer SET tr_fname=:tr_fname, tr_lname=:tr_lname, tr_midname=:tr_midname, tr_sy=:tr_sy, acc_trid=:acc_trid");
 			if($sql->execute(array(
-				':guar_fname' => $guar_fname,
-				':guar_lname' => $guar_lname,  
-				':guar_midname' => $guar_midname,
-				':guar_address' => $guar_address,
-				':acc_idx' => $PTAAccid
-				
+				':tr_fname' => $tr_fname,
+				':tr_lname' => $tr_lname,  
+				':tr_midname' => $tr_midname,
+				':tr_sy' => $tr_sy,
+				':acc_trid' => $PTAAccid
 			))){
-				$sql2=$this->conn->prepare("SELECT * FROM guardian JOIN accounts ON acc_idx=acc_id ORDER BY 1 DESC LIMIT 1");
+				$sql2=$this->conn->prepare("SELECT CONCAT(tr_fname,' ',tr_midname,' ',tr_lname) AS treasurername FROM treasurer ORDER BY tr_id DESC LIMIT 1");
+				$sql2->bindParam(1, $id);
+				$sql2->execute();
+				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+				$treasurername=$row2['treasurername'];
+				$log_event="Insert";
+				$log_desc="Added an account of treasurer member ".$treasurername;
+				$this->insertLogs($log_event, $log_desc);
+				$sql2=$this->conn->prepare("SELECT username FROM accounts ORDER BY acc_id DESC LIMIT 1");
 				$sql2->execute();
 				$row=$sql2->fetch(PDO::FETCH_ASSOC);
 				$username=$row['username'];
-				$this->Prompt("Account has been created! Username = <span class='prompt'>$username</span> Password = <span class='prompt'>$password </span>", "rgb(1, 58, 6)", "admin-parent");
+				$this->alert("Success!", "Account has been created! Username: $username, Password: $password", "success", "admin-parent");
 			}else{
-				$this->Prompt("Failed to add Treasurer data", "rgb(175, 0, 0)", "admin-parent");
+				$this->alert("Error!", "Failed to add treasurer account", "error", "admin-parent");
 			}
 		} catch (PDOException $exception){
 			die('ERROR: ' . $exception->getMessage());
 		}	
 	}
-	public function updatePTAData($guar_id, $guar_fname, $guar_midname, $guar_lname, $guar_address, $guar_mobno, $guar_telno) {
+	public function updatePTAData($tr_id, $tr_fname, $tr_midname, $tr_lname) {
 		try {
-			$sql1 = $this->conn->prepare("UPDATE guardian SET 
-					guar_fname=:guar_fname, 
-					guar_lname=:guar_lname, 
-					guar_midname=:guar_midname, 
-					guar_address=:guar_address,
-					guar_mobno=:guar_mobno,
-					guar_telno=:guar_telno
-				WHERE guar_id=:guar_id
-				");
-			
+			$sql1 = $this->conn->prepare("UPDATE treasurer SET tr_fname=:tr_fname, tr_lname=:tr_lname, tr_midname=:tr_midname WHERE tr_id=:tr_id");
 			if($sql1->execute(array(
-				':guar_fname' => $guar_fname,
-				':guar_lname' => $guar_lname,  
-				':guar_midname' => $guar_midname,
-				':guar_address' => $guar_address,
-				':guar_mobno' => $guar_mobno,
-				':guar_telno' => $guar_telno,
-				':guar_id' => $guar_id
+				':tr_fname' => $tr_fname,
+				':tr_midname' => $tr_midname,
+				':tr_lname' => $tr_lname,
+				':tr_id' => $tr_id
 			))){
-				$sql2 = $this->conn->prepare("SELECT * FROM guardian");
-				$this->Prompt("Successfully updated the account of <span class='prompt'>$guar_fname $guar_midname $guar_lname</span>", "rgb(1, 58, 6)", "admin-parent");
+				$sql2=$this->conn->prepare("SELECT CONCAT(tr_fname,' ',tr_midname,' ',tr_lname) AS treasurername FROM treasurer WHERE tr_id=:tr_id");
+				$sql2->execute(array(
+					':tr_id' => $tr_id
+				));
+				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+				$treasurername=$row2['treasurername'];
+				$log_event="Update";
+				$log_desc="Updated account details of ".$treasurername;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "Successfully updated the account of $treasurername", "success", "admin-parent");
 			}else{
-				$this->Prompt("Failed to update Treasurer data", "rgb(175, 0, 0)", "admin-parent");
+				$this->alert("Error!", "Failed to update Treasurer data", "error", "admin-parent");
 			}
 		} catch (PDOException $exception){
 			die('ERROR: ' . $exception->getMessage());
@@ -537,18 +758,28 @@ class AdminFunct {
 	}
 	public function deletePTAData($id){
 		try {
-			$sql = $this->conn->prepare("
+			$sql1=$this->conn->prepare("SELECT CONCAT(tr_fname,' ',tr_midname,' ',tr_lname) AS treasurername FROM treasurer JOIN accounts ON acc_trid=acc_id WHERE acc_trid=:acc_trid");
+			$sql1->execute(array(
+				':acc_trid' => $id
+			));
+			$row1=$sql1->fetch(PDO::FETCH_ASSOC);
+			$treasurername=$row1['treasurername'];
+			
+			$sql2 = $this->conn->prepare("
 				DELETE a.*, b.* 
-				FROM parent a 
+				FROM treasurer a 
 				LEFT JOIN accounts b 
-				ON b.acc_id = a.acc_idx 
-				WHERE a.acc_idx =:acc_idx");
-			if($sql->execute(array(
-				':acc_idx'=>$id
+				ON b.acc_id = a.acc_trid 
+				WHERE a.acc_trid =:acc_trid");
+			if($sql2->execute(array(
+				':acc_trid'=>$id
 			))){
-				$this->Message("The account has been deleted!", "rgb(1, 58, 6)", "admin-parent");
-			}else{	
-				$this->Prompt("Failed to delete Account Data!", "rgb(175, 0, 0)", "admin-parent");
+				$log_event="Deleted";
+				$log_desc="Deleted the account of ".$treasurername;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "The account has been deleted!", "success", "admin-parent");
+			}else{
+				$this->alert("Error!", "Failed to delete Account Data!", "error", "admin-parent");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -566,7 +797,7 @@ class AdminFunct {
 		return $sql;
 	}
 	public function showTreasurerList(){
-		$sql=$this->conn->query("SELECT * FROM guardian JOIN accounts c ON acc_idx=acc_id WHERE c.acc_type='Treasurer'");
+		$sql=$this->conn->query("SELECT * FROM treasurer JOIN accounts c ON acc_trid=acc_id WHERE c.acc_type='Treasurer'");
 		$sql->execute();
 		if($sql->rowCount()>0){
 			while($r=$sql->fetch(PDO::FETCH_ASSOC)){
@@ -602,10 +833,10 @@ class AdminFunct {
 			$password = 'password';
 			$newPass = password_hash($password, PASSWORD_DEFAULT);
 			$sql3 = $this->conn->prepare("UPDATE accounts SET 
-					username=:username,
-					password=:password
-				WHERE acc_id=:acc_idx
-				");
+				username=:username,
+				password=:password
+			WHERE acc_id=:acc_idx
+			");
 			
 			$sql3->execute(array(
 				':username' => $newUsername,
@@ -613,14 +844,14 @@ class AdminFunct {
 				':acc_idx' => $acc_idx
 			));
 			$sql1 = $this->conn->prepare("UPDATE guardian SET 
-					guar_fname=:guar_fname, 
-					guar_lname=:guar_lname, 
-					guar_midname=:guar_midname, 
-					guar_address=:guar_address,
-					guar_mobno=:guar_mobno,
-					guar_telno=:guar_telno
-				WHERE guar_id=:guar_id
-				");
+				guar_fname=:guar_fname, 
+				guar_lname=:guar_lname, 
+				guar_midname=:guar_midname, 
+				guar_address=:guar_address,
+				guar_mobno=:guar_mobno,
+				guar_telno=:guar_telno
+			WHERE guar_id=:guar_id
+			");
 			
 			if($sql1->execute(array(
 				':guar_fname' => $guar_fname,
@@ -631,19 +862,76 @@ class AdminFunct {
 				':guar_telno' => $guar_telno,
 				':guar_id' => $guar_id
 			))){
-				$sql2=$this->conn->prepare("SELECT * FROM guardian JOIN accounts ON acc_idx=acc_id WHERE guar_id=?");
+				$sql2=$this->conn->prepare("SELECT CONCAT(guar_fname,' ',guar_midname,' ',guar_lname) AS treasurername FROM guardian JOIN accounts ON acc_idx=acc_id WHERE guar_id=?");
 				$sql2->bindParam(1, $guar_id);
 				$sql2->execute();
-				$row=$sql2->fetch(PDO::FETCH_ASSOC);
+				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
 				$username=$row['username'];
-				$this->Prompt("Account has been created! Username = <span class='prompt'>$username</span> Password = <span class='prompt'>$password </span>", "rgb(1, 58, 6)", "admin-parent");
+				$treasurername=$row2['treasurername'];
+				$log_event="Reset";
+				$log_desc="Reset the account details ( Name: ".$treasurername.", Address: ".$guar_address.", Mobile Number: ".$guar_mobno.", Telephone Number: ".$guar_telno;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "Account has been created! Username: $username, Password: $password </span>", "success", "admin-parent");
 			}else{
-				$this->Prompt("Failed to update Treasurer data", "rgb(175, 0, 0)", "admin-parent");
+				$this->alert("Error!", "Failed to reset the account!", "error", "admin-parent");
 			}
 			
 		} catch (PDOException $exception){
 			die('ERROR: ' . $exception->getMessage());
 		}	
+	}
+	public function updatePTAAccountStatus($id, $acc_status){
+		try {
+			$sql2 = $this->conn->prepare("UPDATE accounts
+			SET acc_status=:acc_status
+			WHERE acc_id=:acc_id");
+			if($sql2->execute(array(
+				':acc_status'=>$acc_status,
+				':acc_id'=>$id
+			))){
+				$sql3=$this->conn->prepare("SELECT CONCAT(tr_fname,' ',tr_midname,' ',tr_lname) AS treasurername, acc_status FROM treasurer JOIN accounts ON acc_trid=acc_id WHERE acc_id=:acc_id");
+				$sql3->execute(array(
+					':acc_id' => $id
+				));
+				$row3=$sql3->fetch(PDO::FETCH_ASSOC);
+				$treasurername=$row3['treasurername'];
+				$acc_status_latest=$row3['acc_status'];
+				$log_event="Update";
+				$log_desc="Updated account status of ".$treasurername." to ".$acc_status_latest;
+				$this->insertLogs($log_event, $log_desc);	
+				$this->alert("Success!", "You have successfully changed the account status!", "success", "admin-parent");
+			}else{	
+				$this->alert("Error!", "Failed to change the account status!", "error", "admin-parent");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
+	public function updateParentAccountStatus($id, $acc_status){
+		try {
+			$sql2 = $this->conn->prepare("UPDATE accounts
+			SET acc_status=:acc_status
+			WHERE acc_id=:acc_id");
+			if($sql2->execute(array(
+				':acc_status'=>$acc_status,
+				':acc_id'=>$id
+			))){
+				$sql3=$this->conn->prepare("SELECT CONCAT(guar_fname,' ',guar_midname,' ',guar_lname) AS guardianname, acc_status FROM guardian JOIN accounts ON acc_idx=acc_id WHERE acc_id=:acc_id");
+				$sql3->execute(array(
+					':acc_id' => $id
+				));
+				$row3=$sql3->fetch(PDO::FETCH_ASSOC);
+				$guardianname=$row3['guardianname'];
+				$log_event="Update";
+				$log_desc="Updated account status of ".$guardianname." to ".$acc_status;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "You have successfully changed the account status!", "success", "admin-parent");	
+			}else{	
+				$this->alert("Error!", "Failed to change the account status!", "error", "admin-parent");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
 	}
 	/**************** END PTA ACCOUNT ****************/
 	
@@ -659,6 +947,32 @@ class AdminFunct {
 				return $data;
 			}
 			return $sql;
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
+	public function updateStudentAccountStatus($id, $acc_status){
+		try {
+			$sql = $this->conn->prepare("UPDATE accounts
+			SET acc_status=:acc_status
+			WHERE acc_id=:acc_id");
+			if($sql->execute(array(
+				':acc_status'=>$acc_status,
+				':acc_id'=>$id
+			))){
+				$sql3=$this->conn->prepare("SELECT CONCAT(first_name,' ',middle_name,' ',last_name) AS studentname, acc_status FROM student JOIN accounts ON accc_id=acc_id WHERE acc_id=:acc_id");
+				$sql3->execute(array(
+					':acc_id' => $id
+				));
+				$row3=$sql3->fetch(PDO::FETCH_ASSOC);
+				$studentname=$row3['studentname'];
+				$log_event="Update";
+				$log_desc="Updated account status of ".$studentname." to ".$acc_status;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "You have successfully changed the account status!", "success", "admin-student");
+			}else{	
+				$this->alert("Error!", "Failed to change the account status!", "error", "admin-student");
+			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
 		}
@@ -685,9 +999,15 @@ class AdminFunct {
 			':post' => $post,
 			':attachment' => (empty($attachment['name']) ? null : $attachment['name']),
 			':post_adminid' => $_SESSION['accid']))){
-				$this->Prompt("An announcement has been created! Title = <span class='prompt'>$title</span> Start Date = <span class='prompt'>$date_start </span> End Date = <span class='prompt'>$date_end </span>", "rgb(1, 58, 6)", "admin-events");
+				$sql2=$this->conn->prepare("SELECT * from announcements ORDER BY ann_id DESC LIMIT 1");
+				$sql2->execute();
+				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+				$log_event="Insert";
+				$log_desc="Added announcement with a Title: ".$title.", Description: ".$post;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "An announcement has been created! Title: $title, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
 			}else{
-				$this->Prompt("Failed to post announcement", "rgb(175, 0, 0)", "admin-events");
+				$this->alert("Error!", "Failed to post announcement", "error", "admin-events");
 			}
 			
 		} catch (PDOException $exception){
@@ -710,13 +1030,13 @@ class AdminFunct {
 		$temp2 = $attachment['tmp_name'];
 		$staticValue="attachment";
 		$path = "attachment/";
-		$openBracket="[";
-		$closeBracket="]";
-		$filename = "$staticValue$openBracket$id$closeBracket".basename($file);
-        	$newname = $path . $filename;
+		$underScore="_";
+		$ext = end(explode('.', $file));
+		$filename = "$staticValue$underScore$id.".$ext;
+        	$newname = $path.$filename;
 		if(!empty($attachment['name'])){
 			if(!file_exists($newname)){
-				if($filesize < 20000000){ //check file size of 20mb
+				if($size < 20000000){ //check file size of 20mb
 					/*move_uploaded_file($temp1, $pathWithFile);*/ //move temporary file to your folder
 					move_uploaded_file($temp2, $newname);
 			        	$sql3 = $this->conn->prepare("UPDATE announcements SET attachment=:attachment WHERE ann_id=:ann_id");
@@ -725,10 +1045,10 @@ class AdminFunct {
 						':ann_id' => $id
 					));
 				}else{
-					$this->Prompt("Maximum file size 20mb!", "rgb(175, 0, 0)", "admin-events");
+					$this->alert("Error!", "Failed! Maximum file size 20 mb", "error", "admin-events");
 				}
 			}else{
-				$this->Prompt("Successfully updated the announcement  Title = <span class='prompt'>$title</span> Start Date = <span class='prompt'>$date_start </span> End Date = <span class='prompt'>$date_end </span>, but the attachment already exist! Please change the filename and re-upload the file using the edit operator!", "rgb(175, 0, 0)", "admin-events");
+				$this->alert("Success!", "Successfully updated the announcement Title: $title, Start Date: $date_start, End Date: $date_end, but the attachment already exist! Please change the filename and re-upload the file using the edit operator!", "success", "admin-events");
 			}
 		}
 	}
@@ -791,10 +1111,13 @@ class AdminFunct {
 					$temp2 = $attachment['tmp_name'];
 					$staticValue="attachment";
 					$path = "attachment/";
-					$openBracket="[";
-					$closeBracket="]";
-					$filename = "$staticValue$openBracket$id$closeBracket".basename($file);
-			        	$newname = $path . $filename;
+			        	
+			        	$underScore="_";
+			        	$tmp = explode('.', $file);
+					$ext = end($tmp);
+					$filename = "$staticValue$underScore$id.".$ext;
+					var_dump($filename);
+			        	$newname = $path.$filename;
 			        	move_uploaded_file($temp2, $newname);
 			        	$sql3 = $this->conn->prepare("UPDATE announcements SET attachment=:attachment WHERE ann_id=:ann_id");
 					$sql3->execute(array(
@@ -802,10 +1125,10 @@ class AdminFunct {
 						':ann_id' => $id
 					));
 				}else{
-					$this->Prompt("Maximum file size (20mb)!", "rgb(175, 0, 0)", "admin-events");
+					$this->alert("Error!", "Failed! Maximum file size 20 mb", "error", "admin-events");
 				}
 			}else{
-				$this->Prompt("Successfully updated the announcement  Title = <span class='prompt'>$title</span> Start Date = <span class='prompt'>$date_start </span> End Date = <span class='prompt'>$date_end </span>, but the attachment already exist! Please change the filename and re-upload the file using the edit operator!", "rgb(175, 0, 0)", "admin-events");
+				$this->alert("Success!", "Successfully updated the announcement  Title: $title, Start Date: $date_start, End Date: $date_end, but the attachment already exist! Please change the filename and re-upload the file using the edit operator!", "success", "admin-events");
 			}
 		}
 		try{
@@ -825,11 +1148,20 @@ class AdminFunct {
 				':date_start' => $date_start,
 				':date_end' => $date_end,
 				':post' => $post,
-				':attachment' => $attachment['name'],
+				':attachment' => $filename,
 				':ann_id' => $ann_id))){
-					$this->Prompt("An announcement has been updated! Title = <span class='prompt'>$title</span> Start Date = <span class='prompt'>$date_start </span> End Date = <span class='prompt'>$date_end </span>", "rgb(1, 58, 6)", "admin-events");
+					$sql2=$this->conn->prepare("SELECT DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start,  DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end, attachment as attch from announcements WHERE ann_id=:ann_id");
+					$sql2->execute(array(
+						':ann_id' => $ann_id
+					));
+					$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+					$attch=$row2['attch'];
+					$log_event="Update";
+					$log_desc="Updated announcement with the following details(Title: ".$title.", Description: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch;
+					$this->insertLogs($log_event, $log_desc);
+					$this->alert("Success!", "An announcement has been updated! Title: $title, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
 				}else{
-					$this->Prompt("Failed to post announcement", "rgb(175, 0, 0)", "admin-events");
+					$this->alert("Error!", "Failed to post the announcement", "error", "admin-events");
 				}
 			} else {
 				$checkbox = $_POST['view_lim'];
@@ -848,9 +1180,18 @@ class AdminFunct {
 				':post' => $post,
 				':date_start' => $date_start,
 				':date_end' => $date_end))){
-					$this->Prompt("An announcement has been updated! Title = <span class='prompt'>$title</span> Start Date = <span class='prompt'>$date_start </span> End Date = <span class='prompt'>$date_end </span>", "rgb(1, 58, 6)", "admin-events");
+					$sql2=$this->conn->prepare("SELECT DATE_FORMAT(date(date_start), '%M %e, %Y'),  DATE_FORMAT(date(date_end), '%M %e, %Y'), attachment as attch from announcements WHERE ann_id=:ann_id");
+					$sql2->execute(array(
+						':ann_id' => $ann_id
+					));
+					$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+					$attch=$row2['attch'];
+					$log_event="Update";
+					$log_desc="Updated announcement with the following details(Title: ".$title.", Description: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch;
+					$this->insertLogs($log_event, $log_desc);
+					$this->alert("Success!", "An announcement has been updated! Title: $title, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
 				}else{
-					$this->Prompt("Failed to post announcement", "rgb(175, 0, 0)", "admin-events");
+					$this->alert("Error!", "Failed to post the announcement", "error", "admin-events");
 				}
 			}
 		} catch (PDOException $exception){
@@ -858,16 +1199,6 @@ class AdminFunct {
 		}
 		
 	}
-	
-	/*public function viewFile(){
-		$sql = $this->conn->prepare("SELECT attachment FROM announcements");
-		$sql->execute();
-		$viewFile = array();
-		while ($row = $query->fetch()) {
-			$viewFile[] = $row['attachment'];
-		}
-		echo "<td><a href="'attachment/'.$row['file']." target='_blank'>view file</a></td>"
-	}*/
 	
 	public function deleteEvent($ann_id){
 		try {
@@ -880,13 +1211,23 @@ class AdminFunct {
 			chmod($dir, 0777);
 			@unlink($dir);
 			
-			$sql2 = $this->conn->prepare("DELETE FROM announcements WHERE ann_id =:ann_id");
-			if($sql2->execute(array(
+			$sql2=$this->conn->prepare("SELECT * from announcements WHERE ann_id=:ann_id");
+			$sql2->execute(array(
+				':ann_id' => $ann_id
+			));
+			$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+			$title2=$row2['title'];
+			$post2=$row2['post'];
+			$sql3 = $this->conn->prepare("DELETE FROM announcements WHERE ann_id =:ann_id");
+			if($sql3->execute(array(
 				':ann_id'=>$ann_id
 			))){
-				$this->Message("The announcement has been deleted!", "rgb(1, 58, 6)", "admin-events");
+				$log_event="Delete";
+				$log_desc="Deleted announcement ".$title2.", Description: ".$post2;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "The announcement has been deleted", "success", "admin-events");
 			}else{	
-				$this->Prompt("Failed to delete announcement!", "rgb(175, 0, 0)", "admin-events");
+				$this->alert("Error!", "Failed to delete announcement", "error", "admin-events");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -953,26 +1294,16 @@ class AdminFunct {
 		}, 60000);
 		</script>";
 	}	
-	private function Message($message, $color, $page) {
+	public function alert($title, $message, $type, $page) {
 		$newUrl = URL.$page;
-		echo "<div data-type='error-message' style='position: fixed; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999999;'>
-		<div style='width:100%; padding: 17px 0; background: ".$color."; color: #fff;'>
-				<div class='modal-box' style='width: 100%;'>
-					<p style='margin: 0; font-size: 16px;'>".$message." Wait <span class='count'>5</span> seconds or <a style='color: #4b4bff; text-decoration: underline;' href='".$newUrl."'>Click here</a></p>
-				</div>
-			</div>
-		</div>
-		<script>
-		var sec = 4;
-		var timer = setInterval(function() {
-			$('.modal-box .count').text(sec--);
-			if (sec == -1) {
-				clearInterval(timer);
-			}
-		}, 1000);
-		setTimeout(function(){
-		   window.location = '".$newUrl."';
-		}, 5000);
+		echo "<script>
+			swal({
+				title: \"".$title."\",
+				text: \"".$message."\",
+				icon: \"".$type."\"
+			}).then(function() {
+				 window.location = '".$newUrl."';
+			});
 		</script>";
 	}
 	/**************** END PROMPT / MESSAGE ****************/

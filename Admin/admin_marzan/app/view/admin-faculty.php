@@ -91,12 +91,11 @@
 							</thead>
 							<tbody>
  <?php
- $department = $obj->department();
+ /*$department = $obj->department();*/
  foreach($obj->showTwoTables("faculty","accounts", "acc_idz", "acc_id") as $row){
  extract($row);
  $department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 'TLE', 'Values'];
  $adviser = ['Yes', 'No'];
- $privilege = ['Yes', 'No'];
  $status = ['Active','Deactivated'];
  echo '
  <tr>
@@ -143,11 +142,22 @@
 					echo '
 					</select>
 					<span>Can edit section:</span>
-					<select name="sec_privilege" value="" required>
+					<select name="sec_privilege" value="" >
 					';
-						for ($c = 0; $c < sizeof($privilege); $c++) {
-							echo $sec_privilege === $privilege[$c] ? '<option value="'.$privilege[$c].'" selected="selected">'.$privilege[$c].'</option>' : '<option value="'.$privilege[$c].'">'.$privilege[$c].'</option>';	
+					
+					if($obj->priv() === true) {
+						if($sec_privilege=='Yes'){
+							echo '<option value="Yes" selected>Yes</option>';
+							echo '<option value="No">No</option>';
+						}else{
+							echo '<option value="No" selected>No</option>';
 						}
+					}else{
+						if($sec_privilege=='No'){
+							echo '<option value="Yes">Yes</option>';
+							echo '<option value="No" selected>No</option>';
+						}
+					}
 					echo '
 					</select>
 					<button name="update-button" class="customButton">Update <i class="fas fa-save fnt"></i></button>

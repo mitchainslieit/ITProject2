@@ -2,11 +2,11 @@
 	<?php 
 		if(isset($_POST['submit-button'])){
 			extract($_POST);
-			$obj->addSubject($subj_dept, $subj_name);
+			$obj->addSubject($subj_level,$subj_dept, $subj_name);
 		}
 		if(isset($_POST['update-button'])){
 			extract($_POST);
-			$obj->updateSubject($subj_id, $subj_dept, $subj_name);
+			$obj->updateSubject($subj_id, $subj_level, $subj_dept, $subj_name);
 		}
 		if(isset($_POST['delete-button'])){
 			extract($_POST);
@@ -29,6 +29,14 @@
 							<button name="opener" class="customButton">Add subject <i class="fas fa-plus fnt"></i></button>
 							<div name="dialog" title="Add Class">
 								<form action="admin-subjects" method="POST">
+									<span>Subject Level:</span>
+									<select name="subj_level" value="" required>
+										<option selected disabled hidden>Select Subject Level</option>
+										<option value="7">7</option>
+										<option value="8">8</option>
+										<option value="9">9</option>
+										<option value="10">10</option>
+									</select>
 									<span>Subject Department:</span>
 									<select name="subj_dept" value="" required>
 										<option selected disabled hidden>Select Department</option>
@@ -53,6 +61,7 @@
 						<table id="admin-table" class="stripe row-border order-column">
 							<thead>
 								<tr>
+									<th>Subject Level</th>
 									<th>Subject Department</th>
 									<th>Subject Name</th>
 									<th>Actions</th>
@@ -62,8 +71,10 @@
 <?php foreach ($obj->showSingleTable("subject") as $value) {
 extract($value);
 $department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 'TLE', 'Values'];
+$subject_level = ['7', '8', '9', '10'];
 echo '
 	<tr>
+		<td>'.$subj_level.'</td>
 		<td>'.$subj_dept.'</td>
 		<td>'.$subj_name.'</td>
 		<td class="action">
@@ -77,6 +88,14 @@ echo '
 				<div name="dialog" title="Update subjects data">
 					<form action="admin-subjects" method="POST" required>
 						<input type="hidden" name="subj_id" value="'.$subj_id.'" required>
+						<span>Subject Level:</span>
+						<select name="subj_level" value="" required>
+						';
+						for ($c = 0; $c < sizeof($subject_level); $c++) {
+							echo $subj_level === $subject_level[$c] ? '<option value="'.$subject_level[$c].'" selected="selected">'.$subject_level[$c].'</option>' : '<option value="'.$subject_level[$c].'">'.$subject_level[$c].'</option>';	
+						}
+						echo '	
+						</select>
 						<span>Subject Department:</span>
 						<select name="subj_dept">
 						';

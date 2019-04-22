@@ -24,10 +24,6 @@ a:hover {text-decoration: none;color:inherit;}
 h1,h2,h3,h4,h5{ padding:0; margin:0; }
 .row {width: 95%; margin: 0 auto}
 .customButton{background: #0089DA; border: none; color: #fff;padding: 7px 12px;letter-spacing: 1px; cursor: pointer; font-family: 'Open Sans'; font-size: 14px;}
-.tooltip {position: relative;display: inline-block;}
-.tooltip .tooltiptext {visibility: hidden;width: 73px;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;bottom: 150%;left: 50%;margin-left: -39px;}
-.tooltip .tooltiptext::after {content: "";position: absolute;top: 100%;left: 50%;margin-left: -5px;border-width: 5px;border-style: solid;border-color: black transparent transparent transparent;}
-.tooltip:hover .tooltiptext {visibility: visible;}
 span.prompt{font-weight: 700; text-decoration: underline;}
 i.fnt{padding-left: 9px;}
 td.action{display: flex;justify-content: center;}
@@ -37,6 +33,16 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 .dataTables_wrapper th, td { white-space: nowrap; }
 .dataTables_wrapper thead tr th:first-of-type{background: #fff}
 #admin-table, #admin-table-withScroll{width: 100%}
+
+/* tooltip */
+.tooltip {position: relative;display: inline-block;}
+.tooltip .tooltiptext {visibility: hidden;width: 68px;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;bottom: 150%;left: 50%;margin-left: -39px;}
+.tooltip .tooltiptext::after {content: "";position: absolute;top: 100%;left: 50%;margin-left: -5px;border-width: 5px;border-style: solid;border-color: black transparent transparent transparent;}
+.tooltip:hover .tooltiptext {visibility: visible;}
+.dataTables_scrollBody{overflow-y: hidden;}
+.dataTables_wrapper tbody tr:first-of-type .action:last-of-type .tooltip:hover .tooltiptext {visibility: visible;}
+.dataTables_wrapper tbody tr:first-of-type .action:last-of-type .tooltip .tooltiptext {height: 16.8px; visibility: hidden;width: 68px;background-color: black;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;top: 150%;left: 50%;margin-left: -34px;}
+.dataTables_wrapper tbody tr:first-of-type .action:last-of-type .tooltip .tooltiptext::after {content: "";position: absolute;top: -10px;left: 50%;margin-left: -5px;border-width: 5px;border-style: solid;border-color: transparent transparent black transparent;}
 
 /*clearings*/
 .clear{ clear:both;}
@@ -48,7 +54,7 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 .ui-widget-overlay.custom-overlay{background-color: black;background-image: none;opacity: 0.8;z-index: 1040;    }
 .ui-dialog .ui-dialog-title{color: #fff; font-weight: 400;}
 .ui-widget.ui-widget-content{width: 700px !important;border: none!important;}
-.ui-widget-content span{padding-top: unset !important; }
+.ui-widget-content span{padding-top: unset !important;}
 .ui-widget-header{border: unset !important; background: #367FA9 !important; border-radius: unset !important}
 .ui-dialog .ui-dialog-titlebar,.ui-dialog .ui-dialog-content{padding: 15px 28px !important}
 .ui-dialog .ui-dialog-titlebar-close {right: 20px !important}

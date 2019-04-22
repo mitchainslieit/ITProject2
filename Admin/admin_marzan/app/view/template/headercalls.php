@@ -14,7 +14,8 @@
 	
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
 
- 
+ 	
+ 	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 	<script type="text/javascript" src="<?php echo URL; ?>public/vendors/js/jquery-3.3.1.js"></script>
 

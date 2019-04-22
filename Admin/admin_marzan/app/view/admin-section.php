@@ -19,7 +19,7 @@
 				<div class="header">	
 					<div class="cont">	
 						<i class="fas fa-money-check"></i>
-						<span>Classes</span>
+						<span>Section</span>
 					</div>
 					<p>School Year: 2019-2020</p>
 				</div>

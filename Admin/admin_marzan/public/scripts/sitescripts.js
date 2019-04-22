@@ -68,13 +68,17 @@ $( document ).ready(function() {
         	'excel','pdf','print'
     	],
    	});
-   	
-   	var datatable = $( "#admin-table-withScroll" ).DataTable({
+	
+   	var datatableWithScroll = $( "#admin-table-withScroll" ).DataTable({
 		"scrollX": true,
 		dom: "lBfrtip",
 		fixedColumns: {
        		leftColumns: 1
         	},
+        	columnDefs: [
+	        	{ responsivePriority: 1, targets: 0 },
+	        	{ responsivePriority: 2, targets: -1 }
+        	],
 		buttons: [
         	'excel','pdf','print'
     	],

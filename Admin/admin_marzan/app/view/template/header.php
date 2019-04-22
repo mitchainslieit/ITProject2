@@ -13,7 +13,7 @@
 
 	<body <?php $this->helpers->bodyClasses($view); ?>>
 		<div id=<?php $this->helpers->overallPage($view); ?>>
-			<!-- <div class="se-pre-con"></div> -->
+			<!-- <div class="se-pre-con"></div -->
 			<div class="topbar">
 				<div class="topbarleft">	
 					<h2><?php $this->helpers->userType($view); ?></h2>
