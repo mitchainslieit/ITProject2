@@ -20,9 +20,14 @@ $( document ).ready(function() {
 	$( ".contentpage .tabs" ).tabs();
 
 	/*Datatable API*/
-	var datatable = $( "#stud-list, #adv-table-1, #adv-table-2, #old-student" ).DataTable({
+	var customDatatable1 = $( "#customParentTable" ).DataTable({
+		'ordering' : false,
 		dom: "lfrtip",
-		"lengthMenu": [[5, 10, 25], [5, 10, 25]]
+		"lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]]
+	});
+	var customDatatable2 = $( "#gradesTable").DataTable({
+		dom: "lfrtip",
+		"lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]]
 	});
 
 	/*FullCalendar API*/
@@ -121,19 +126,6 @@ $( document ).ready(function() {
 		});
 	}));
 
-/*	$( '#parent_home .contentpage .row .account .container .innercont1 .eventcontent' ).on('change', '.student', (function() {
-		var grade = $(this).val();
-		var data = 'grade='+grade;
-		
-		$.ajax({
-			type: 'POST',
-			url: 'app/model/unstructured/parent_func1.php',
-			data: data,
-			success: function(result) {
-				console.log(data);
-			},
-		});
-	}));*/
 
 	$('.parent-account-page #select-children').on('change', function() {
 		var data = 'lrno=' + $(this).val();

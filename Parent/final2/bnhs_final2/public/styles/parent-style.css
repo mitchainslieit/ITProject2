@@ -23,7 +23,6 @@ a:hover {text-decoration: none;color:inherit;}
 h1,h2,h3,h4,h5{ padding:0; margin:0; }
 .row {width: 95%; margin: 0 auto}
 .tl {text-align: left;}
-.customContent{padding: 0px 35px;}
 /*clearings*/
 .clear{ clear:both;}
 .clearfix:after {content:"."; display:block; height:0; clear:both;visibility:hidden;font-size: 0;}
@@ -209,6 +208,9 @@ h1,h2,h3,h4,h5{ padding:0; margin:0; }
 .contentpage .attendance .innercont1 .eventcontent .cont4 .active{background: #337AB7; color: #fff;}
 .contentpage .attendance .innercont1 .eventcontent .cont4 p{font-size: 14px;}
 /*MODAL*/
+#customParentTable_paginate { display: flex; }
+#customParentTable_paginate > * { padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+#customParentTable_paginate > *:not(span) { width: 65px; }
 .ui-widget-content{text-align: left; font-size: 15px;}
 .ui-widget-content span{font-weight: 700; padding-top: 17px;font-family: "Open Sans"}
 .ui-widget-content input,.ui-widget-content select{width: 100%; padding: 10px 15px; font-family: "Open Sans"; margin-top: 10px; margin-bottom: 20px}

@@ -43,9 +43,9 @@ class ParentFunct
 
 	public function getPaymentHistory($lrno){
 		$query = $this->conn->prepare("SELECT 
+			DATE_FORMAT(DATE(pay_date), '%M %e, %Y'), 
 			FORMAT(remain_bal, 2),
-			FORMAT(pay_amt, 2),
-			DATE_FORMAT(DATE(pay_date), '%M %e, %Y') 
+			FORMAT(pay_amt, 2)
 			FROM
 			payment pm
 			JOIN
@@ -61,9 +61,9 @@ class ParentFunct
 		if ($rowCount > 0){
 			while ($row = $query->fetch()){
 				echo "<tr>
-				<td> &#x20B1;&nbsp;" . $row[0] . "</td>
+				<td>" . $row[0] . "</td>
 				<td> &#x20B1;&nbsp;" . $row[1] . "</td>
-				<td>" . $row[2] . "</td>
+				<td> &#x20B1;&nbsp;" . $row[2] . "</td>
 				</tr>";
 			}
 		}else{
@@ -119,52 +119,6 @@ class ParentFunct
 			<td> " . $row[0] . "</td>
 			<td> &#x20B1;&nbsp;" . $row[1] . "</td>
 			</tr>";
-		}
-	}
-
-	public function getChildName(){
-		$query = $this->conn->prepare("SELECT CONCAT(first_name,
-			' ',
-			middle_name,
-			' ',
-			last_name)
-			FROM
-			student st
-			JOIN
-			guardian pr ON st.guar_id = pr.guar_id
-			JOIN 
-			accounts ac on ac.acc_id = pr.acc_idx
-			WHERE
-			pr.acc_idx = " . $_SESSION['accid'] . "");
-		$query->execute();
-		$rowCount = $query->rowCount();
-		if ($rowCount > 0){
-			while ($row = $query->fetch())
-			{
-				echo " " . $row[0] . " ";
-			}
-		}
-	}
-
-	public function getChildLevelSection(){
-		$query = $this->conn->prepare("SELECT 
-			CONCAT('GRADE ', year_level, ' - ', sec_name) AS 'stud_sec'
-			FROM
-			student st
-			JOIN
-			section ON secc_id = sec_id
-			JOIN
-			guardian pr ON st.guar_id = pr.guar_id
-			JOIN 
-			accounts ac on ac.acc_id = pr.acc_idx
-			WHERE
-			st.stud_id = 1");
-		$query->execute();
-		$rowCount = $query->rowCount();
-		if ($rowCount > 0){
-			while ($row = $query->fetch()){
-				echo " " . $row[0] . " ";
-			}
 		}
 	}
 
@@ -288,40 +242,37 @@ class ParentFunct
 			}
 
 			/*GET REMARKS*/
-			if ($first === 0.0 || $second === 0.0 || $third === 0.0 || $fourth === 0.0) {
-				echo '<td></td>';
+			if ($average === 0.0) {
+				echo '<td></td>
+				      <td></td>';
 			} else if($average < 75.0) {
 				echo '<td><font color="red">Failed</font></td>';
 				echo '<td>
-				<button class="customButton" name="opener">View details</button>
-				<div name="dialog" title="Detail(s) of Failing Mark/ Non-conformance">
-				<form action="treasurer-accounts" method="POST">
-				<center><span><font color="red" size="5">Incomplete Requirements</font><span></center>
-				</form>
+				<div name="content">
+					<button class="customButton" name="opener">View details</button>
+					<div name="dialog" title="Detail(s) of Failing Mark/ Non-conformance">
+					<form action="treasurer-accounts" method="POST">
+					<center><span><font color="red" size="5">Incomplete Requirements</font><span></center>
+					</form>
 				</div>
-				</td>';
-			}else{
-				echo '<td>'.$this->getRemarks($average).'</td>';
-			}
-
-			/*GET DETAILS*/
-			if($average === 0.0){
+				</td>
+				';
+			}else if($average >= 75.0){
+				echo '<td><font color="green">Passed</font></td>';
 				echo '<td></td>';
 			}
-			echo '</tr>';
-		}  		
-	}
+        	echo '</tr>';
+        }		
+    }
+
 
 	private function getRemarks($average){
 		if ($average >= 75){
 			return $remarks ='<font color="green">Passed</font>';
-		}else{
-			if ($average < 75){
+		}else if ($average < 75){
 				return $remarks = '<font color="red">Failed</font>';
 			}
-		}
 	}
-	
 
 	private function getGrade($lrno, $subject, $grading){
 		$query = $this->conn->prepare("SELECT  CONCAT(first_name, ' ', last_name) 'Student', grade, subj_name 'subject', grading FROM grades JOIN student ON grades.studd_id = student.stud_id JOIN facsec fs ON grades.secd_id = fs.sec_idy JOIN schedsubj ss ON (grades.facd_id = ss.fw_id && grades.secd_id = ss.sw_id) JOIN subject ON (ss.schedsubjb_id = subject.subj_id && grades.subj_ide = subject.subj_id) WHERE student.stud_lrno = :stud_lrno AND subj_name = :subject AND grading = :grading GROUP BY 2 ORDER BY 3");
