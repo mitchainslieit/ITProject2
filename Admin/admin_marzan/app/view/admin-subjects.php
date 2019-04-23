@@ -61,9 +61,9 @@
 						<table id="admin-table" class="stripe row-border order-column">
 							<thead>
 								<tr>
-									<th>Subject Level</th>
-									<th>Subject Department</th>
-									<th>Subject Name</th>
+									<th class="tleft custPad">Subject Level</th>
+									<th class="tleft custPad">Subject Department</th>
+									<th class="tleft custPad">Subject Name</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
@@ -74,9 +74,9 @@ $department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 
 $subject_level = ['7', '8', '9', '10'];
 echo '
 	<tr>
-		<td>'.$subj_level.'</td>
-		<td>'.$subj_dept.'</td>
-		<td>'.$subj_name.'</td>
+		<td class="tleft custPad">'.$subj_level.'</td>
+		<td class="tleft custPad">'.$subj_dept.'</td>
+		<td class="tleft custPad">'.$subj_name.'</td>
 		<td class="action">
 			<div name="content">
 				<button name="opener">

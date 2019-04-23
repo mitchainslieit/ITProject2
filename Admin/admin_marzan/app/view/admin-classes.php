@@ -48,10 +48,10 @@
 						<table id="admin-table" class="display">
 							<thead>
 								<tr>
-									<th>Employee ID</th>
-									<th>Name</th>
-									<th>Section Name</th>
-									<th>Grade Level</th>
+									<th class="tleft custPad">Employee ID</th>
+									<th class="tleft custPad">Name</th>
+									<th class="tleft custPad">Section Name</th>
+									<th class="tleft custPad">Grade Level</th>
 									<th>Action</th>
 								</tr>
 							</thead>
@@ -63,10 +63,10 @@ $facultyname = $obj->facultyname();
 $section_type=['A','B'];
 echo '
 	<tr>
-		<td>'.$fac_no.'</td>
-		<td>'.$fullname.'</td>
-		<td>'.$sec_name.'</td>
-		<td>'.$grade_lvl.'</td>
+		<td class="tleft custPad">'.$fac_no.'</td>
+		<td class="tleft custPad">'.$fullname.'</td>
+		<td class="tleft custPad">'.$sec_name.'</td>
+		<td class="tleft custPad">'.$grade_lvl.'</td>
 		<td>
 			<div name="content">
 				<button name="opener">

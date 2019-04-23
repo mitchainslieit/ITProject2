@@ -56,37 +56,36 @@ $( document ).ready(function() {
 		changeYear: true,
 		yearRange: "-100:+0"
 	});
+	
+	
 	$('#ptaTable').DataTable( {
-		
+	
    	});
    	
    	var noFilterTable = $("#noFilterTable").DataTable({
+   		"scrollX": true,
+		dom: "lBfrtip",
+		fixedColumns: {
+       		leftColumns: 1
+        	},
    		dom: "lBfrtip",
 		"paging":   false,
-       	 "ordering": false,
+       	"ordering": false,
 		buttons: [
         	'excel','pdf','print'
     	],
    	});
 	
-   	var datatableWithScroll = $( "#admin-table-withScroll" ).DataTable({
-		"scrollX": true,
-		dom: "lBfrtip",
-		fixedColumns: {
-       		leftColumns: 1
-        	},
-        	columnDefs: [
-	        	{ responsivePriority: 1, targets: 0 },
-	        	{ responsivePriority: 2, targets: -1 }
-        	],
-		buttons: [
-        	'excel','pdf','print'
-    	],
-		"lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
-		
+	$( "#eventDataTable, #announcementDataTable" ).DataTable({
+		"paging":   false,
+       	"ordering": false,
+       	"info": false,
+		 buttons: false,
+		 "searching":false
 	});
-   	
-	var datatable = $( "#stud-list, #adv-table-1, #adv-table-2, #admin-table" ).DataTable({
+	
+	var datatable = $( "#stud-list, #adv-table-1, #adv-table-2, #admin-table, #admin-table-withScroll" ).DataTable({
+		"scrollX": true,
 		dom: "lBfrtip",
 		fixedColumns: {
        		leftColumns: 1
@@ -98,7 +97,7 @@ $( document ).ready(function() {
 		
 	});
 
-	var calendar = $('#calendar').fullCalendar({
+	var calendar = $('#calendarAdmin').fullCalendar({
 		editable:true,
 		header:{
 			left:'prev,next today',
@@ -198,6 +197,36 @@ $( document ).ready(function() {
 			}
 		});
 	});
+	
+	/* script for filter in reports: payment status */
+
+	var adminTable = $('#admin-table-balstatus').DataTable();
+
+	$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('click', '.customButton', function(e) {
+		var val1 = $(this).siblings('select:first-of-type').val();
+		var val2 = $(this).siblings('select:last-of-type').val();
+		adminTable.column(2).search(val1 ? val1 : '', true, false).column(6).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+	});
+
+	var adminTable3 = $('#admin-table-enrolled').DataTable();
+	$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_enrolled', function() {
+		var val3 = $(this).val();
+		adminTable3.column(2).search(val3 ? val3 : '', true, false).draw();
+	});
+
+	var adminTable4 = $('#admin-table-payhist').DataTable();
+	$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_payhist', function() {
+		var val4 = $(this).val();
+		adminTable4.column(2).search(val4 ? val4 : '', true, false).draw();
+	});
+
+	var adminTable5 = $('#admin-table-logs').DataTable();
+	$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.log_events', function() {
+		var val5 = $(this).val();
+		adminTable5.column(2).search(val5 ? val5 : '', true, false).draw();
+	});
+	/* end of script for filter in reports: payment status */
+
 	
 	$( '.sidebar-menu li' ).has('li.active-menu').addClass('active');
 });

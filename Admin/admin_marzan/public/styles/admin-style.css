@@ -17,10 +17,6 @@
 .fr {float:right;}
 
 /* global */
-h1 {font-size: 30px;font-weight: 100;color:#ccc;}
-body {width: 100%; height: 100%;max-width: 100%;min-width: 1200px;margin: 0 auto;text-align: center;font-family: "Open Sans"; background: #ECF0F5;}
-a {color:inherit;text-decoration: none}
-a:hover {text-decoration: none;color:inherit;}
 h1,h2,h3,h4,h5{ padding:0; margin:0; }
 .row {width: 95%; margin: 0 auto}
 .customButton{background: #0089DA; border: none; color: #fff;padding: 7px 12px;letter-spacing: 1px; cursor: pointer; font-family: 'Open Sans'; font-size: 14px;}
@@ -33,6 +29,13 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 .dataTables_wrapper th, td { white-space: nowrap; }
 .dataTables_wrapper thead tr th:first-of-type{background: #fff}
 #admin-table, #admin-table-withScroll{width: 100%}
+.tleft{text-align: left}
+.tright{text-align: right;}
+.tcenter{text-align: center}
+.custPad{padding: 0px 8px 0px 45px !important;}
+.custPad2{padding: 0px 8px 0px 20px !important;}
+.longText{white-space: unset !important; text-align: justify;}
+#admin-table, #admin-table-withScroll, #ptaTable{width: 100% !important}
 
 /* tooltip */
 .tooltip {position: relative;display: inline-block;}
@@ -48,7 +51,7 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 .clear{ clear:both;}
 .clearfix:after {content:"."; display:block; height:0; clear:both;visibility:hidden;font-size: 0;}
 .clearfix {display:block;}
-/**************************************************CONTENT PAGE**********************************************************************/
+/**************************************************content: '';NT PAGE**********************************************************************/
 /* dialog */
 .ui-dialog{padding:0px !important; font-family: 'Open Sans' !important;}
 .ui-widget-overlay.custom-overlay{background-color: black;background-image: none;opacity: 0.8;z-index: 1040;    }
@@ -61,13 +64,21 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 
 
 /*widget template*/
-#admin_home .contentpage .widget {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px;}
+#admin_home .contentpage .widget {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 25px; margin-bottom: 40px}
 #admin_home .contentpage .widget .header {display: flex; justify-content: space-between;padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
 #admin_home .contentpage .widget .header p{padding: 0; margin: 0}
-#admin_home .contentpage .widget .widgetContent{padding: 25px 23px;}
+#admin_home .contentpage .widget .widgetContent{padding: 25px 23px 0 23px;}
 
 
 /*dashboard*/
+.eventBox #eventDataTable{width: 475px !important; margin: 0}
+.attachment{font-style: italic; color: #1a0dab; margin: 0}
+.eventBox{margin-top: 20px}
+h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
+#admin_home .contentpage .dashboardWidget table.dataTable thead .title{border-top: none !important;}
+#admin_home .contentpage .dashboardWidget table.dataTable tbody td{border: none !important; border-bottom: 1px solid #ddd !important; padding: 15px !important}
+#admin_home .contentpage .dashboardWidget table.dataTable thead th{border: none !important; border-bottom: 1px solid #ddd !important; padding: 15px !important; border-top: 1px solid #ddd !important;}
+#admin_home .contentpage .dashboardWidget table.dataTable{border:none;}
 #admin_home .contentpage .summary {display: flex; justify-content: space-between;}
 #admin_home .contentpage .summary .box{width: calc(80%/4);padding: 7px 22px; opacity: 0.9}
 #admin_home .contentpage .summary .box h4{font-size: 15px; color: #fff; text-align: left}
@@ -81,7 +92,7 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 #admin_home .contentpage .summary .box .innercont>i{color: #fff; font-size: 50px;}
 
 /* dashboard widget */
-#admin_home .contentpage .dashboardWidget{display: flex;justify-content: space-between; margin-top: 40px;}
+#admin_home .contentpage .dashboardWidget{display: flex;justify-content: space-between; margin-top: 40px; align-items: flex-start;}
 #admin_home .contentpage .dashboardWidget .contright {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px; width: 42%; order: 2}
 #admin_home .contentpage .dashboardWidget .contright .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
 #admin_home .contentpage .dashboardWidget .contright .header p{padding: 0; margin: 0}
@@ -141,6 +152,7 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 .ui-widget-content span{font-weight: 700; padding-top: 17px;font-family: "Open Sans"}
 .ui-widget-content input,.ui-widget-content select{width: 100%; padding: 10px 15px; font-family: "Open Sans"; margin-top: 10px; margin-bottom: 20px}
 .ui-widget-content input{width: 95%;}
+.ui-widget-content textarea::placeholder{letter-spacing: 2px; padding: 10px 15px}
 .ui-widget-content input::placeholder{letter-spacing: 2px}
 .ui-widget-content button{float: right; letter-spacing: 0px; border-radius: 2px; font-family: 'Open Sans' !important;}
 

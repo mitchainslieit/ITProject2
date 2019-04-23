@@ -51,12 +51,12 @@
 							</form>
 						</div>
 					</div>
-					<table id="ptaTable" class="display">
+					<table id="ptaTable" class="display" width="100%">
 						<thead>
 							<tr>
-								<th>PTA Treasurer</th>
-								<th>Username</th>
-								<th>Account Status</th>
+								<th class="tleft custPad">PTA Treasurer</th>
+								<th class="tleft custPad">Username</th>
+								<th class="tleft custPad">Account Status</th>
 								<th>Action</th>
 							</tr>
 						</thead>
@@ -69,9 +69,9 @@ $studentName = $obj->studentName();*/
 $status = ['Active','Deactivated'];
 echo '
 	<tr>
-		<td>'.$tr_fname.' '.$tr_midname.' '.$tr_lname.'</td>
-		<td>'.$username.'</td>
-		<td>'.$acc_status.'</td>
+		<td class="tleft custPad">'.$tr_fname.' '.$tr_midname.' '.$tr_lname.'</td>
+		<td class="tleft custPad">'.$username.'</td>
+		<td class="tleft custPad">'.$acc_status.'</td>
 		<td class="action">
 			<div name="content">
 				<button name="opener">
@@ -166,14 +166,14 @@ echo '
 					<table id="admin-table-withScroll" class="display">
 						<thead>
 							<tr>
-								<th data-priority="2">Parent Name</th>
-								<th>Address</th>
-								<th>Mobile Number</th>
-								<th>Telephone Number</th>
-								<th>Child Name</th>
-								<th>Username</th>
-								<th>Status</th>
-								<th data-priority="1">Action</th>
+								<th class="tleft">Parent Name</th>
+								<th class="tleft">Address</th>
+								<th class="tleft">Mobile Number</th>
+								<th class="tleft">Telephone Number</th>
+								<th class="tleft">Child Name</th>
+								<th class="tleft">Username</th>
+								<th class="tleft">Status</th>
+								<th>Action</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -182,13 +182,13 @@ extract($value);
 $status = ['Active','Deactivated'];
 echo '
 <tr>
-	<td>'.$guar_fname.' '.$guar_midname.' '.$guar_lname.'</td>
-	<td>'.$guar_address.'</td>
-	<td>'.$guar_mobno.'</td>
-	<td>'.$guar_telno.'</td>
-	<td>'.$first_name.' '.$last_name.'</td>
-	<td>'.$username.'</td>
-	<td>'.$acc_status.'</td>
+	<td class="tleft custPad2">'.$guar_fname.' '.$guar_midname.' '.$guar_lname.'</td>
+	<td class="tleft custPad2">'.$guar_address.'</td>
+	<td class="tleft custPad2">'.$guar_mobno.'</td>
+	<td class="tleft custPad2">'.$guar_telno.'</td>
+	<td class="tleft custPad2">'.$first_name.' '.$last_name.'</td>
+	<td class="tleft custPad2">'.$username.'</td>
+	<td class="tleft custPad2">'.$acc_status.'</td>
 	<td class="action">
 		<div name="content">
 			<button name="opener">

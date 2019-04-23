@@ -64,11 +64,11 @@
 					<div class="header">
 						<p>	
 							<i class="far fa-calendar-alt fnt"></i>
-							<span>Event</span>
+							<span>Calendar</span>
 						</p>
 					</div>
 					<div class="eventcontent">
-						<div id="calendar"></div>
+						<div id="calendarAdmin"></div>
 						<div id="eventDialog" title="Event Details" style="display:none;">
 							<form action="">
 								Start Date: <span id="startDate"></span><br>
@@ -90,10 +90,46 @@
 							</p>
 						</div>
 						<div class="eventcontent">
-							<p></p>
+							<div class="announcementBox">
+								<table id="announcementDataTable">
+									<thead>
+										<tr>
+											<th class="tleft title">Announcement</th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php $obj->getAnnouncements(); ?>
+									</tbody>
+								</table>
+							</div>
+							<div class="eventBox">
+								<table id="eventDataTable">
+									<thead>
+										<tr>
+											<th class="tleft title">Events</th>
+										</tr>
+										<tr>
+											<th class="tleft custPad2">Event Title</th>
+											<th class="tleft custPad2">Event Date</th>
+										</tr>
+									</thead>
+									<tbody>
+<?php foreach ($obj->showEvents() as $row) {
+extract($row);
+echo'
+<tr>
+	<td class="tleft custPad2">'.$title.'</td>
+	<td class="tleft custPad2">'.$date_start_1.' - '.$date_end_1.'</td>
+</tr>';
+}
+?>
+									</tbody>
+								</table>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>	
+			</div>
 		</div>	
-	</div>
+	</div>	
+

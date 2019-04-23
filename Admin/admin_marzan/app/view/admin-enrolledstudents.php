@@ -17,16 +17,16 @@
 				<div class="widgetContent">
 						<div class="cont1">
 							<p>Grade Level: </p>
-								<select name="year_level" class="year_level">
-					                <option value="All">All</option>
-					                <option value="Grade 7">Grade 7</option>
-					                <option value="Grade 8">Grade 8</option>
-					                <option value="Grade 9">Grade 9</option>
-				                	<option value="Grade 10">Grade 10</option>	
+								<select name="year_level" class="year_level_enrolled">
+					                <option value="">All</option>
+					                <option value="7">Grade 7</option>
+					                <option value="8">Grade 8</option>
+					                <option value="9">Grade 9</option>
+				                	<option value="10">Grade 10</option>	
               					</select>
 						</div>
 					<div class="cont2">
-						<table id="admin-table" class="display">
+						<table id="admin-table-enrolled" class="display">
 							<thead>	
 								<tr>
 									<th>LRN</th>

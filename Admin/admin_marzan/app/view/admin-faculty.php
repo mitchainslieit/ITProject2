@@ -99,10 +99,10 @@
  $status = ['Active','Deactivated'];
  echo '
  <tr>
- 	<td>'.$fac_no.'</td>
- 	<td>'.$fac_fname.' '.$fac_midname.' '.$fac_lname.'</td>
- 	<td>'.$fac_dept.'</td>
- 	<td>'.$username.'</td>
+ 	<td class="tleft custPad2">'.$fac_no.'</td>
+ 	<td class="tleft custPad2">'.$fac_fname.' '.$fac_midname.' '.$fac_lname.'</td>
+ 	<td class="tleft custPad2">'.$fac_dept.'</td>
+ 	<td class="tleft custPad2">'.$username.'</td>
  	<td>'.$fac_adviser.'</td>
  	<td>'.$acc_status.'</td>
  	<td>'.$sec_privilege.'</td>

@@ -48,8 +48,8 @@
 						<table id="admin-table" class="display">
 							<thead>
 								<tr>
-									<th>Section Name</th>
-									<th>Grade Level</th>
+									<th class="tleft custPad">Section Name</th>
+									<th class="tleft custPad">Grade Level</th>
 									<th>Action</th>
 								</tr>
 							</thead>
@@ -59,8 +59,8 @@ extract($value);
 $grade_level = ['7', '8', '9', '10'];
 echo '
 	<tr>
-		<td>'.$sec_name.'</td>
-		<td>'.$grade_lvl.'</td>
+		<td class="tleft custPad">'.$sec_name.'</td>
+		<td class="tleft custPad">'.$grade_lvl.'</td>
 		<td class="action">
 			<div name="content">
 				<button name="opener">

@@ -75,49 +75,123 @@ class AdminFunct{
 		return $data;
 	}
 	/**************** END GENERAL ****************/
+	
 	/**************** FEE TYPE *******************/
-	public function addFeeType($budget_name, $acc_amount, $table) {
-		$query = $this->conn->prepare("INSERT INTO $table (budget_name, acc_amount) VALUES (:budget_name, :acc_amount)");
-		$query->execute(array(
-			'budget_name' => $budget_name,
-			'acc_amount' => $acc_amount
-		));
-		$this->Message("Fee Type has been added!", "rgb(66, 244, 128)", "admin-feetype");
-	}
-	public function updateFeeType($id, $budget_name, $acc_amount, $table){
-		try {
-			$sql = $this->conn->prepare("UPDATE $table SET 	
-				budget_name=:budget_name,
-				acc_amount=:acc_amount
-			WHERE 	
-				budget_id=:budget_id");
-			$sql->execute(array(
-				':budget_name'=>$budget_name,
-				':acc_amount'=>$acc_amount,
-				':budget_id'=>$id
-			));
-			return true;
-		} catch (PDOException $e) {
-			echo $e->getMessage();	
-			return false;
+	public function addFeeType($budget_name, $total_amount) {
+		try{
+		$query1=$this->conn->prepare("INSERT INTO budget_info (budget_name, total_amount, acc_amount) VALUES(:budget_name, :total_amount, '0')");
+		if($query1->execute(array(
+			':budget_name' => $budget_name,
+			':total_amount' => $total_amount
+		))){
+			$query2=$this->conn->prepare("SELECT * FROM budget_info ORDER BY 1 DESC LIMIT 1");
+			$query2->execute();
+			$row=$query2->fetch(PDO::FETCH_ASSOC);
+			$budget_name=$row['budget_name'];
+			$log_event="Insert";
+			$log_desc="Added Fee Type ".$budget_name." with amount of &#8369;".number_format($total_amount, 2);
+			$this->insertLogs($log_event, $log_desc);
+			$this->alert("Success!", "A new Fee Type has been created! Fee Type: $budget_name, Amount: $total_amount", "success", "admin-feetype");
+			}else{	
+				$this->alert("Error!", "Failed to add Fee Type! This Fee Type already exist.", "error", "admin-feetype");
+				}
+			} catch (PDOException $exception) {
+				die('ERROR: ' . $exception->getMessage());
 		}
-		$this->Message("Account has been updated!", "rgb(66, 244, 128)", "admin-feetype");
+	}
+	public function updateFeeType($id, $budget_name, $total_amount){
+		try{
+			$sql1=$this->conn->prepare("UPDATE budget_info SET budget_name=:budget_name, total_amount=:total_amount WHERE budget_id=:budget_id");
+			if($sql1->execute(array(
+				':budget_name' => $budget_name,
+				':total_amount' => $total_amount,
+				':budget_id'=>$id
+			))){
+				$sql2=$this->conn->prepare("SELECT * FROM budget_info WHERE budget_id=?");
+				$sql2->bindParam(1, $id);
+				$sql2->execute();
+				$row=$sql2->fetch(PDO::FETCH_ASSOC);
+				$budget_name=$row['budget_name'];
+				$log_event="Update";
+				$log_desc="Updated Fee Type ".$budget_name." with amount of &#8369;".number_format($total_amount, 2);
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "Fee Type  $budget_name with amount of $total_amount has been updated.", "success", "admin-feetype");
+			}else{	
+				$this->alert("Error!", "Failed to update Fee Type!", "error", "admin-feetype");
+					}
+				} catch (PDOException $exception) {
+					die('ERROR: ' . $exception->getMessage());
+			}
 	}
 	public function deleteFeeType($id, $table){
-		$sql = $this->conn->prepare("DELETE FROM $table WHERE budget_id=:budget_id");
-		$sql->execute(array(
-			':budget_id'=>$id
+		try{
+			$sql1=$this->conn->prepare("SELECT * FROM budget_info WHERE budget_id=:budget_id");
+			$sql1->execute(array(
+				':budget_id'=>$id
 		));
+			$row=$sql1->fetch(PDO::FETCH_ASSOC);
+			$budget_name=$row['budget_name'];
+			$sql2=$this->conn->prepare("DELETE FROM budget_info WHERE budget_id=:budget_id");
+			if($sql2->execute(array(
+				':budget_id'=>$id
+		))){
+			$log_event="Delete";
+			$log_desc="Deleted Fee Type ".$budget_name;
+			$this->insertLogs($log_event, $log_desc);
+			$this->alert("Success!", "Fee Type  $budget_name has been deleted.", "success", "admin-feetype");
+			}else{	
+				$this->alert("Error!", "Failed to delete Fee Type!", "error", "admin-feetype");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
 	}
 	/**************** END FEE TYPE **************/
 
 	/******** STUDENT PAYMENT STATUS ***********/
 	public function showPaymentStatus(){
-		$sql=$this->conn->query("SELECT *
-				FROM student JOIN balance ON student.stud_id = balance.stud_idb 
-				JOIN section on section.sec_id = student.secc_id 
-				JOIN balpay bp ON bp.bal_ida = balance.stud_idb 
-				JOIN payment ON payment.pay_id = bp.pay_ida GROUP BY 1") or die ("failed!");
+		$sql=$this->conn->query("SELECT distinct(bal_id), stud_lrno, Name, year_level,  sec_name, pay_amt, remaining_balance, bal_status, date, stud_id
+		FROM (SELECT DISTINCT (bal_id), stud_lrno, year_level, CONCAT(first_name, ' ', last_name) AS 'Name', bal_amt 'remaining_balance',
+		bal_status,
+		CASE
+		WHEN bal.bal_id IN (SELECT balb_id from payment pm join balance bal on pm.balb_id = bal.bal_id) 
+		THEN (SELECT DATE_FORMAT(MAX(pm.pay_date), '%M %e %Y') as 'date'
+		FROM payment p
+		INNER JOIN payment pm ON p.pay_id = pm.pay_id
+		JOIN balpay bp ON bp.pay_ida = pm.pay_id
+		JOIN balance bala on bp.bal_ida = bala.bal_id
+		JOIN student st ON st.stud_id = bala.stud_idb
+		WHERE bal.bal_id = bala.bal_id GROUP BY st.first_name ORDER by 1)
+		ELSE
+		'No payment yet'
+		END
+		AS 'date', stud_id, stud_status, sec.sec_name,
+        CASE WHEN bal.bal_id IN (SELECT balb_id from payment pm join balance bal on pm.balb_id = bal.bal_id) 
+        THEN (SELECT  SUM(pm.pay_amt) as 'pay_amt'
+		FROM payment p
+		INNER JOIN payment pm ON p.pay_id = pm.pay_id
+		JOIN balpay bp ON bp.pay_ida = pm.pay_id
+		JOIN balance bala on bp.bal_ida = bala.bal_id
+		JOIN student st ON st.stud_id = bala.stud_idb
+		WHERE bal.bal_id = bala.bal_id
+		GROUP BY st.first_name ORDER by 1)
+		ELSE
+	    0 
+		END AS 'pay_amt'
+		FROM student st
+		JOIN balance bal ON bal.stud_idb = st.stud_id
+        JOIN  section sec ON sec.sec_id = st.secc_id
+		UNION
+		SELECT distinct(bal_id), stud_lrno, year_level, CONCAT(first_name, ' ', last_name) as 'Name', MIN(pm.remain_bal) as 'remaining_balance', bal_status, DATE_FORMAT(MAX(pm.pay_date), '%M %e %Y') as 'date', st.stud_id as 'stud_id', stud_status, sect.sec_name, sum(pm.pay_amt) 'pay_amt'
+		FROM payment p
+		INNER JOIN payment pm ON p.pay_id = pm.pay_id
+		JOIN balpay bp ON bp.pay_ida = pm.pay_id
+		JOIN balance bal on bp.bal_ida = bal.bal_id
+		JOIN student st ON st.stud_id = bal.stud_idb
+        JOIN section sect on sect.sec_id = st.secc_id
+		GROUP BY st.first_name ORDER by 1) al
+		WHERE stud_status IN ('Officially Enrolled','Temporarily Enrolled')
+		GROUP BY Name") or die ("failed!");
 		while($row=$sql->fetch(PDO::FETCH_ASSOC)){
 			$data[]=$row;
 		}
@@ -980,30 +1054,90 @@ class AdminFunct{
 	/**************** END STUDENT ****************/
 	
 	/**************** ANNOUNCEMENT **************/
-	public function insertEvent($title, $post, $date_start, $date_end, $view_lim, $attachment){
+	public function showEvents(){
+		$admin_id = $_SESSION['accid'];
+		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start_1, DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, date_start, date_end, post, view_lim, attachment FROM announcements WHERE post_adminid=? AND title IS NOT NULL") or die ("failed!");
+		$sql->bindParam(1, $admin_id);
+		$sql->execute();
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+			return $data;
+		}
+		return $sql;
+	}
+	
+	public function showEventsSection(){
+		$admin_id = $_SESSION['accid'];
+		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start_1, DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, date_start, date_end, post, view_lim, attachment FROM announcements WHERE post_adminid=? AND title IS NOT NULL") or die ("failed!");
+		$sql->bindParam(1, $admin_id);
+		$sql->execute();
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+			return $data;
+		}
+		return $sql;
+	}
+	
+	public function showAnnouncementSection(){
+		$admin_id = $_SESSION['accid'];
+		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start_1, DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, date_start, date_end, post, view_lim, attachment FROM announcements WHERE post_adminid=? and post IS NOT NULL") or die ("failed!");
+		$sql->bindParam(1, $admin_id);
+		$sql->execute();
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+			return $data;
+		}
+		return $sql;
+	}
+	
+	
+	public function getAnnouncements() {
+		$admin_id = $_SESSION['accid'];
+		$sql = $this->conn->prepare("SELECT * FROM announcements WHERE post_adminid=? AND post IS NOT NULL") or die ("failed!");
+		$sql->bindParam(1, $admin_id);
+		$sql->execute();
+		$result = $sql->fetchAll();
+		foreach($result as $row) {
+			$html = '<tr>';
+			$html .= '<td class="tleft custPad2 longText">';
+			$html .= '<h3 class="att_title">'.$row['post'].'</h3>';
+			$html .= $row['attachment'] !== null ? '<p class="tright attachment"><a href="public/attachment/'.$row['attachment'].'" download target="_blank">Download attachemt</a></p>' : '';
+			$html .= '</td>';
+			$html .= '</tr>';
+			echo $html;
+		}
+	}
+	
+	public function insertEvent($title, $date_start, $date_end, $view_lim){
 		try{
+			$admin_id=$_SESSION['accid'];
 			$checkbox = $_POST['view_lim'];
-			$sql = "INSERT INTO announcements SET title=:title, date_start=:date_start, date_end=:date_end, post=:post, view_lim=('";
+			$sql = "INSERT INTO announcements SET title=:title, date_start=:date_start, date_end=:date_end, view_lim=('";
 			for($i=0; $i<sizeof ($checkbox);$i++) {
 				$sql .= $checkbox[$i];
 				if ($i<sizeof ($checkbox) - 1) {
 					$sql .= ",";
 				}
 			}
-			$sql .= "'), attachment=:attachment, post_adminid=:post_adminid";
+			$sql .= "'), post_adminid=:post_adminid";
 			$sql=$this->conn->prepare($sql);
 			if($sql->execute(array(
-			':title'  => $title,
+			':title'  => (empty($title) ? null : $title),
 			':date_start' => $date_start,
 			':date_end' => $date_end,
-			':post' => $post,
-			':attachment' => (empty($attachment['name']) ? null : $attachment['name']),
 			':post_adminid' => $_SESSION['accid']))){
-				$sql2=$this->conn->prepare("SELECT * from announcements ORDER BY ann_id DESC LIMIT 1");
+				$sql2=$this->conn->prepare("SELECT * from announcements WHERE post_adminid=? ORDER BY ann_id DESC LIMIT 1");
+				$sql2->bindParam(1, $admin_id);
 				$sql2->execute();
 				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
 				$log_event="Insert";
-				$log_desc="Added announcement with a Title: ".$title.", Description: ".$post;
+				$log_desc="Added announcement with a Title: ".$title;
 				$this->insertLogs($log_event, $log_desc);
 				$this->alert("Success!", "An announcement has been created! Title: $title, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
 			}else{
@@ -1013,23 +1147,58 @@ class AdminFunct{
 		} catch (PDOException $exception){
 			die('ERROR: ' . $exception->getMessage());
 		}
-		/*if(!empty($attachment['name'])) move_uploaded_file($attachment['tmp_name'], 'attachment/'.$attachment['name']);*/
+	}
+	
+	public function insertAnnouncement($post, $date_start, $date_end, $view_lim, $attachment){
+		try{
+			$admin_id=$_SESSION['accid'];
+			$checkbox = $_POST['view_lim'];
+			$sql = "INSERT INTO announcements SET date_start=:date_start, date_end=:date_end, post=:post, view_lim=('";
+			for($i=0; $i<sizeof ($checkbox);$i++) {
+				$sql .= $checkbox[$i];
+				if ($i<sizeof ($checkbox) - 1) {
+					$sql .= ",";
+				}
+			}
+			$sql .= "'), attachment=:attachment, post_adminid=:post_adminid";
+			$sql=$this->conn->prepare($sql);
+			if($sql->execute(array(
+			':date_start' => $date_start,
+			':date_end' => $date_end,
+			':post' => (empty($post) ? null : $post),
+			':attachment' => (empty($attachment['name']) ? null : $attachment['name']),
+			':post_adminid' => $_SESSION['accid']))){
+				$sql2=$this->conn->prepare("SELECT * from announcements WHERE post_adminid=? ORDER BY ann_id DESC LIMIT 1");
+				$sql2->bindParam(1, $admin_id);
+				$sql2->execute();
+				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+				$log_event="Insert";
+				$log_desc="Added announcement with a Announcement: ".$post;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "An announcement has been created! Announcement: $post, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
+			}else{
+				$this->alert("Error!", "Failed to post announcement", "error", "admin-events");
+			}
+			
+		} catch (PDOException $exception){
+			die('ERROR: ' . $exception->getMessage());
+		}
 		$file = $attachment['name'];
 		$size = $attachment['size'];
 		$temp1 = $attachment['tmp_name'];
-		$pathWithFile = "attachment/".$file; //set upload folder path
+		$pathWithFile = "public/attachment/".$file; //set upload folder path
 		
 		$sql2=$this->conn->prepare("SELECT * FROM announcements ORDER BY 1 DESC LIMIT 1");
 		$sql2->execute();
         	$row=$sql2->fetch(PDO::FETCH_ASSOC);	
 		$id=$row['ann_id'];
 		$fileToDel = trim(strval($row['attachment']));
-		$new_path = realpath('attachment/'.$fileToDel);
+		$new_path = realpath('public/attachment/'.$fileToDel);
 		/*@unlink($new_path);*/
 		
 		$temp2 = $attachment['tmp_name'];
 		$staticValue="attachment";
-		$path = "attachment/";
+		$path = "public/attachment/";
 		$underScore="_";
 		$ext = end(explode('.', $file));
 		$filename = "$staticValue$underScore$id.".$ext;
@@ -1088,12 +1257,43 @@ class AdminFunct{
 		
 	}
 	
-	public function updateEvent($ann_id, $title, $post, $date_start, $date_end, $view_lim, $attachment){
+	public function updateEvent($ann_id, $title, $date_start, $date_end, $view_lim){
+		$checkbox = $_POST['view_lim'];
+		$sql1 = "UPDATE announcements SET title=:title, date_start=:date_start, date_end=:date_end, view_lim=('";
+		for($i=0; $i<sizeof ($checkbox);$i++) {
+			$sql1 .= $checkbox[$i];
+			if ($i<sizeof ($checkbox) - 1) {
+				$sql1 .= ",";
+			}
+		}
+		$sql1 .= "') WHERE ann_id=:ann_id";
+		$sql1=$this->conn->prepare($sql1);
+		if($sql1->execute(array(
+		':title'  => (empty($title) ? null : $title),
+		':date_start' => $date_start,
+		':date_end' => $date_end,
+		':ann_id' => $ann_id))){
+			$sql2=$this->conn->prepare("SELECT DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start,  DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end as attch from announcements WHERE ann_id=:ann_id");
+			$sql2->execute(array(
+				':ann_id' => $ann_id
+			));
+			$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+			$attch=$row2['attch'];
+			$log_event="Update";
+			$log_desc="Updated announcement with the following details(Title: ".$title.", Date Start: ".$date_start.", Date End: ".$date_end.")";
+			$this->insertLogs($log_event, $log_desc);
+			$this->alert("Success!", "An announcement has been updated! Title: $title, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
+		}else{
+			$this->alert("Error!", "Failed to post the announcement", "error", "admin-events");
+		}
+	}
+	
+	public function updateAnnouncement($ann_id, $post, $date_start, $date_end, $view_lim, $attachment){
 		if(!empty($attachment['name'])) {			
 			$file = $attachment['name'];
 			$size = $attachment['size'];
 			$temp = $attachment['tmp_name'];
-			$path = "attachment/".$file; //set upload folder path
+			$path = "public/attachment/".$file; //set upload folder path
 		
 			if(!file_exists($path)){
 				if($size < 20000000){
@@ -1104,19 +1304,18 @@ class AdminFunct{
 					$row=$sql2->fetch(PDO::FETCH_ASSOC);
 					$id=$row['ann_id'];
 					$fileToDel = trim(strval($row['attachment']));
-					$new_path = realpath('attachment/'.$fileToDel);
+					$new_path = realpath('public/attachment/'.$fileToDel);
 					@unlink($new_path);
 					/*move_uploaded_file($temp, $path); */
 					
 					$temp2 = $attachment['tmp_name'];
 					$staticValue="attachment";
-					$path = "attachment/";
+					$path = "public/attachment/";
 			        	
 			        	$underScore="_";
 			        	$tmp = explode('.', $file);
 					$ext = end($tmp);
 					$filename = "$staticValue$underScore$id.".$ext;
-					var_dump($filename);
 			        	$newname = $path.$filename;
 			        	move_uploaded_file($temp2, $newname);
 			        	$sql3 = $this->conn->prepare("UPDATE announcements SET attachment=:attachment WHERE ann_id=:ann_id");
@@ -1144,10 +1343,10 @@ class AdminFunct{
 				$sql1 .= "'), attachment=:attachment WHERE ann_id=:ann_id";
 				$sql1=$this->conn->prepare($sql1);
 				if($sql1->execute(array(
-				':title'  => $title,
+				':title'  => (empty($title) ? null : $title),
 				':date_start' => $date_start,
 				':date_end' => $date_end,
-				':post' => $post,
+				':post' => (empty($post) ? null : $post),
 				':attachment' => $filename,
 				':ann_id' => $ann_id))){
 					$sql2=$this->conn->prepare("SELECT DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start,  DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end, attachment as attch from announcements WHERE ann_id=:ann_id");
@@ -1157,9 +1356,9 @@ class AdminFunct{
 					$row2=$sql2->fetch(PDO::FETCH_ASSOC);
 					$attch=$row2['attch'];
 					$log_event="Update";
-					$log_desc="Updated announcement with the following details(Title: ".$title.", Description: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch;
+					$log_desc="Updated announcement with the following details(Announcement: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch.")";
 					$this->insertLogs($log_event, $log_desc);
-					$this->alert("Success!", "An announcement has been updated! Title: $title, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
+					$this->alert("Success!", "An announcement has been updated! Announcement: $post, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
 				}else{
 					$this->alert("Error!", "Failed to post the announcement", "error", "admin-events");
 				}
@@ -1176,8 +1375,8 @@ class AdminFunct{
 				$sql1=$this->conn->prepare($sql1);
 				if($sql1->execute(array(
 				':ann_id' => $ann_id,
-				':title'  => $title,
-				':post' => $post,
+				':title'  => (empty($title) ? null : $title),
+				':post' => (empty($post) ? null : $post),
 				':date_start' => $date_start,
 				':date_end' => $date_end))){
 					$sql2=$this->conn->prepare("SELECT DATE_FORMAT(date(date_start), '%M %e, %Y'),  DATE_FORMAT(date(date_end), '%M %e, %Y'), attachment as attch from announcements WHERE ann_id=:ann_id");
@@ -1187,9 +1386,9 @@ class AdminFunct{
 					$row2=$sql2->fetch(PDO::FETCH_ASSOC);
 					$attch=$row2['attch'];
 					$log_event="Update";
-					$log_desc="Updated announcement with the following details(Title: ".$title.", Description: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch;
+					$log_desc="Updated announcement with the following details( Announcement: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch.")";
 					$this->insertLogs($log_event, $log_desc);
-					$this->alert("Success!", "An announcement has been updated! Title: $title, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
+					$this->alert("Success!", "An announcement has been updated! Announcement: $post, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
 				}else{
 					$this->alert("Error!", "Failed to post the announcement", "error", "admin-events");
 				}
@@ -1207,7 +1406,7 @@ class AdminFunct{
 			$sql1->execute();	
 			$row=$sql1->fetch(PDO::FETCH_ASSOC);
 			$file = $row['attachment'];
-			$dir = "attachment/".$file;
+			$dir = "public/attachment/".$file;
 			chmod($dir, 0777);
 			@unlink($dir);
 			
@@ -1233,13 +1432,13 @@ class AdminFunct{
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
-	/**************** END ANNOUNCEMENT *********
+	/**************** END ANNOUNCEMENT *****/
 	
 	/**************** REPORTS **************/
 	public function showEnrolled(){
 		$sql=$this->conn->query("SELECT *
 				FROM student JOIN section ON section.sec_id = student.secc_id 
-      			WHERE stud_status='Officially Enrolled'") or die ("failed!");
+      			WHERE stud_status='Officially Enrolled' OR stud_status='Temporarily Enrolled'") or die ("failed!");
 		while($row=$sql->fetch(PDO::FETCH_ASSOC)){
 			$data[]=$row;
 		}
@@ -1251,24 +1450,67 @@ class AdminFunct{
 		$rowCount=$sql->fetch();
 		echo " ". number_format($rowCount['misc_fee'], 2) . " ";
 		}
-	public function getTotalBDOF(){
+	public function getTotalTotalAmount(){
+		$sql=$this->conn->prepare("SELECT sum(total_amount) FROM budget_info");
+		$sql->execute();
+		$rowCount=$sql->fetch();
+		echo " ". number_format($rowCount['sum(total_amount)'], 2) . " ";
+	}
+	public function getTotalAccountAmount(){
 		$sql=$this->conn->prepare("SELECT sum(acc_amount) FROM budget_info");
 		$sql->execute();
 		$rowCount=$sql->fetch();
 		echo " ". number_format($rowCount['sum(acc_amount)'], 2) . " ";
 	}
-	public function showPaymentHistory($stud_lrno, $first_name, $middle_name, $last_name, $year_level, $sec_name, $orno, $pay_date, $pay_amt, $bal_amt){
-		$sql=$this->conn->query("SELECT stud_lrno, first_name, middle_name, last_name, year_level, sec_name, orno, DATE_FORMAT(pay_date, '%M %e, %Y - %H:%i:%S') as payment_date, pay_amt, remain_bal
-				FROM student JOIN balance ON student.stud_id = balance.stud_idb 
-				JOIN section on section.sec_id = student.secc_id 
-				JOIN balpay bp ON bp.bal_ida = balance.stud_idb 
-				JOIN payment ON payment.pay_id = bp.pay_ida") or die ("failed!");
+	public function showPaymentHistory($bal_id, $stud_lrno, $first_name, $middle_name, $last_name, $year_level, $sec_name, $orno, $pay_date, $pay_amt){
+		$sql=$this->conn->query("SELECT bal_id, stud_lrno, CONCAT(first_name,' ', middle_name,' ', last_name) AS Name, year_level, sec_name, DATE_FORMAT(MAX(p.pay_date), '%M %e %Y - %H:%i:%S') AS 'payment_date', pm.orno, SUM(pm.pay_amt) AS pay_amount FROM payment p
+		INNER JOIN (SELECT pay_id, orno, pay_amt, balb_id FROM payment
+		GROUP BY 4 DESC ) pm ON (p.pay_id = pm.pay_id && p.orno = pm.orno && p.pay_amt = pm.pay_amt)
+		JOIN balpay bp ON bp.pay_ida = pm.pay_id
+		JOIN balance bal ON bp.bal_ida = bal.bal_id 
+		JOIN student st ON st.stud_id = bal.stud_idb 
+		JOIN section ON section.sec_id = st.secc_id
+		WHERE st.stud_status='Officially Enrolled' 
+		OR st.stud_status='Temporarily Enrolled' 
+		GROUP BY st.first_name") or die ("failed!");
 		while($row=$sql->fetch(PDO::FETCH_ASSOC)){
 			$data[]=$row;
 		}
 		return $data;
 	}
-	/**************** END REPORTS ****************/
+	/*public function showPreviousPayments($bal_id){
+		$sql=$this->conn->prepare("SELECT pm.pay_amt, pm.orno, DATE_FORMAT(MAX(p.pay_date), '%M %e %Y') AS 'payment_date' FROM balance bal
+		 JOIN balpay bp ON bp.bal_ida = bal.bal_id
+		 JOIN payment pm ON pm.pay_id = bp.pay_ida
+		 JOIN student st ON st.stud_id = bal.stud_idb
+		 JOIN budget_info bi ON pm.budg_ida = bi.budget_id
+		 WHERE bal_id = :bal_id ORDER BY 2 DESC") or die("failed!");
+		$sql->execute(array(':bal_id' => $bal_id));		
+		
+			while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+				echo "<tr>
+						<td>".$row['pay_amt']."</td>
+						<td>".$row['orno']."</td>
+						<td>".$row['pay_date']."</td>
+					  </tr>";
+			}
+		} else{
+			echo "ERROR!";
+		}
+	}*/
+	public function showLogs(){
+		$sql=$this->conn->query("SELECT log_id, DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate, log_event, log_desc, acc_type 
+			FROM logs join accounts ON user_id = acc_id") or die ("failed!");
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+		}else{
+			return $sql;
+		}
+		return $data;
+	}
+	/*************** END LOGS *******************/
 
 	/*************** PROMT / MESSAGE  ***********/
 	private function Prompt($message, $color, $page) {

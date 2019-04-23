@@ -20,21 +20,22 @@
 					<div class="cont1">
 						<p>Grade Level:</p>
 						<select name="year_level">
-							<option value="All">All</option>
-							<option value="Grade 7">Grade 7</option>
-				           	<option value="Grade 8">Grade 8</option>
-				            	<option value="Grade 9">Grade 9</option>
-			               	<option value="Grade 10">Grade 10</option>
+							<option value="">All</option>
+							<option value="7">Grade 7</option>
+				            <option value="8">Grade 8</option>
+				            <option value="9">Grade 9</option>
+			               	<option value="10">Grade 10</option>
 						</select>
 						<p>Balance Status:</p>
 						<select name="bal_status">
+							<option value="">All</option>
 							<option value="Cleared">Cleared</option>
-							<option value="Not Cleared">Not Cleared</option>>
+							<option value="Not Cleared">Not Cleared</option>
 						</select>
 						<button name="view-status" class="customButton">View</button>
 					</div>
 					<div class="cont2">
-						<table id="admin-table" class="display">
+						<table id="admin-table-balstatus" class="display">
 							<thead>	
 								<tr>
 									<th>LRN</th>
@@ -53,11 +54,11 @@ extract($value);
 echo '
 <tr>
 	<td>'.$stud_lrno.'</td>
-	<td>'.$first_name,' ', $middle_name,' ', $last_name.'</td>
+	<td>'.$Name.'</td>
 	<td>'.$year_level.'</td>
 	<td>'.$sec_name.'</td>
 	<td align="right">&#8369;'.number_format($pay_amt, 2).'</td>
-	<td align="right">&#8369;'.number_format($bal_amt, 2).'</td>
+	<td align="right">&#8369;'.number_format($remaining_balance, 2).'</td>
 	<td>'.$bal_status.'</td>
 </tr>	
 ';

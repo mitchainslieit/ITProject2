@@ -48,22 +48,22 @@
  $status = ['Active','Deactivated'];
  echo '
  <tr>
- 	<td>'.$stud_lrno.'</td>
-	<td>'.$first_name.' '.$middle_name.' '.$last_name.'</td>
-	<td>'.$username.'</td>
-	<td>'.$gender.'</td>
-	<td>'.$year_level.'</td>
-	<td>'.$stud_address.'</td>
-	<td>'.$stud_bday.'</td>
-	<td>'.$mother_name.'</td>
-	<th>'.$father_name.'</th>
-	<td>'.$nationality.'</td>
-	<td>'.$ethnicity.'</td>
-	<td>'.$blood_type.'</td>
-	<td>'.$medical_stat.'</td>
-	<td>'.$stud_status.'</td>
-	<td>'.$curr_stat.'</td>
-	<td>'.$acc_status.'</td>
+ 	<td class="tleft">'.$stud_lrno.'</td>
+	<td class="tleft">'.$first_name.' '.$middle_name.' '.$last_name.'</td>
+	<td class="tleft">'.$username.'</td>
+	<td class="tleft">'.$gender.'</td>
+	<td class="tleft">'.$year_level.'</td>
+	<td class="tleft">'.$stud_address.'</td>
+	<td class="tleft">'.$stud_bday.'</td>
+	<td class="tleft">'.$mother_name.'</td>
+	<th class="tleft">'.$father_name.'</th>
+	<td class="tleft">'.$nationality.'</td>
+	<td class="tleft">'.$ethnicity.'</td>
+	<td class="tleft">'.$blood_type.'</td>
+	<td class="tleft">'.$medical_stat.'</td>
+	<td class="tleft">'.$stud_status.'</td>
+	<td class="tleft">'.$curr_stat.'</td>
+	<td class="tleft">'.$acc_status.'</td>
 	<td class="action">
 		<div name="content">
 			<button name="opener">

@@ -2,11 +2,11 @@
 	<?php
 		if (isset($_POST['submit-button'])){
 			extract($_POST);
-			if($obj->addFeeType($budget_name, $acc_amount, "budget_info"));
+			if($obj->addFeeType($budget_name, $total_amount));
 		}
 		if (isset($_POST['update-button'])){
 			extract($_POST);
-			if($obj->updateFeeType($budget_id, $budget_name, $acc_amount, "budget_info"));
+			if($obj->updateFeeType($budget_id, $budget_name, $total_amount));
 		}
 		if (isset($_POST['delete-button'])){
 			extract($_POST);
@@ -31,8 +31,8 @@
 								<form action="admin-feetype" method="POST" required>
 									<span>Fee Type:</span>
 									<input type="text" name="budget_name" value="" placeholder="Fee Type" required>
-									<span>Amount:</span>
-									<input type="text" name="acc_amount" value="" placeholder="Amount" required>
+									<span>Total Amount:</span>
+									<input type="text" name="total_amount" value="" placeholder="Total Amount" required>
 									<button name="submit-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
 								</form>
 							</div>
@@ -43,7 +43,8 @@
 							<thead>
 								<tr>
 									<th>Fee Type</th>
-									<th>Amount</th>
+									<th>Total Amount</th>
+									<th>Account Amount</th>
 									<th>Action</th>
 								</tr>
 							</thead>
@@ -54,6 +55,7 @@
  echo '
  <tr>
  	<td>'.$budget_name.'</td>
+ 	<td align="right">&#8369;'.number_format($total_amount, 2).'</td>
  	<td align="right">&#8369;'.number_format($acc_amount, 2).'</td>
  	<td class="action">
  		<div name="content">
@@ -68,9 +70,9 @@
 					<input type="hidden" value="'.$budget_id.'" name="budget_id">
 					<span>Fee Type:</span>
 					<input type="text" name="budget_name" value="'.$budget_name.'" placeholder="Fee Type" required>
-					<span>Amount:</span>
-					<input type="text" name="acc_amount" value="'.$acc_amount.'" placeholder="Amount" required>
-					<button name="update-button" class="customButton">Update <i class="fas fa-save fnt"></i></button>
+					<span>Total Amount:</span>
+					<input type="text" name="total_amount" value="'.$total_amount.'" placeholder="Total Amount" required>
+					<button name="update-button" class="customButton">Update<i class="fas fa-save fnt"></i></button>
 				</form>
 			</div>  
 		</div>
@@ -96,8 +98,9 @@
 
 <tr>
 	<td><b>TOTAL AMOUNT:<b></td>
-	<td align="right"><font color="green"><b>&#8369;<?php $obj->getTotalBDOF(); ?></b></font></td>
-<td></td>
+	<td align="right"><font color="green"><b>&#8369;<?php $obj->getTotalTotalAmount(); ?></b></font></td>
+	<td align="right"><font color="green"><b>&#8369;<?php $obj->getTotalAccountAmount(); ?></b></font></td>
+	<td></td>
 </tr>
 							</tbody>
 						</table>
