@@ -28,14 +28,13 @@ td.action > *{padding: 0px 5px;}
 textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important; }
 .dataTables_wrapper th, td { white-space: nowrap; }
 .dataTables_wrapper thead tr th:first-of-type{background: #fff}
-#admin-table, #admin-table-withScroll{width: 100%}
 .tleft{text-align: left}
 .tright{text-align: right;}
 .tcenter{text-align: center}
 .custPad{padding: 0px 8px 0px 45px !important;}
 .custPad2{padding: 0px 8px 0px 20px !important;}
 .longText{white-space: unset !important; text-align: justify;}
-#admin-table, #admin-table-withScroll, #ptaTable{width: 100% !important}
+#admin-table, #admin-table-withScroll, #ptaTable, #noFilterTable, #admin-table-balstatus, #admin-table-payhist, #historyDataTable, #admin-table-enrolled{width: 100% !important}
 
 /* tooltip */
 .tooltip {position: relative;display: inline-block;}
@@ -54,7 +53,7 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 /**************************************************content: '';NT PAGE**********************************************************************/
 /* dialog */
 .ui-dialog{padding:0px !important; font-family: 'Open Sans' !important;}
-.ui-widget-overlay.custom-overlay{background-color: black;background-image: none;opacity: 0.8;z-index: 1040;    }
+.ui-widget-overlay.custom-overlay{background-color: black;background-image: none;opacity: 0.8;z-index: 1040;}
 .ui-dialog .ui-dialog-title{color: #fff; font-weight: 400;}
 .ui-widget.ui-widget-content{width: 700px !important;border: none!important;}
 .ui-widget-content span{padding-top: unset !important;}
@@ -109,6 +108,11 @@ h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
 #admin_home .contentpage .widget .widgetContent .cont1 p{font-size: 15px; padding: 0;margin: 0; letter-spacing: 1px;}
 #admin_home .contentpage .widget .widgetContent .cont1 span{font-family: Arial; font-weight: 700}
 
+/* payment status */
+#admin_home .contentpage .widget .balContent .cont1{display: unset}
+#admin_home .contentpage .widget .balContent > p{text-align: left}
+#admin_home .contentpage .widget .balContent .cont1 .box{display: flex; width: 420px; justify-content: space-between; align-items: center; margin-bottom: 15px}
+#admin_home .contentpage .widget .balContent .cont1 .box select{width: 215px; height: 33px;}
 /* #admin_home .contentpage .widget .widgetContent .cont2 select{width: 66px;height: 32px; font-size: 15px;}
 #admin_home .contentpage .widget .widgetContent .cont2 span{ color: #000}
 #admin_home .contentpage .widget .widgetContent .cont2 {display: flex;justify-content: space-between;align-items: center; padding: 17px 0;}
@@ -156,7 +160,6 @@ h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
 .ui-widget-content input::placeholder{letter-spacing: 2px}
 .ui-widget-content button{float: right; letter-spacing: 0px; border-radius: 2px; font-family: 'Open Sans' !important;}
 
-
 /* parent */
 .ptaContent > [name="content"], .parentContent > [name="content"]{text-align: left;}
 .widgetParent{margin-bottom: 30px;}
@@ -166,9 +169,21 @@ h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
 #admin_home .contentpage .widget .parentContent .customTable th>i{padding-left: 10px}
 #admin_home .contentpage .widget .parentContent .customTable td{white-space:nowrap;height: 36px;font-size: 14px; border: 1px solid #ddd;}
 
+
 /* event */
-input[type="checkbox"]{width: 10% !important;}
+input[type="checkbox"]{width: 11% !important;}
 span.attachment{font-weight: 400; font-style: italic; display: block}
+
+/* reports */
+#admin_home .contentpage .widget .payHistoryContent .cont1,#admin_home .contentpage .widget .enrolledContent .cont1{display: unset}
+#admin_home .contentpage .widget .payHistoryContent > p, #admin_home .contentpage .widget .enrolledContent > p{text-align: left}
+#admin_home .contentpage .widget .payHistoryContent .cont1 .box, #admin_home .contentpage .widget .enrolledContent .cont1 .box{display: flex; width: 420px; justify-content: space-between; align-items: center; margin-bottom: 15px}
+#admin_home .contentpage .widget .payHistoryContent .cont1 .box select, #admin_home .contentpage .widget .enrolledContent .cont1 .box select{width: 215px; height: 33px;}
+.ui-dialog-content{min-height: 62px !important}
+
+/* logs */
+#admin_home .contentpage .widget .logsContent .cont1{width: 170px;}
+.logLongText{white-space: unset !important; text-align: justify;}
 /**************************************************END CONTENT PAGE**********************************************************************/
 
 /* footer */

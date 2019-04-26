@@ -30,7 +30,7 @@
 							<div name="dialog" title="Add Class">
 								<form action="admin-subjects" method="POST">
 									<span>Subject Level:</span>
-									<select name="subj_level" value="" required>
+									<select name="subj_level" data-validation="required">
 										<option selected disabled hidden>Select Subject Level</option>
 										<option value="7">7</option>
 										<option value="8">8</option>
@@ -38,7 +38,7 @@
 										<option value="10">10</option>
 									</select>
 									<span>Subject Department:</span>
-									<select name="subj_dept" value="" required>
+									<select name="subj_dept" data-validation="required" required>
 										<option selected disabled hidden>Select Department</option>
 										<option value="Filipino">Filipino</option>
 										<option value="Math">Math</option>
@@ -51,7 +51,7 @@
 										<option value="Math">Math</option>
 									</select>
 									<span>Subject Name:</span>
-									<input type="text" name="subj_name" value="" required placeholder="Subject Name">
+									<input type="text" name="subj_name" data-validation="length custom" data-validation-length="max45" data-validation-regexp="^[a-zA-Z0-9\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphaneumerics only" value="" data-validation="required" required placeholder="Subject Name">
 									<button name="submit-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
 								</form>
 							</div>
@@ -89,7 +89,7 @@ echo '
 					<form action="admin-subjects" method="POST" required>
 						<input type="hidden" name="subj_id" value="'.$subj_id.'" required>
 						<span>Subject Level:</span>
-						<select name="subj_level" value="" required>
+						<select name="subj_level" value="" data-validation="required"  required>
 						';
 						for ($c = 0; $c < sizeof($subject_level); $c++) {
 							echo $subj_level === $subject_level[$c] ? '<option value="'.$subject_level[$c].'" selected="selected">'.$subject_level[$c].'</option>' : '<option value="'.$subject_level[$c].'">'.$subject_level[$c].'</option>';	
@@ -97,7 +97,7 @@ echo '
 						echo '	
 						</select>
 						<span>Subject Department:</span>
-						<select name="subj_dept">
+						<select name="subj_dept" data-validation="required" required>
 						';
 						for ($c = 0; $c < sizeof($department); $c++) {
 							echo $subj_dept === $department[$c] ? '<option value="'.$department[$c].'" selected="selected">'.$department[$c].'</option>' : '<option value="'.$department[$c].'">'.$department[$c].'</option>';	
@@ -105,7 +105,7 @@ echo '
 						echo '
 						</select>
 						<span>Subject Name:</span>
-						<input type="text" name="subj_name" value="'.$subj_name.'" required>
+						<input type="text" data-validation="length custom" data-validation-length="max45" data-validation-regexp="^[a-zA-Z0-9\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphanumerics only" name="subj_name" value="'.$subj_name.'" data-validation="required" required>
 						<button name="update-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
 					</form>
 				</div>  

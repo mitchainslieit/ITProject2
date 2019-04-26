@@ -28,11 +28,11 @@
 						<div name="content">
 							<button name="opener" class="customButton">Add Fee Type<i class="fas fa-plus fnt"></i></button>
 							<div name="dialog" title="Create new Fee type">
-								<form action="admin-feetype" method="POST" required>
+								<form action="admin-feetype" id="" method="POST" required>
 									<span>Fee Type:</span>
-									<input type="text" name="budget_name" value="" placeholder="Fee Type" required>
+									<input type="text" name="budget_name" value="" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Fee Type" required>
 									<span>Total Amount:</span>
-									<input type="text" name="total_amount" value="" placeholder="Total Amount" required>
+									<input type="text" name="total_amount" data-validation="number" data-validation-error-msg="Input numbers only" value="" placeholder="Total Amount" required>
 									<button name="submit-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
 								</form>
 							</div>
@@ -44,7 +44,6 @@
 								<tr>
 									<th>Fee Type</th>
 									<th>Total Amount</th>
-									<th>Account Amount</th>
 									<th>Action</th>
 								</tr>
 							</thead>
@@ -56,7 +55,6 @@
  <tr>
  	<td>'.$budget_name.'</td>
  	<td align="right">&#8369;'.number_format($total_amount, 2).'</td>
- 	<td align="right">&#8369;'.number_format($acc_amount, 2).'</td>
  	<td class="action">
  		<div name="content">
 			<button name="opener">
@@ -69,9 +67,9 @@
 				<form action="admin-feetype" method="POST" required>
 					<input type="hidden" value="'.$budget_id.'" name="budget_id">
 					<span>Fee Type:</span>
-					<input type="text" name="budget_name" value="'.$budget_name.'" placeholder="Fee Type" required>
+					<input type="text" name="budget_name" value="'.$budget_name.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Fee Type">
 					<span>Total Amount:</span>
-					<input type="text" name="total_amount" value="'.$total_amount.'" placeholder="Total Amount" required>
+					<input type="text" name="total_amount" data-validation="number required" data-validation-error-msg="Input numbers only" value="'.$total_amount.'" placeholder="Total Amount">
 					<button name="update-button" class="customButton">Update<i class="fas fa-save fnt"></i></button>
 				</form>
 			</div>  
@@ -99,7 +97,6 @@
 <tr>
 	<td><b>TOTAL AMOUNT:<b></td>
 	<td align="right"><font color="green"><b>&#8369;<?php $obj->getTotalTotalAmount(); ?></b></font></td>
-	<td align="right"><font color="green"><b>&#8369;<?php $obj->getTotalAccountAmount(); ?></b></font></td>
 	<td></td>
 </tr>
 							</tbody>

@@ -79,66 +79,187 @@ class AdminFunct{
 	/**************** FEE TYPE *******************/
 	public function addFeeType($budget_name, $total_amount) {
 		try{
-		$query1=$this->conn->prepare("INSERT INTO budget_info (budget_name, total_amount, acc_amount) VALUES(:budget_name, :total_amount, '0')");
-		if($query1->execute(array(
-			':budget_name' => $budget_name,
-			':total_amount' => $total_amount
-		))){
-			$query2=$this->conn->prepare("SELECT * FROM budget_info ORDER BY 1 DESC LIMIT 1");
-			$query2->execute();
-			$row=$query2->fetch(PDO::FETCH_ASSOC);
-			$budget_name=$row['budget_name'];
-			$log_event="Insert";
-			$log_desc="Added Fee Type ".$budget_name." with amount of &#8369;".number_format($total_amount, 2);
-			$this->insertLogs($log_event, $log_desc);
-			$this->alert("Success!", "A new Fee Type has been created! Fee Type: $budget_name, Amount: $total_amount", "success", "admin-feetype");
+			$query1=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee FROM budget_info");
+			$query1->execute();
+			$row1=$query1->fetch(PDO::FETCH_ASSOC);
+			$prev_misc_fee=$row1['misc_fee'];
+
+			$query2=$this->conn->prepare("INSERT INTO budget_info (budget_name, total_amount, acc_amount) VALUES(:budget_name, :total_amount, '0')");
+			
+			if($query2->execute(array(
+				':budget_name' => $budget_name,
+				':total_amount' => $total_amount
+			))){
+				$query3=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee, (SUM(total_amount) - $prev_misc_fee) as difference FROM budget_info");
+				$query3->execute();
+				$row3=$query3->fetch(PDO::FETCH_ASSOC);
+				$difference=$row3['difference'];
+
+				$query4=$this->conn->prepare("SELECT bal_amt, bal_id FROM balance");
+				$query4->execute();
+				if($query4->rowCount() > 0){	
+					$query5=$this->conn->prepare("UPDATE balance SET misc_fee = (misc_fee +:difference), bal_amt = (bal_amt +:difference), bal_status='Not Cleared'");
+					$query5->execute(array(
+						':difference' => $difference,
+						':difference' => $difference
+					));
+				}		
+				
+				$query6 = $this->conn->prepare("SELECT * FROM payment");
+				$query6->execute();
+				if($query6->rowCount() > 0){
+					$query7=$this->conn->prepare("SELECT max(pay_id) as pay_id from payment group by balb_id");
+					$query7->execute();
+					$result = $query7->fetchAll();
+					foreach($result as $row) {
+						$query8=$this->conn->prepare("UPDATE payment set remain_bal = (remain_bal +:difference) WHERE pay_id=:pay_id");
+						$query8->execute(array(
+							':difference' => $difference,
+							':pay_id' => $row['pay_id']
+						)) or die ('failed');
+					}
+				}
+				
+				$query9=$this->conn->prepare("SELECT * FROM budget_info ORDER BY 1 DESC LIMIT 1");
+				$query9->execute();
+				$row9=$query9->fetch(PDO::FETCH_ASSOC);
+				$budget_name=$row9['budget_name'];
+				$log_event="Insert";
+				$log_desc="Added Fee Type ".$budget_name." with amount of ".number_format($total_amount, 2);
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "A new Fee Type has been created! Fee Type: $budget_name, Amount: $total_amount", "success", "admin-feetype");
 			}else{	
 				$this->alert("Error!", "Failed to add Fee Type! This Fee Type already exist.", "error", "admin-feetype");
-				}
-			} catch (PDOException $exception) {
-				die('ERROR: ' . $exception->getMessage());
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
 		}
 	}
 	public function updateFeeType($id, $budget_name, $total_amount){
 		try{
+			$query1=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee FROM budget_info");
+			$query1->execute();
+			$row1=$query1->fetch(PDO::FETCH_ASSOC);
+			$prev_misc_fee=$row1['misc_fee'];
+			
 			$sql1=$this->conn->prepare("UPDATE budget_info SET budget_name=:budget_name, total_amount=:total_amount WHERE budget_id=:budget_id");
 			if($sql1->execute(array(
 				':budget_name' => $budget_name,
 				':total_amount' => $total_amount,
 				':budget_id'=>$id
 			))){
+				$query6=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee FROM budget_info");
+				$query6->execute();
+				$row6=$query6->fetch(PDO::FETCH_ASSOC);
+				$prev_misc_fee2=$row6['misc_fee'];
+				
+				$query7=$this->conn->prepare("SELECT ($prev_misc_fee2 - misc_fee) as difference FROM balance");
+				$query7->execute();
+				$row7=$query7->fetch(PDO::FETCH_ASSOC);
+				$difference2=$row7['difference'];
+				
+				$query8=$this->conn->prepare("SELECT * FROM balance");
+				$query8->execute();
+				if($query8->rowCount() > 0){
+					$query9=$this->conn->prepare("UPDATE balance SET misc_fee = (misc_fee + $difference2), bal_amt = (bal_amt + $difference2)");
+					$query9->execute();
+					$query13=$this->conn->prepare("SELECT * FROM balance");
+					$query13->execute();
+					$result13 = $query13->fetchAll();
+					foreach ($result13 as $row13) {
+						if($row13['bal_amt'] == 0){
+							$query14=$this->conn->prepare("UPDATE balance SET bal_status='Cleared' WHERE bal_amt='0'");
+							$query14->execute();
+						}else{
+							$query15=$this->conn->prepare("UPDATE balance SET bal_status='Not Cleared' WHERE bal_amt > '0'");
+							$query15->execute();
+						}
+					}
+				}
+				$query10 = $this->conn->prepare("SELECT * FROM payment");
+				$query10->execute();
+				if($query10->rowCount() > 0){
+					$query11=$this->conn->prepare("SELECT max(pay_id) as pay_id from payment group by balb_id");
+					$query11->execute();
+					$result2 = $query11->fetchAll();
+					foreach($result2 as $row) {
+						$query12=$this->conn->prepare("UPDATE payment set remain_bal = (remain_bal +:difference) WHERE pay_id=:pay_id");
+						$query12->execute(array(
+							':difference' => $difference2,
+							':pay_id' => $row['pay_id']
+						)) or die ('failed');
+					}
+				}
 				$sql2=$this->conn->prepare("SELECT * FROM budget_info WHERE budget_id=?");
 				$sql2->bindParam(1, $id);
 				$sql2->execute();
 				$row=$sql2->fetch(PDO::FETCH_ASSOC);
 				$budget_name=$row['budget_name'];
 				$log_event="Update";
-				$log_desc="Updated Fee Type ".$budget_name." with amount of &#8369;".number_format($total_amount, 2);
+				$log_desc="Updated Fee Type ".$budget_name." with amount of ".number_format($total_amount, 2);
 				$this->insertLogs($log_event, $log_desc);
 				$this->alert("Success!", "Fee Type  $budget_name with amount of $total_amount has been updated.", "success", "admin-feetype");
 			}else{	
-				$this->alert("Error!", "Failed to update Fee Type!", "error", "admin-feetype");
-					}
-				} catch (PDOException $exception) {
-					die('ERROR: ' . $exception->getMessage());
+				 $this->alert("Error!", "Failed to update Fee Type!", "error", "admin-feetype");
 			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
 	}
 	public function deleteFeeType($id, $table){
 		try{
 			$sql1=$this->conn->prepare("SELECT * FROM budget_info WHERE budget_id=:budget_id");
 			$sql1->execute(array(
 				':budget_id'=>$id
-		));
+			));
 			$row=$sql1->fetch(PDO::FETCH_ASSOC);
 			$budget_name=$row['budget_name'];
+			$budget_amt=$row['total_amount'];
+			
 			$sql2=$this->conn->prepare("DELETE FROM budget_info WHERE budget_id=:budget_id");
 			if($sql2->execute(array(
 				':budget_id'=>$id
-		))){
-			$log_event="Delete";
-			$log_desc="Deleted Fee Type ".$budget_name;
-			$this->insertLogs($log_event, $log_desc);
-			$this->alert("Success!", "Fee Type  $budget_name has been deleted.", "success", "admin-feetype");
+			))){
+				$query1=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee FROM budget_info");
+				$query1->execute();
+				$row1=$query1->fetch(PDO::FETCH_ASSOC);
+				$prev_misc_fee=$row1['misc_fee'];
+				
+				$query3=$this->conn->prepare("SELECT * FROM balance");
+				$query3->execute();
+				if($query3->rowCount() > 0){
+					$query4=$this->conn->prepare("UPDATE balance SET misc_fee = $prev_misc_fee, bal_amt = (bal_amt - $budget_amt)");
+					$query4->execute();
+					$query13=$this->conn->prepare("SELECT * FROM balance");
+					$query13->execute();
+					$result13 = $query13->fetchAll();
+					foreach ($result13 as $row13) {
+						if($row13['bal_amt'] == 0){
+							$query14=$this->conn->prepare("UPDATE balance SET bal_status='Cleared' WHERE bal_amt='0'");
+							$query14->execute();
+						}
+					}
+				}
+				
+				$query10 = $this->conn->prepare("SELECT * FROM payment");
+				$query10->execute();
+				if($query10->rowCount() > 0){
+					$query11=$this->conn->prepare("SELECT max(pay_id) as pay_id from payment group by balb_id");
+					$query11->execute();
+					$result = $query11->fetchAll();
+					foreach($result as $row) {
+						$query12=$this->conn->prepare("UPDATE payment set remain_bal = (remain_bal -:difference) WHERE pay_id=:pay_id");
+						$query12->execute(array(
+							':difference' => $budget_amt,
+							':pay_id' => $row['pay_id']
+						)) or die ('failed');
+					}
+				}
+				
+				$log_event="Delete";
+				$log_desc="Deleted Fee Type ".$budget_name;
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "Fee Type  $budget_name has been deleted.", "success", "admin-feetype");
 			}else{	
 				$this->alert("Error!", "Failed to delete Fee Type!", "error", "admin-feetype");
 			}
@@ -149,6 +270,16 @@ class AdminFunct{
 	/**************** END FEE TYPE **************/
 
 	/******** STUDENT PAYMENT STATUS ***********/
+	public function getGradeAndSection(){
+		$sql=$this->conn->prepare("SELECT sec_id, grade_lvl, sec_name, CONCAT('Grade ', grade_lvl, ' - ', sec_name) AS gradesec 
+			FROM section ORDER BY grade_lvl");
+		$sql->execute();
+		$option = '';
+		while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			$option .= '<option value="'.str_replace(' ', '', strtolower(('Grade'.$row['grade_lvl'].'-'.$row['sec_name']))).'" name="gradesec">'.$row["gradesec"].'</option>';
+		}
+		echo $option;
+	}
 	public function showPaymentStatus(){
 		$sql=$this->conn->query("SELECT distinct(bal_id), stud_lrno, Name, year_level,  sec_name, pay_amt, remaining_balance, bal_status, date, stud_id
 		FROM (SELECT DISTINCT (bal_id), stud_lrno, year_level, CONCAT(first_name, ' ', last_name) AS 'Name', bal_amt 'remaining_balance',
@@ -192,8 +323,12 @@ class AdminFunct{
 		GROUP BY st.first_name ORDER by 1) al
 		WHERE stud_status IN ('Officially Enrolled','Temporarily Enrolled')
 		GROUP BY Name") or die ("failed!");
-		while($row=$sql->fetch(PDO::FETCH_ASSOC)){
-			$data[]=$row;
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+		}else{
+			return $sql;
 		}
 		return $data;
 	}
@@ -579,10 +714,43 @@ class AdminFunct{
 		$queryUpdate->execute();
 		return $getaccid;
 	}
+	public function resetFacultyPassword($acc_id){
+		$querySearch = $this->conn->prepare("SELECT acc_id FROM accounts WHERE acc_id=?");
+		$querySearch->bindParam(1, $acc_id);
+		$querySearch->execute();
+		$row = $querySearch->fetch();
+		$getaccid = $row['acc_id'];
+		
+		$querySearch1 = $this->conn->prepare("SELECT fac_fname, fac_midname, fac_lname FROM faculty WHERE acc_idz=?");
+		$querySearch1->bindParam(1, $getaccid);
+		$querySearch1->execute();
+		$row1 = $querySearch1->fetch();
+		$fname = $row1['fac_fname'];
+		$fmidname = $row1['fac_midname'];
+		$flname = $row1['fac_lname'];
+		$password = str_replace(' ', ' ', ($fname[0].$fmidname[0].$flname));
+		$newPass = password_hash($password, PASSWORD_DEFAULT);
+		
+		$queryUpdate = $this->conn->prepare("UPDATE accounts SET password=:password WHERE acc_id=:acc_id");
+		if($queryUpdate->execute(array(
+			':password' => $newPass,
+			':acc_id' => $acc_id
+		))){
+			$sql2=$this->conn->prepare("SELECT username FROM accounts WHERE acc_id=:acc_id");
+			$sql2->execute(array(
+				':acc_id' => $acc_id
+			));
+			$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+			$username=$row2['username'];
+			$this->Prompt("Successfully reset account password! Username = <span class='prompt'>$username</span> Password: <span class='prompt'>$password</span>", "rgb(1, 58, 6)", "admin-faculty");
+		}else{
+			$this->alert("Error!", "Failed to reset account password!", "error", "admin-faculty");
+		}
+	}
 	public function insertFacultyData($fac_no, $fac_fname, $fac_midname, $fac_lname, $fac_dept, $fac_adviser) {
 		try {
 			$created=date('Y-m-d H:i:s');
-			$password = 'password';
+			$password = str_replace(' ', ' ', ($fac_fname[0].$fac_midname[0].$fac_lname));
 			$usernameFac= str_replace(' ', ' ', ($fac_fname[0].$fac_midname[0].$fac_lname));
 			$FacultyAccid = $this->createFacultyAccount($usernameFac, $password, 'Faculty');
 			$sql1 = $this->conn->prepare("INSERT INTO faculty SET fac_no=:fac_no, fac_fname=:fac_fname, fac_lname=:fac_lname, fac_midname=:fac_midname, fac_dept=:fac_dept, fac_adviser=:fac_adviser, timestamp_fac=:timestamp_fac, acc_idz=:acc_idz");
@@ -607,7 +775,7 @@ class AdminFunct{
 				$sql2->execute();
 				$row=$sql2->fetch(PDO::FETCH_ASSOC);
 				$username=$row['username'];
-				$this->Prompt("Account has been created! Username = <span class='prompt'>$username</span> Password: $password", "rgb(1, 58, 6)", "admin-parent");
+				$this->Prompt("Account has been created! Username = <span class='prompt'>$username</span> Password: <span class='prompt'>$password</span>", "rgb(1, 58, 6)", "admin-faculty");
 			}else{
 				$this->alert("Error!", "Failed to insert faculty! This user already exist!", "error", "admin-faculty");
 			}
@@ -769,11 +937,76 @@ class AdminFunct{
 		$queryUpdate->execute();
 		return $getaccid;
 	}
-	
+	public function resetPTAPassword($acc_id){
+		$querySearch = $this->conn->prepare("SELECT acc_id FROM accounts WHERE acc_id=?");
+		$querySearch->bindParam(1, $acc_id);
+		$querySearch->execute();
+		$row = $querySearch->fetch();
+		$getaccid = $row['acc_id'];
+		
+		$querySearch1 = $this->conn->prepare("SELECT tr_fname, tr_midname, tr_lname FROM treasurer WHERE acc_trid=?");
+		$querySearch1->bindParam(1, $getaccid);
+		$querySearch1->execute();
+		$row1 = $querySearch1->fetch();
+		$tr_fname = $row1['tr_fname'];
+		$tr_midname = $row1['tr_midname'];
+		$tr_lname = $row1['tr_lname'];
+		$password = str_replace(' ', ' ', ($tr_fname[0].$tr_midname[0].$tr_lname));
+		$newPass = password_hash($password, PASSWORD_DEFAULT);
+		
+		$queryUpdate = $this->conn->prepare("UPDATE accounts SET password=:password WHERE acc_id=:acc_id");
+		if($queryUpdate->execute(array(
+			':password' => $newPass,
+			':acc_id' => $getaccid
+		))){
+			$sql2=$this->conn->prepare("SELECT username FROM accounts WHERE acc_id=:acc_id");
+			$sql2->execute(array(
+				':acc_id' => $getaccid
+			));
+			$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+			$username=$row2['username'];
+			$this->Prompt("Successfully reset account password! Username = <span class='prompt'>$username</span> Password: <span class='prompt'>$password</span>", "rgb(1, 58, 6)", "admin-parent");
+		}else{
+			$this->alert("Error!", "Failed to reset account password!", "error", "admin-parent");
+		}
+	}
+	public function resetParentPassword($acc_id){
+		$querySearch = $this->conn->prepare("SELECT acc_id FROM accounts WHERE acc_id=?");
+		$querySearch->bindParam(1, $acc_id);
+		$querySearch->execute();
+		$row = $querySearch->fetch();
+		$getaccid = $row['acc_id'];
+		
+		$querySearch1 = $this->conn->prepare("SELECT guar_fname, guar_midname, guar_lname FROM guardian WHERE acc_idx=?");
+		$querySearch1->bindParam(1, $getaccid);
+		$querySearch1->execute();
+		$row1 = $querySearch1->fetch();
+		$guar_fname = $row1['guar_fname'];
+		$guar_midname = $row1['guar_midname'];
+		$guar_lname = $row1['guar_lname'];
+		$password = str_replace(' ', ' ', ($guar_fname[0].$guar_midname[0].$guar_lname));
+		$newPass = password_hash($password, PASSWORD_DEFAULT);
+		
+		$queryUpdate = $this->conn->prepare("UPDATE accounts SET password=:password WHERE acc_id=:acc_id");
+		if($queryUpdate->execute(array(
+			':password' => $newPass,
+			':acc_id' => $getaccid
+		))){
+			$sql2=$this->conn->prepare("SELECT username FROM accounts WHERE acc_id=:acc_id");
+			$sql2->execute(array(
+				':acc_id' => $acc_id
+			));
+			$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+			$username=$row2['username'];
+			$this->Prompt("Successfully reset account password! Username = <span class='prompt'>$username</span> Password: <span class='prompt'>$password</span>", "rgb(1, 58, 6)", "admin-parent");
+		}else{
+			$this->alert("Error!", "Failed to reset account password!", "error", "admin-parent");
+		}
+	}
 	public function insertPTAData($tr_fname, $tr_midname, $tr_lname) {
 		try {
 			$tr_sy=date("Y");
-			$password = 'password';
+			$password = str_replace(' ', ' ', ($tr_fname[0].$tr_midname[0].$tr_lname));
 			$usernamePTA= str_replace(' ', ' ', ($tr_fname[0].$tr_midname[0].$tr_lname));
 			$PTAAccid = $this->createPTAAccount($usernamePTA, $password, 'treasurer');
 			$sql = $this->conn->prepare("INSERT INTO treasurer SET tr_fname=:tr_fname, tr_lname=:tr_lname, tr_midname=:tr_midname, tr_sy=:tr_sy, acc_trid=:acc_trid");
@@ -1025,6 +1258,39 @@ class AdminFunct{
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
+	public function resetStudentPassword($acc_id){
+		$querySearch = $this->conn->prepare("SELECT acc_id FROM accounts WHERE acc_id=?");
+		$querySearch->bindParam(1, $acc_id);
+		$querySearch->execute();
+		$row = $querySearch->fetch();
+		$getaccid = $row['acc_id'];
+		
+		$querySearch1 = $this->conn->prepare("SELECT first_name, middle_name, last_name FROM student WHERE accc_id=?");
+		$querySearch1->bindParam(1, $getaccid);
+		$querySearch1->execute();
+		$row1 = $querySearch1->fetch();
+		$first_name = $row1['first_name'];
+		$middle_name = $row1['middle_name'];
+		$last_name = $row1['last_name'];
+		$password = str_replace(' ', ' ', ($first_name[0].$middle_name[0].$last_name));
+		$newPass = password_hash($password, PASSWORD_DEFAULT);
+		
+		$queryUpdate = $this->conn->prepare("UPDATE accounts SET password=:password WHERE acc_id=:acc_id");
+		if($queryUpdate->execute(array(
+			':password' => $newPass,
+			':acc_id' => $getaccid
+		))){
+			$sql2=$this->conn->prepare("SELECT username FROM accounts WHERE acc_id=:acc_id");
+			$sql2->execute(array(
+				':acc_id' => $getaccid
+			));
+			$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+			$username=$row2['username'];
+			$this->Prompt("Successfully reset account password! Username = <span class='prompt'>$username</span> Password: <span class='prompt'>$password</span>", "rgb(1, 58, 6)", "admin-student");
+		}else{
+			$this->alert("Error!", "Failed to reset account password!", "error", "admin-student");
+		}
+	}
 	public function updateStudentAccountStatus($id, $acc_status){
 		try {
 			$sql = $this->conn->prepare("UPDATE accounts
@@ -1107,7 +1373,7 @@ class AdminFunct{
 			$html = '<tr>';
 			$html .= '<td class="tleft custPad2 longText">';
 			$html .= '<h3 class="att_title">'.$row['post'].'</h3>';
-			$html .= $row['attachment'] !== null ? '<p class="tright attachment"><a href="public/attachment/'.$row['attachment'].'" download target="_blank">Download attachemt</a></p>' : '';
+			$html .= $row['attachment'] !== null ? '<p class="tright attachment"><a href="public/attachment/'.$row['attachment'].'" download">Download attachemt</a></p>' : '';
 			$html .= '</td>';
 			$html .= '</tr>';
 			echo $html;
@@ -1130,12 +1396,18 @@ class AdminFunct{
 			if($sql->execute(array(
 			':title'  => (empty($title) ? null : $title),
 			':date_start' => $date_start,
-			':date_end' => $date_end,
+			':date_end' => $date_end.' 23:59:59',
 			':post_adminid' => $_SESSION['accid']))){
 				$sql2=$this->conn->prepare("SELECT * from announcements WHERE post_adminid=? ORDER BY ann_id DESC LIMIT 1");
 				$sql2->bindParam(1, $admin_id);
 				$sql2->execute();
 				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+				$ann_id=$row2['ann_id'];
+				$sql3=$this->conn->prepare("INSERT INTO admann SET adminn_id=:adminn_id, annn_id=:annn_id");
+				$sql3->execute(array(
+					':adminn_id' => $_SESSION['accid'],
+					':annn_id' => $ann_id
+				));
 				$log_event="Insert";
 				$log_desc="Added announcement with a Title: ".$title;
 				$this->insertLogs($log_event, $log_desc);
@@ -1172,8 +1444,14 @@ class AdminFunct{
 				$sql2->bindParam(1, $admin_id);
 				$sql2->execute();
 				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+				$ann_id=$row2['ann_id'];
+				$sql3=$this->conn->prepare("INSERT INTO admann set adminn_id=:adminn_id, annn_id=:annn_id");
+				$sql3->execute(array(
+					':adminn_id' => $_SESSION['accid'],
+					':annn_id' => $ann_id
+				));
 				$log_event="Insert";
-				$log_desc="Added announcement with a Announcement: ".$post;
+				$log_desc="Added announcement: ".$post;
 				$this->insertLogs($log_event, $log_desc);
 				$this->alert("Success!", "An announcement has been created! Announcement: $post, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
 			}else{
@@ -1200,7 +1478,8 @@ class AdminFunct{
 		$staticValue="attachment";
 		$path = "public/attachment/";
 		$underScore="_";
-		$ext = end(explode('.', $file));
+		$tmp = explode('.', $file);
+		$ext = end($tmp);
 		$filename = "$staticValue$underScore$id.".$ext;
         	$newname = $path.$filename;
 		if(!empty($attachment['name'])){
@@ -1456,51 +1735,80 @@ class AdminFunct{
 		$rowCount=$sql->fetch();
 		echo " ". number_format($rowCount['sum(total_amount)'], 2) . " ";
 	}
-	public function getTotalAccountAmount(){
-		$sql=$this->conn->prepare("SELECT sum(acc_amount) FROM budget_info");
-		$sql->execute();
-		$rowCount=$sql->fetch();
-		echo " ". number_format($rowCount['sum(acc_amount)'], 2) . " ";
-	}
 	public function showPaymentHistory($bal_id, $stud_lrno, $first_name, $middle_name, $last_name, $year_level, $sec_name, $orno, $pay_date, $pay_amt){
 		$sql=$this->conn->query("SELECT bal_id, stud_lrno, CONCAT(first_name,' ', middle_name,' ', last_name) AS Name, year_level, sec_name, DATE_FORMAT(MAX(p.pay_date), '%M %e %Y - %H:%i:%S') AS 'payment_date', pm.orno, SUM(pm.pay_amt) AS pay_amount FROM payment p
-		INNER JOIN (SELECT pay_id, orno, pay_amt, balb_id FROM payment
-		GROUP BY 4 DESC ) pm ON (p.pay_id = pm.pay_id && p.orno = pm.orno && p.pay_amt = pm.pay_amt)
-		JOIN balpay bp ON bp.pay_ida = pm.pay_id
-		JOIN balance bal ON bp.bal_ida = bal.bal_id 
-		JOIN student st ON st.stud_id = bal.stud_idb 
-		JOIN section ON section.sec_id = st.secc_id
-		WHERE st.stud_status='Officially Enrolled' 
-		OR st.stud_status='Temporarily Enrolled' 
-		GROUP BY st.first_name") or die ("failed!");
-		while($row=$sql->fetch(PDO::FETCH_ASSOC)){
-			$data[]=$row;
+			INNER JOIN (SELECT pay_id, orno, pay_amt, balb_id FROM payment
+			GROUP BY 4 DESC ) pm ON (p.pay_id = pm.pay_id && p.orno = pm.orno && p.pay_amt = pm.pay_amt)
+			JOIN balpay bp ON bp.pay_ida = pm.pay_id
+			JOIN balance bal ON bp.bal_ida = bal.bal_id 
+			JOIN student st ON st.stud_id = bal.stud_idb 
+			JOIN section ON section.sec_id = st.secc_id
+			WHERE st.stud_status='Officially Enrolled' 
+			OR st.stud_status='Temporarily Enrolled' 
+			GROUP BY st.first_name") or die ("failed!");
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+		}else{
+			return $sql;
 		}
 		return $data;
 	}
-	/*public function showPreviousPayments($bal_id){
-		$sql=$this->conn->prepare("SELECT pm.pay_amt, pm.orno, DATE_FORMAT(MAX(p.pay_date), '%M %e %Y') AS 'payment_date' FROM balance bal
-		 JOIN balpay bp ON bp.bal_ida = bal.bal_id
-		 JOIN payment pm ON pm.pay_id = bp.pay_ida
-		 JOIN student st ON st.stud_id = bal.stud_idb
-		 JOIN budget_info bi ON pm.budg_ida = bi.budget_id
-		 WHERE bal_id = :bal_id ORDER BY 2 DESC") or die("failed!");
-		$sql->execute(array(':bal_id' => $bal_id));		
-		
-			while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
-				echo "<tr>
-						<td>".$row['pay_amt']."</td>
-						<td>".$row['orno']."</td>
-						<td>".$row['pay_date']."</td>
-					  </tr>";
-			}
-		} else{
-			echo "ERROR!";
+	public function getStatistics($yr_level) {
+		if($yr_level === "All") {
+			$query = $this->conn->prepare("SELECT sum(pay_amt) as payments, year_level from payment join balance on balb_id = bal_id join student on stud_idb = stud_id group by year_level");
+		} else {
+			$query = $this->conn->prepare("SELECT sum(pay_amt) as payments, year_level from payment join balance on balb_id = bal_id join student on stud_idb = stud_id group by year_level");
 		}
-	}*/
-	public function showLogs(){
-		$sql=$this->conn->query("SELECT log_id, DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate, log_event, log_desc, acc_type 
-			FROM logs join accounts ON user_id = acc_id") or die ("failed!");
+		
+		$query->execute();
+		$rowCount = $query->rowCount();
+		if($rowCount > 0) {
+			while($row = $query->fetch()){
+				echo  "['Grade ".$row['year_level']."', " .$row['payments']."],"; 
+			} 	
+		}
+		
+	} 
+	
+	/**************** LOGS ********************/
+	
+	public function showAdminLogs(){
+		$sql=$this->conn->query("SELECT CONCAT(adm_fname,' ',adm_midname,' ',adm_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate 
+			FROM logs 
+			JOIN accounts on acc_id = user_id 
+			JOIN admin on acc_admid = acc_id") or die ("failed!");
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+		}else{
+			return $sql;
+		}
+		return $data;
+	}
+	public function showFacultyLogs(){
+		$sql=$this->conn->query("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate 
+			FROM logs 
+			JOIN accounts on acc_id = user_id 
+			JOIN faculty on acc_idz = acc_id") or die ("failed!");
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+		}else{
+			return $sql;
+		}
+		return $data;
+	}
+	public function showTreasurerLogs(){
+		$sql=$this->conn->query("SELECT CONCAT(tr_fname,' ',tr_midname,' ',tr_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate 
+			FROM logs 
+			JOIN accounts on acc_id = user_id 
+			JOIN treasurer on acc_trid = acc_id") or die ("failed!");
+		/*$sql=$this->conn->query("SELECT DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate, log_event, log_desc, acc_type 
+			FROM logs join accounts ON user_id = acc_id") or die ("failed!");*/
 		if($sql->rowCount()>0){
 			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
 				$data[]=$r;

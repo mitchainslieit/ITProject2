@@ -2,8 +2,8 @@
 class Connection {
 
 	public function connect() {
-		return new PDO ("mysql:host=192.168.254.106; dbname=bnhs","bnhs","bnhs");
-		/*return new PDO ("mysql:host=localhost; dbname=bnhs_v6","root","");*/
+		/*return new PDO ("mysql:host=192.168.254.106; dbname=bnhs","bnhs","bnhs");*/
+		return new PDO ("mysql:host=localhost; dbname=bnhs","root","");
 	}
 }
 ?>

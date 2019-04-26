@@ -30,7 +30,7 @@
 							<div name="dialog" title="Add Section">
 								<form action="admin-section" method="POST">
 									<span>Section Name:</span>
-									<input type="text" name="sec_name" value="" placeholder="Section Name" required>
+									<input type="text" name="sec_name" value="" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Section Name" required>
 									<span>Grade Level</span>
 									<select name="grade_lvl" value="" required>
 										<option value="" selected disabled hidden>Select Grade Level</option>
@@ -73,7 +73,7 @@ echo '
 					<form action="admin-section" method="POST" required>
 						<input type="hidden" value="'.$sec_id.'" name="sec_id">
 						<span>Section Name</span>
-						<input type="text" name="sec_name" value="'.$sec_name.'" placeholder="Section Name" required>
+						<input type="text" name="sec_name" value="'.$sec_name.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Section Name" required>
 						<select name="grade_lvl" required>
 						';
 						for ($c = 0; $c < sizeof($grade_level); $c++) {

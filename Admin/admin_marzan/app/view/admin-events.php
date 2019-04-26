@@ -38,22 +38,19 @@
 						<div name="dialog" title="Create events" >
 							<form action="admin-events" method="POST" enctype="multipart/form-data">
 								<span>Event Title:</span>
-								<input type="text" name="title" value="" placeholder="Event Title" >
+								<input type="text" name="title" value="" data-validation="length" data-validation-length="max45" data-validation-error-msg="Enter less than 45 characters" placeholder="Event Title" >
 								<span>Start Date:</span>
-								<input type="date" name="date_start" id="datepicker" value="" placeholder="Date Start" required>
+								<input type="date" name="date_start" id="datepicker" data-validation="required" value="" placeholder="Date Start" required>
 								<span>End Date:</span>
-								<input type="date" name="date_end" id="datepicker" value="" placeholder="End Date" required>
-								<span>Attachment:</span>
-								<input type="hidden" name="attachment" id="" placeholder="Attachment(optional)">
+								<input type="date" name="date_end" id="datepicker" value="" data-validation="required" placeholder="End Date" required>
 								<span>Users who can view:</span>
 								<div class="inp-grp">
-									<input type="checkbox" name="view_lim[]" value="0"></label><span>All</span>
-									<input type="checkbox" name="view_lim[]" value="1"></label><span>Faculty</span>
-									<input type="checkbox" name="view_lim[]" value="2"></label><span>Parent</span>
-									<input type="checkbox" name="view_lim[]" value="3"></label><span>Student</span>
-									<input type="checkbox" name="view_lim[]" value="4"></label><span>Treasurer</span>
+									<input type="checkbox" name="view_lim[]" value="0" data-validation="checkbox_group" data-validation-qty="1-3"><span>All</span>
+									<input type="checkbox" name="view_lim[]" value="1"><span>Faculty</span>
+									<input type="checkbox" name="view_lim[]" value="2"><span>Parent</span>
+									<input type="checkbox" name="view_lim[]" value="3"><span>Student</span>
+									<input type="checkbox" name="view_lim[]" value="4"><span>Treasurer</span>
 								</div>
-								</select>
 								<button name="submit-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
 							</form>
 						</div>
@@ -99,11 +96,11 @@
 				<form action="admin-events" method="POST" enctype="multipart/form-data" required>
 					<input type="hidden" value="'.$ann_id.'" name="ann_id">
 					<span>Title:</span>
-					<input type="text" name="title" value="'.$title.'" placeholder="Title">
+					<input type="text" name="title" value="'.$title.'" data-validation="length" data-validation-length="max45" data-validation-error-msg="Enter less than 45 characters" placeholder="Title">
 					<span>Start Date:</span>
-					<input type="date" name="date_start" id="datepicker" value="'.$d1.'" placeholder="Date Start" required>
+					<input type="date" name="date_start" id="datepicker" data-validation="required" value="'.$d1.'" placeholder="Date Start" required>
 					<span>End Date:</span>
-					<input type="date" name="date_end" id="datepicker" value="'.$d2.'" placeholder="End Date" required> 
+					<input type="date" name="date_end" id="datepicker" value="'.$d2.'" data-validation="required" placeholder="End Date" required> 
 					<span>Users who can view:</span>
 					<div class="inp-grp">
 					';
@@ -114,7 +111,7 @@
 						if(in_array($val, $checked_arr)) {
 					        	$set_checked = "checked";
 					     }
-						echo '<input type="checkbox" name="view_lim[]" value="'.$val.'" '.$set_checked.' > '.$viewLimName[$val].'';
+						echo '<input type="checkbox" name="view_lim[]" value="'.$val.'" '.$set_checked.' data-validation="checkbox_group" data-validation-qty="1-3"> '.$viewLimName[$val].'';
 					}
 					echo'
 					</div>
@@ -162,22 +159,21 @@
 						<div name="dialog" title="Create announcement" >
 							<form action="admin-events" method="POST" enctype="multipart/form-data">
 								<span>Announcement:</span>
-								<textarea name="post" id="" cols="30" rows="5" placeholder="Announcement"></textarea>
+								<textarea name="post" id="" cols="30" rows="5" data-validation="length required" data-validation-length="max500" data-validation-error-msg="Enter less than 500 characters" placeholder="Announcement"></textarea>
 								<span>Start Date:</span>
-								<input type="date" name="date_start" id="datepicker" value="" placeholder="Date Start" required>
+								<input type="date" name="date_start" id="datepicker" data-validation="required" value="" placeholder="Date Start" required>
 								<span>End Date:</span>
-								<input type="date" name="date_end" id="datepicker" value="" placeholder="End Date" required>
+								<input type="date" name="date_end" id="datepicker" value="" data-validation="required" placeholder="End Date" required>
 								<span>Attachment:</span>
 								<input type="file" name="attachment" id="" placeholder="Attachment(optional)">
 								<span>Users who can view:</span>
 								<div class="inp-grp">
-									<input type="checkbox" name="view_lim[]" value="0"></label><span>All</span>
-									<input type="checkbox" name="view_lim[]" value="1"></label><span>Faculty</span>
-									<input type="checkbox" name="view_lim[]" value="2"></label><span>Parent</span>
-									<input type="checkbox" name="view_lim[]" value="3"></label><span>Student</span>
-									<input type="checkbox" name="view_lim[]" value="4"></label><span>Treasurer</span>
+									<input type="checkbox" name="view_lim[]" value="0" data-validation="checkbox_group" data-validation-qty="1-3"><span>All</span>
+									<input type="checkbox" name="view_lim[]" value="1"><span>Faculty</span>
+									<input type="checkbox" name="view_lim[]" value="2"><span>Parent</span>
+									<input type="checkbox" name="view_lim[]" value="3"><span>Student</span>
+									<input type="checkbox" name="view_lim[]" value="4"><span>Treasurer</span>
 								</div>
-								</select>
 								<button name="submit-button2" class="customButton">Save <i class="fas fa-save fnt"></i></button>
 							</form>
 						</div>
@@ -200,6 +196,8 @@
 /* $viewLimValue = array('0' => 0, '1,2' => 1,2);*/
  $viewLimName = array('All', 'Faculty', 'Parent', 'Student', 'Treasurer');
  foreach($obj->showAnnouncementSection() as $value){
+ $d1 = date('Y-m-d',(strtotime($date_start)));
+ $d2 = date('Y-m-d',(strtotime($date_end)));
  extract($value);
  echo '
  <tr>
@@ -223,7 +221,7 @@
 				<form action="admin-events" method="POST" enctype="multipart/form-data" required>
 					<input type="hidden" value="'.$ann_id.'" name="ann_id">
 					<span>Announcement:</span>
-					<textarea name="post" id="" cols="30" rows="5" placeholder="Announcement" value="'.$post.'">'.$post.'</textarea>
+					<textarea name="post" id="" cols="30" rows="5" placeholder="Announcement" data-validation="length required" data-validation-length="max500" data-validation-error-msg="Enter less than 500 characters" value="'.$post.'">'.$post.'</textarea>
 					<span>Start Date:</span>
 					<input type="date" name="date_start" id="datepicker" value="'.$d1.'" placeholder="Date Start" required>
 					<span>End Date:</span>
@@ -242,7 +240,7 @@
 						if(in_array($val, $checked_arr)) {
 					        	$set_checked = "checked";
 					     }
-						echo '<input type="checkbox" name="view_lim[]" value="'.$val.'" '.$set_checked.' > '.$viewLimName[$val].'';
+						echo '<input type="checkbox" name="view_lim[]" value="'.$val.'" '.$set_checked.' data-validation="checkbox_group" data-validation-qty="1-3"> '.$viewLimName[$val].'';
 					}
 					echo'
 					</div>

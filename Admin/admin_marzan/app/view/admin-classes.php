@@ -26,14 +26,14 @@
 							<div name="dialog" title="Add Class">
 								<form action="admin-classes" method="POST">
 									<span>Choose Adviser</span>
-									<select name="fac_idv" required>
+									<select name="fac_idv" data-validation="required" required>
 										<option selected disabled hidden value="">Choose Adviser</option>
 										<?php 
 											$obj->facultyList();
 										?>
 									</select>
 									<span>Section Name:</span>
-									<select name="sec_id" required>
+									<select name="sec_id" data-validation="required" required>
 										<option selected disabled hidden value="">Select Section Name</option>
 										<?php
 											$obj->section();	
@@ -67,7 +67,7 @@ echo '
 		<td class="tleft custPad">'.$fullname.'</td>
 		<td class="tleft custPad">'.$sec_name.'</td>
 		<td class="tleft custPad">'.$grade_lvl.'</td>
-		<td>
+		<td class="action">
 			<div name="content">
 				<button name="opener">
 					<div class="tooltip">
@@ -81,7 +81,7 @@ echo '
 						<span>Employee ID</span>
 						<input type="text" name="" value="'.$fac_no.'" disabled="disabled">
 						<span>Adviser Name</span>
-						<select name="fac_idv">
+						<select name="fac_idv" data-validation="required" >
 							';
 							for ($c = 0; $c < sizeof($faculty_id); $c++) {
 								if($fac_id==$faculty_id[$c]){

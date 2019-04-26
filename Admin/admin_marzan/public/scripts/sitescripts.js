@@ -11,7 +11,24 @@ $( document ).ready(function() {
 
 	$('[name=dialog]').dialog({
 		autoOpen: false,
-		modal: true
+		modal: true,
+		resizable: false,
+       	draggable: false,
+	});
+	
+	$('[name=opener2]').each(function () {
+		var panel = $(this).siblings('[name=dialog2]');
+		$(this).click(function () {
+			panel.dialog('open');
+			$('.ui-widget-overlay').addClass('custom-overlay');
+		});
+	});
+
+	$('[name=dialog2]').dialog({
+		autoOpen: false,
+		modal: true,
+		resizable: false,
+       	draggable: false
 	});
 	
 	$( ".se-pre-con" ).fadeOut("slow");
@@ -57,17 +74,12 @@ $( document ).ready(function() {
 		yearRange: "-100:+0"
 	});
 	
-	
+		
 	$('#ptaTable').DataTable( {
 	
    	});
    	
    	var noFilterTable = $("#noFilterTable").DataTable({
-   		"scrollX": true,
-		dom: "lBfrtip",
-		fixedColumns: {
-       		leftColumns: 1
-        	},
    		dom: "lBfrtip",
 		"paging":   false,
        	"ordering": false,
@@ -76,7 +88,7 @@ $( document ).ready(function() {
     	],
    	});
 	
-	$( "#eventDataTable, #announcementDataTable" ).DataTable({
+	$( "#eventDataTable, #announcementDataTable, #historyDataTable" ).DataTable({
 		"paging":   false,
        	"ordering": false,
        	"info": false,
@@ -91,7 +103,7 @@ $( document ).ready(function() {
        		leftColumns: 1
         	},
 		buttons: [
-        	'excel','pdf','print'
+        	'copy','excel','pdf', 'csv','print'
     	],
 		"lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
 		
@@ -198,26 +210,63 @@ $( document ).ready(function() {
 		});
 	});
 	
-	/* script for filter in reports: payment status */
+	$.validate();
+	
+/* script for filter in reports: payment status */
 
-	var adminTable = $('#admin-table-balstatus').DataTable();
-
-	$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('click', '.customButton', function(e) {
-		var val1 = $(this).siblings('select:first-of-type').val();
-		var val2 = $(this).siblings('select:last-of-type').val();
-		adminTable.column(2).search(val1 ? val1 : '', true, false).column(6).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+	var adminTable = $('#admin-table-balstatus').DataTable({
+		"scrollX": true,
+		dom: "lBfrtip",
+		fixedColumns: {
+       		leftColumns: 1
+        	},
+		"columnDefs" : [{
+			"targets" : [7],
+			"visible" : false
+		}]
 	});
 
-	var adminTable3 = $('#admin-table-enrolled').DataTable();
+	$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
+		var val1 = $(this).val();
+		adminTable.column(7).search(val1 ? "^" + val1 + "$"  : '', true, false).draw();
+	});
+
+	$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus2', function(e) {
+		var val2 = $(this).val();
+		adminTable.column(6).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+	});
+
+	var adminTable3 = $('#admin-table-enrolled').DataTable({
+		"scrollX": true,
+		dom: "lBfrtip",
+		fixedColumns: {
+       		leftColumns: 1
+        	},
+		"columnDefs" : [{
+			"targets" : [8],
+			"visible" : false
+		}]
+	});
 	$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_enrolled', function() {
 		var val3 = $(this).val();
-		adminTable3.column(2).search(val3 ? val3 : '', true, false).draw();
+		adminTable3.column(8).search(val3 ? "^" + val3 + "$"  : '', true, false).draw();
 	});
 
-	var adminTable4 = $('#admin-table-payhist').DataTable();
+
+	var adminTable4 = $('#admin-table-payhist').DataTable({
+		"scrollX": true,
+		dom: "lBfrtip",
+		fixedColumns: {
+       		leftColumns: 1
+        	},
+		"columnDefs" : [{
+			"targets" : [8],
+			"visible" : false
+		}]
+	});
 	$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_payhist', function() {
 		var val4 = $(this).val();
-		adminTable4.column(2).search(val4 ? val4 : '', true, false).draw();
+		adminTable4.column(8).search(val4 ? "^" + val4 + "$"  : '', true, false).draw();
 	});
 
 	var adminTable5 = $('#admin-table-logs').DataTable();

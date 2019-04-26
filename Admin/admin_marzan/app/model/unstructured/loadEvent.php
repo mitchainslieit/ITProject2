@@ -1,6 +1,6 @@
 <?php
+$conn = new PDO("mysql:host=localhost; dbname=bnhs","root","");
 /*$conn = new PDO("mysql:host=192.168.254.106; dbname=bnhs","bnhs","bnhs");*/
-$conn = new PDO("mysql:host=192.168.254.106; dbname=bnhs","bnhs","bnhs");
 $data = array();
 $query = "SELECT * FROM announcements ORDER BY ann_id";
 $statement = $conn->prepare($query);

@@ -1,7 +1,11 @@
 	<?php require 'app/model/admin-funct.php'; $obj = new AdminFunct;
-	if(isset($_POST['status-button'])){
+		if(isset($_POST['status-button'])){
 			extract($_POST);
 			if($obj->updateStudentAccountStatus($acc_id, $acc_status));
+		}
+		if(isset($_POST['reset-button'])){
+			extract($_POST);
+			if($obj->resetStudentPassword($acc_id));
 		}
 	?>
 	<div class="contentpage">
@@ -35,7 +39,7 @@
 									<th>Ethnicity</th>
 									<th>Blood Type</th>
 									<th>Medical Status</th>
-									<th>Student Acct Status</th>
+									<th>Student Status</th>
 									<th>Current Status</th>
 									<th>Account Status</th>
 									<th>Action</th>
@@ -89,6 +93,21 @@
 				</form>
 				
 			</div>
+		</div>
+		<div name="content">
+			<button name="opener">
+				<div class="tooltip">
+					<i class="fas fa-retweet"></i>
+					<span class="tooltiptext">Reset</span>
+				</div>
+			</button>
+			<div name="dialog" title="Reset Password">
+				<form action="admin-student" method="POST" required>
+					<input type="hidden" value="'.$acc_id.'" name="acc_id">
+					<p>Are you sure you want to reset the password of this account?</p>
+					<button name="reset-button" class="customButton">Reset <i class="fas fa-save fnt"></i></button>
+				</form>
+			</div>  
 		</div>
 	</td>
 </tr>

@@ -14,29 +14,29 @@
 					</div>
 					<p>School Year: 2019-2020</p>
 				</div>
-				<div class="widgetContent">
+				<div class="widgetContent enrolledContent">
 						<div class="cont1">
-							<p>Grade Level: </p>
-								<select name="year_level" class="year_level_enrolled">
-					                <option value="">All</option>
-					                <option value="7">Grade 7</option>
-					                <option value="8">Grade 8</option>
-					                <option value="9">Grade 9</option>
-				                	<option value="10">Grade 10</option>	
-              					</select>
+							<div class="box box1">
+								<p>Grade Level and Section: </p>
+								<select name="gradeAndsection" id="gradeAndsection" class="year_level_enrolled">
+								<option value="">All</option>
+								<?php $obj->getGradeAndSection(); ?>
+								</select>
+							</div>
 						</div>
 					<div class="cont2">
 						<table id="admin-table-enrolled" class="display">
 							<thead>	
 								<tr>
-									<th>LRN</th>
-									<th>Name</th>
-									<th>Grade Level</th>
-									<th>Section</th>
-									<th>Gender</th>
-									<th>Ethnicity</th>
-									<th>Student Status</th>
-									<th>Current Status</th>
+									<th class="tleft">LRN</th>
+									<th class="tleft">Name</th>
+									<th class="tleft">Grade Level</th>
+									<th class="tleft">Section</th>
+									<th class="tleft">Gender</th>
+									<th class="tleft">Ethnicity</th>
+									<th class="tleft">Student Status</th>
+									<th class="tleft">Current Status</th>
+									<th class="tleft">section</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -45,14 +45,15 @@
 extract($value);
 echo '
 <tr>
-	<td>'.$stud_lrno.'</td>
-	<td>'.$first_name,' ', $middle_name,' ', $last_name.'</td>
-	<td>'.$year_level.'</td>
-	<td>'.$sec_name.'</td>
-	<td>'.$gender.'</td>
-	<td>'.$ethnicity.'</td>
-	<td>'.$stud_status.'</td>
-	<td>'.$curr_stat.'</td>
+	<td class="tleft">'.$stud_lrno.'</td>
+	<td class="tleft">'.$first_name,' ', $middle_name,' ', $last_name.'</td>
+	<td class="tleft">'.$year_level.'</td>
+	<td class="tleft">'.$sec_name.'</td>
+	<td class="tleft">'.$gender.'</td>
+	<td class="tleft">'.$ethnicity.'</td>
+	<td class="tleft">'.$stud_status.'</td>
+	<td class="tleft">'.$curr_stat.'</td>
+	<td class="tleft">'.str_replace(' ', '', strtolower(('Grade'.$year_level.'-'.$sec_name))).'</td>
 </tr>	
 ';
 }

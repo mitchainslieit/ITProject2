@@ -6,11 +6,11 @@
 				<div class="header">	
 					<div class="cont">	
 						<i class="fas fa-money-check"></i>
-						<span>History of Logs</span>
+						<span>Admin History of Logs</span>
 					</div>
 					<p>School Year: 2019-2020</p>
 				</div>
-				<div class="widgetContent">
+				<div class="widgetContent logsContent">
 					<div class="cont1">
 						<p>Log Event:</p>
 						<select name="log_event" class="log_events">
@@ -25,25 +25,23 @@
 						<table id="admin-table-logs" class="display">
 							<thead>
 								<tr>
-									<th>Log ID</th>
-									<th>Log Timestamp</th>
-									<th>Log Event</th>
-									<th>Log Description</th>
-									<th>Position</th>
+									<th class="tleft">User Name</th>
+									<th class="tleft">Log Event</th>
+									<th class="tleft">Log Description</th>
+									<th class="tleft">Log Timestamp</th>
 								</tr>
 							</thead>
 							<tbody>
 
 <?php
- foreach($obj->showLogs() as $value){
+ foreach($obj->showAdminLogs() as $value){
  extract($value);
  echo '
  <tr>
- 	<td>'.$log_id.'</td>
- 	<td>'.$logdate.'</td>
- 	<td>'.$log_event.'</td>
- 	<td>'.$log_desc.'</td>
- 	<td>'.$acc_type.'</td>
+ 	<td class="tleft">'.$username.'</td>
+ 	<td class="tleft">'.$log_event.'</td>
+ 	<td class="tleft longText">'.$log_desc.'</td>
+ 	<td class="tleft">'.$logdate.'</td>
  </tr> ';
 }
 ?>

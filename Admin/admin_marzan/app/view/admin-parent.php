@@ -25,6 +25,14 @@
 			extract($_POST);
 			if($obj->updatePTAAccountStatus($acc_id, $acc_status));
 		}
+		if(isset($_POST['reset-button1'])){
+			extract($_POST);
+			if($obj->resetPTAPassword($acc_id));
+		}
+		if(isset($_POST['reset-button2'])){
+			extract($_POST);
+			if($obj->resetParentPassword($acc_id));
+		}
 	?>
 	<div class="contentpage">
 		<div class="row">
@@ -42,11 +50,11 @@
 						<div name="dialog" title="Add a new PTA Treasurer">
 							<form action="admin-parent" method="POST">
 								<span>First name:</span>
-								<input type="text" name="tr_fname" value="" placeholder="First name" required>
+								<input type="text" name="tr_fname" value="" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="First name" required>
 								<span>Middle Name:</span>
-								<input type="text" name="tr_midname" value="" placeholder="Middle name" required>
+								<input type="text" name="tr_midname" value="" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Middle name" required>
 								<span>Last name:</span>
-								<input type="text" name="tr_lname" value="" placeholder="Last name" required>
+								<input type="text" name="tr_lname" value="" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Last name" required>
 								<button name="submit-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
 							</form>
 						</div>
@@ -84,11 +92,11 @@ echo '
 					<form action="admin-parent" method="POST" required>
 						<input type="hidden" value="'.$tr_id.'" name="guar_id">
 						<span>First name:</span>
-						<input type="text" name="tr_fname" value="'.$tr_fname.'" placeholder="First name" required>
+						<input type="text" name="tr_fname" value="'.$tr_fname.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="First name" required>
 						<span>Middle Name:</span>
-						<input type="text" name="tr_midname" value="'.$tr_midname.'" placeholder="Middle name" required>
+						<input type="text" name="tr_midname" value="'.$tr_midname.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Middle name" required>
 						<span>Last name:</span>
-						<input type="text" name="tr_lname" value="'.$tr_lname.'" placeholder="Last name" required>
+						<input type="text" name="tr_lname" value="'.$tr_lname.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Last name" required>
 						<button name="update-button" class="customButton">Update <i class="fas fa-save fnt"></i></button>
 					</form>
 				</div>  
@@ -131,6 +139,21 @@ echo '
 						<button name="status-button" class="customButton">Change Status <i class="fas fa-save fnt"></i></button>
 					</form>
 				</div>
+			</div>
+			<div name="content">
+				<button name="opener">
+					<div class="tooltip">
+						<i class="fas fa-retweet"></i>
+						<span class="tooltiptext">Reset</span>
+					</div>
+				</button>
+				<div name="dialog" title="Reset Password">
+					<form action="admin-parent" method="POST" required>
+						<input type="hidden" value="'.$acc_id.'" name="acc_id">
+						<p>Are you sure you want to reset the password of this account?</p>
+						<button name="reset-button1" class="customButton">Reset <i class="fas fa-save fnt"></i></button>
+					</form>
+				</div>  
 			</div>
 		</td>
 	</tr>
@@ -201,17 +224,17 @@ echo '
 				<form action="admin-parent" method="POST" required>
 					<input type="hidden" value="'.$guar_id.'" name="guar_id">
 					<span>First name:</span>
-					<input type="text" name="guar_fname" value="'.$guar_fname.'" placeholder="First name" required>
+					<input type="text" name="guar_fname" value="'.$guar_fname.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="First name" required>
 					<span>Middle Name:</span>
-					<input type="text" name="guar_midname" value="'.$guar_midname.'" placeholder="Middle name" required>
+					<input type="text" name="guar_midname" value="'.$guar_midname.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Middle name" required>
 					<span>Last name:</span>
-					<input type="text" name="guar_lname" value="'.$guar_lname.'" placeholder="Last name" required>
+					<input type="text" name="guar_lname" value="'.$guar_lname.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Last name" required>
 					<span>Address:</span>
-					<input type="text" name="guar_address" value="'.$guar_address.'" placeholder="Last name" required>
+					<input type="text" name="guar_address" value="'.$guar_address.'" data-validation="length custom required" data-validation-length="max100" data-validation-regexp="^[a-zA-Z0-9\-&ñ,. ]+$" data-validation-error-msg="Enter less than 100 characters and Alphaneumerics only" placeholder="Last name" required>
 					<span>Mobile Number:</span>
-					<input type="text" name="guar_mobno" value="'.$guar_mobno.'" placeholder="" >
+					<input type="text" name="guar_mobno" value="'.$guar_mobno.'" data-validation="length custom required" data-validation-length="11-11" data-validation-regexp="^[0-9\-+ ]+$" data-validation-error-msg="Enter 11 digits" placeholder="" minlength="11" maxlength="11">
 					<span>Telephone Number:</span>
-					<input type="text" name="guar_telno" value="'.$guar_telno.'" placeholder="" >
+					<input type="text" name="guar_telno" value="'.$guar_telno.'" data-validation="length custom" data-validation-length="max11" data-validation-regexp="^[0-9\-+ ]+$" data-validation-error-msg="Enter less than 11 digits only" placeholder="" maxlength="11">
 					<span>Child name:</span>
 					<input type="text" name="guar_fname" value="'.$first_name.' '.$last_name.'" placeholder="First name" required disabled>
 					<button name="reset-button" class="customButton">Reset <i class="fas fa-save fnt"></i></button>
@@ -241,6 +264,21 @@ echo '
 					<button name="status-button1" class="customButton">Change Status <i class="fas fa-save fnt"></i></button>
 				</form>
 			</div>
+		</div>
+		<div name="content">
+			<button name="opener">
+				<div class="tooltip">
+					<i class="fas fa-retweet"></i>
+					<span class="tooltiptext">Reset</span>
+				</div>
+			</button>
+			<div name="dialog" title="Reset Password">
+				<form action="admin-parent" method="POST" required>
+					<input type="hidden" value="'.$acc_id.'" name="acc_id">
+					<p>Are you sure you want to reset the password of this account?</p>
+					<button name="reset-button2" class="customButton">Reset <i class="fas fa-save fnt"></i></button>
+				</form>
+			</div>  
 		</div>
 	</td>
 </tr>

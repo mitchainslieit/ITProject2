@@ -17,6 +17,10 @@
 			extract($_POST);
 			if($obj->updateAccountStatus($acc_id, $acc_status));
 		}
+		if(isset($_POST['reset-button'])){
+			extract($_POST);
+			if($obj->resetFacultyPassword($acc_id));
+		}
 	?>
 	<div class="contentpage" id="contentpage">
 		<div class="row">
@@ -35,13 +39,13 @@
 							<div name="dialog" title="Create new faculty account">
 								<form action="admin-faculty" method="POST">
 									<span>Employee ID:</span>
-									<input type="text" name="fac_no" value="" placeholder="Employee ID" required>
+									<input type="text" name="fac_no" data-validation="length custom required" data-validation-length="max15" data-validation-regexp="^[a-zA-Z0-9\-&ñ ]+$" data-validation-error-msg="Enter less than 15 characters and Alphaneumerics only" value="" maxlength="15" placeholder="Employee ID" required>
 									<span>First name:</span>
-									<input type="text" name="fac_fname" value="" placeholder="First name" required>
+									<input type="text" name="fac_fname" value="" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="First name" maxlength="45" required>
 									<span>Middle Name:</span>
-									<input type="text" name="fac_midname" value="" placeholder="Middle name" required>
+									<input type="text" name="fac_midname" value="" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Middle name" required>
 									<span>Last name:</span>
-									<input type="text" name="fac_lname" value="" placeholder="Last name" required>
+									<input type="text" name="fac_lname" value="" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Last name" required>
 									<span>Department</span>
 									<!--<select name="fac_dept" value="">
 									 uncomment this to use dynamic insertion -->
@@ -52,7 +56,7 @@
 										}	*/
 									?>
 									</select> -->
-									<select name="fac_dept" value="" required>
+									<select name="fac_dept" value="" data-validation="required" required>
 										<option selected disabled hidden>Select Department</option>
 										<option value="Filipino">Filipino</option>
 										<option value="Math">Math</option>
@@ -65,7 +69,7 @@
 										<option value="Values">Values</option>
 									</select>
 									<span>Adviser</span>
-									<select name="fac_adviser" value="" required>
+									<select name="fac_adviser" value="" data-validation="required" required>
 										<option value="" selected disabled hidden>Adviser</option>
 										<option value="Yes">Yes</option>
 										<option value="No">No</option>
@@ -118,15 +122,15 @@
 				<form action="admin-faculty" method="POST" required>
 					<input type="hidden" value="'.$fac_id.'" name="fac_id">
 					<span>Employee ID</span>
-					<input type="text" name="fac_no" value="'.$fac_no.'" placeholder="Employee ID" required>
+					<input type="text" name="fac_no" value="'.$fac_no.'" data-validation="length custom required" data-validation-length="max15" data-validation-regexp="^[a-zA-Z0-9\-&ñ ]+$" data-validation-error-msg="Enter less than 15 characters and Alphaneumerics only" placeholder="Employee ID" required>
 					<span>First name:</span>
-					<input type="text" name="fac_fname" value="'.$fac_fname.'" placeholder="First name" required>
+					<input type="text" name="fac_fname" value="'.$fac_fname.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="First name" required>
 					<span>Middle Name:</span>
-					<input type="text" name="fac_midname" value="'.$fac_midname.'" placeholder="Middle name" required>
+					<input type="text" name="fac_midname" value="'.$fac_midname.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Middle name" required>
 					<span>Last name:</span>
-					<input type="text" name="fac_lname" value="'.$fac_lname.'" placeholder="Last name" required>
+					<input type="text" name="fac_lname" value="'.$fac_lname.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Last name" required>
 					<span>Department</span>
-					<select name="fac_dept">
+					<select name="fac_dept" required data-validation="required">
 					';
 					for ($c = 0; $c < sizeof($department); $c++) {
 						echo $fac_dept === $department[$c] ? '<option value="'.$department[$c].'" selected="selected">'.$department[$c].'</option>' : '<option value="'.$department[$c].'">'.$department[$c].'</option>';	
@@ -134,7 +138,7 @@
 					echo '
 					</select>
 					<span>Adviser</span>
-					<select name="fac_adviser">
+					<select name="fac_adviser" required data-validation="required">
 					';
 					for ($c = 0; $c < sizeof($adviser); $c++) {
 						echo $fac_adviser === $adviser[$c] ? '<option value="'.$adviser[$c].'" selected="selected">'.$adviser[$c].'</option>' : '<option value="'.$adviser[$c].'">'.$adviser[$c].'</option>';	
@@ -203,6 +207,21 @@
 				</form>
 				
 			</div>
+		</div>
+		<div name="content">
+			<button name="opener">
+				<div class="tooltip">
+					<i class="fas fa-retweet"></i>
+					<span class="tooltiptext">Reset</span>
+				</div>
+			</button>
+			<div name="dialog" title="Reset Password">
+				<form action="admin-faculty" method="POST" required>
+					<input type="hidden" value="'.$acc_id.'" name="acc_id">
+					<p>Are you sure you want to reset the password of this account?</p>
+					<button name="reset-button" class="customButton">Reset <i class="fas fa-save fnt"></i></button>
+				</form>
+			</div>  
 		</div>
  	</td>
  </tr> ';
