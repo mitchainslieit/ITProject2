@@ -41,12 +41,13 @@ switch($page[0]) {
 		break;
 	case 'admin':
 		echo '<li '.$this->helpers->isActiveMenu("admin-dashboard").'><a href="'.URL.'"><i class="fas fa-home fnt"></i>Dashboard</a></li>';
-
+		echo '<li '.$this->helpers->isActiveMenu("admin-calendar").'><a href="'.URL.'admin-calendar"><i class="fas fa-calendar-alt fnt"></i>Calendar</a></li>';
+		echo '<li>';
 		echo '<li>';
 		echo '<a href="'.' '.'"><i class="fas fa-money-bill fnt"></i>Statement Of Accounts<i class="fa fa-angle-left pull-right"></i></a>';
 		echo '<ul class="sidebar-submenu">';
 		echo '<li '.$this->helpers->isActiveMenu("admin-feetype").'><a href="'.URL.'admin-feetype"><i class="fas fa-money-check fnt"></i>Fee Type</a></li>';
-		echo '<li '.$this->helpers->isActiveMenu("admin-balstatus").'><a href="'.URL.'admin-balstatus"><i class="fas fa-money-check fnt"></i>Student Payment Status</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-balstatus").'><a href="'.URL.'admin-balstatus"><i class="fas fa-sync fnt"></i>Student Payment Status</a></li>';
 		echo '</ul>';
 		echo '</li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-section").'><a href="'.URL.'admin-section"><i class="fas fa-book-open fnt"></i>Section</a></li>';
@@ -57,9 +58,9 @@ switch($page[0]) {
 		echo '<li>';
 		echo '<a href="'.' '.'"><i class="fas fa-user-plus fnt"></i>Users <i class="fa fa-angle-left pull-right"></i></a>';
 		echo '<ul class="sidebar-submenu">';
-		echo '<li '.$this->helpers->isActiveMenu("admin-faculty").'><a href="'.URL.'admin-faculty"><i class="fas fa-plus fnt"></i>Faculty</a></li>';
-		echo '<li '.$this->helpers->isActiveMenu("admin-parent").'><a href="'.URL.'admin-parent"><i class="fas fa-plus fnt"></i>Parent</a></li>';
-		echo '<li '.$this->helpers->isActiveMenu("admin-student").'><a href="'.URL.'admin-student"><i class="fas fa-plus fnt"></i>Student</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-faculty").'><a href="'.URL.'admin-faculty"><i class="fas fa-chalkboard-teacher fnt"></i>Faculty</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-parent").'><a href="'.URL.'admin-parent"><i class="far fa-address-book fnt"></i>Parent</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-student").'><a href="'.URL.'admin-student"><i class="fas fa-user-graduate fnt"></i>Student</a></li>';
 		echo '</ul>';
 		echo '</li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-events").'><a href="'.URL.'admin-events"><i class="far fa-calendar-alt fnt"></i>Events</a></li>';
@@ -76,6 +77,9 @@ switch($page[0]) {
 		echo '<li '.$this->helpers->isActiveMenu("admin-faculty-logs").'><a href="'.URL.'admin-faculty-logs"><i class="fas fa-book fnt"></i>Faculty Logs</a></li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-treasurer-logs").'><a href="'.URL.'admin-treasurer-logs"><i class="fas fa-book fnt"></i>Treasurer Logs</a></li>';
 		echo '</ul>';
+		echo '</li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-system-settings").'><a href="'.URL.'admin-system-settings"><i class="fas fa-cog fnt"></i>System Settings</a></li>';
+		echo '<li>';
 		break;
 	default: break;
 }

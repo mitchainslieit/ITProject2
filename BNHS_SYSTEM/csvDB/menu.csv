@@ -1,0 +1,5 @@
+admin,main,admin-dashboard,fas fa-home fnt,DASHBOARD
+admin,main-sub,admin-funct1,fas fa-user-plus,FUNCT1
+admin,sub,sub-admin-funct2,fas fa-user-plus,FUNCT2
+student,student-dashboard,fas fa-home fnt,DASHBOARD
+student,student-funct1,fas fa-home fnt,FUNCT1

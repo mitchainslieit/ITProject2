@@ -61,7 +61,6 @@
 						</nav>	
 					</header>	
 					<div class="logo">
-						<a href="<?php echo URL ?>"><img src="public/images/common/logo.png"></a>
 					</div>
 				</div>
 			</div>

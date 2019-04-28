@@ -21,19 +21,20 @@
 						<i class="fas fa-money-check"></i>
 						<span>Section</span>
 					</div>
-					<p>School Year: 2019-2020</p>
+					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
 				</div>
 				<div class="widgetContent">
 					<div class="cont1">
 						<div name="content">
 							<button name="opener" class="customButton">Add Section <i class="fas fa-plus fnt"></i></button>
 							<div name="dialog" title="Add Section">
-								<form action="admin-section" method="POST">
+								<form action="admin-section" method="POST" autocomplete="off">
 									<span>Section Name:</span>
 									<input type="text" name="sec_name" value="" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Section Name" required>
 									<span>Grade Level</span>
 									<select name="grade_lvl" value="" required>
 										<option value="" selected disabled hidden>Select Grade Level</option>
+										
 										<option value="7">7</option>
 										<option value="8">8</option>
 										<option value="9">9</option>
@@ -45,7 +46,7 @@
 						</div>
 					</div>
 					<div class="cont2">
-						<table id="admin-table" class="display">
+						<table class="admin-table" class="display">
 							<thead>
 								<tr>
 									<th class="tleft custPad">Section Name</th>
@@ -70,7 +71,7 @@ echo '
 					</div>
 				</button>
 				<div name="dialog" title="Update section data">
-					<form action="admin-section" method="POST" required>
+					<form action="admin-section" method="POST" required autocomplete="off">
 						<input type="hidden" value="'.$sec_id.'" name="sec_id">
 						<span>Section Name</span>
 						<input type="text" name="sec_name" value="'.$sec_name.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Section Name" required>

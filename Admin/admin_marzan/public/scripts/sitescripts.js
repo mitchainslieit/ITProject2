@@ -31,6 +31,21 @@ $( document ).ready(function() {
        	draggable: false
 	});
 	
+	$('[name=opener3]').each(function () {
+		var panel = $(this).siblings('[name=dialog3]');
+		$(this).click(function () {
+			panel.dialog('open');
+			$('.ui-widget-overlay').addClass('custom-overlay');
+		});
+	});
+
+	$('[name=dialog3]').dialog({
+		autoOpen: true,
+		modal: true,
+		resizable: false,
+       	draggable: false
+	});
+	
 	$( ".se-pre-con" ).fadeOut("slow");
 
 
@@ -68,12 +83,34 @@ $( document ).ready(function() {
 	$( ".enrollcontent .tabs" ).tabs({ active: 1 });
 	$( ".studentContent .tabs, .classesContent .tabs" ).tabs();
 
-	$( "#datepicker" ).datepicker({
+	$( ".datepickerAdmin" ).datepicker({
+		changeMonth: true,
+		dateFormat: 'yy-mm-dd',
+		changeYear: true,
+		yearRange: "+0:+100"
+	});
+	/*$('#txtDate').datepicker({
 		changeMonth: true,
 		changeYear: true,
-		yearRange: "-100:+0"
+		dateFormat: 'MM yy',
+		
+		onClose: function() {
+			var iMonth = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+			var iYear = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+			$(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+		},
+		
+		beforeShow: function() {
+			if ((selDate = $(this).val()).length > 0) 
+			{
+				iYear = selDate.substring(selDate.length - 4, selDate.length);
+				iMonth = jQuery.inArray(selDate.substring(0, selDate.length - 5), $(this).datepicker('option', 'monthNames'));
+				$(this).datepicker('option', 'defaultDate', new Date(iYear, iMonth, 1));
+				$(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+			}
+		}
 	});
-	
+*/
 		
 	$('#ptaTable').DataTable( {
 	
@@ -96,7 +133,7 @@ $( document ).ready(function() {
 		 "searching":false
 	});
 	
-	var datatable = $( "#stud-list, #adv-table-1, #adv-table-2, #admin-table, #admin-table-withScroll" ).DataTable({
+	var datatable = $( "#stud-list, #adv-table-1, #adv-table-2, .admin-table, .admin-table-withScroll" ).DataTable({
 		"scrollX": true,
 		dom: "lBfrtip",
 		fixedColumns: {
@@ -276,6 +313,22 @@ $( document ).ready(function() {
 	});
 	/* end of script for filter in reports: payment status */
 
+	
+	getCurrentSection('sec1');
+
+	$('.admin-faculty-page #getCurrentLevel').on('change', function() {
+		var val = $(this).val();
+		getCurrentSection(val);
+	});
+
+	function getCurrentSection(value) {
+	var showThis = '.admin-faculty-page .table-scroll #'+value;
+	var hideThis = '.admin-faculty-page .table-scroll .classes-edit:not(#'+value+')';
+	$(hideThis).each(function() {
+		$(this).hide();
+	});
+	$(showThis).show();
+}
 	
 	$( '.sidebar-menu li' ).has('li.active-menu').addClass('active');
 });

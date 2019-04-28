@@ -1,7 +1,7 @@
 
 	<div id="footer">
 		<div class="row">
-			<p class="copy">&copy 2019. Bakakeng National Highschool, Baguio City</p>
+			<p class="copy">&copy <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?> Bakakeng National Highschool, Baguio City</p>
 		</div>
 	</div>
 </div>

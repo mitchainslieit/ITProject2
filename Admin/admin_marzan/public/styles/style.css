@@ -56,8 +56,8 @@ header nav ul li a { padding: 12px 5px 12px 15px; }
 header nav ul li > * {display: inline-block;}
 header nav ul li i {margin-right: 15px;}
 header nav ul li.active-menu a, #header nav ul li a:hover {color:#fff !important; background:#3c8dbc; display: block; border-left-color: #ECF0F5;position: relative;}
-header nav ul li.active-menu a:after {border-color: rgba(0,0,0,0) #ECF0F5 rgba(0,0,0,0) rgba(0,0,0,0);border-style: solid;border-width: 15px 11px 15px 0;content: " ";height: 0;position: absolute;right: 0;top: 6px;width: 0;z-index: 2;}
-header nav ul li ul li.active-menu a{border-left-color: #ECF0F5 !important}
+/* header nav ul li.active-menu a:after {border-color: rgba(0,0,0,0) #ECF0F5 rgba(0,0,0,0) rgba(0,0,0,0);border-style: solid;border-width: 15px 11px 15px 0;content: " ";height: 0;position: absolute;right: 0;top: 6px;width: 0;z-index: 2;}
+ */header nav ul li ul li.active-menu a{border-left-color: #ECF0F5 !important}
 
 /* dropdown-menu */
 .dropdown-menu { position: relative; }
