@@ -38,11 +38,11 @@
 						<div name="dialog" title="Create events" >
 							<form action="admin-events" method="POST" enctype="multipart/form-data" autocomplete="off">
 								<span>Event Title:</span>
-								<input type="text" name="title" value="" data-validation="length" data-validation-length="max45" data-validation-error-msg="Enter less than 45 characters" placeholder="Event Title" >
+								<input type="text" name="title" value="" data-validation="length required" data-validation-length="max45" data-validation-error-msg="Enter less than 45 characters" placeholder="Event Title" >
 								<span>Start Date:</span>
-								<input type="text" name="date_start" class="datepickerAdmin" data-validation="required" value="" placeholder="Date Start" required>
+								<input type="text" name="date_start" class="datepickerAdmin" readonly="readonly" data-validation="required" value="" placeholder="Date Start" required>
 								<span>End Date:</span>
-								<input type="text" name="date_end" class="datepickerAdmin" value="" data-validation="required" placeholder="End Date" required>
+								<input type="text" name="date_end" class="datepickerAdmin" readonly="readonly" value="" data-validation="required" placeholder="End Date" required>
 								<span>Users who can view:</span>
 								<div class="inp-grp">
 									<input type="checkbox" name="view_lim[]" value="0" data-validation="checkbox_group" data-validation-qty="1-3"><span>All</span>
@@ -94,11 +94,11 @@
 				<form action="admin-events" method="POST" enctype="multipart/form-data" required autocomplete="off">
 					<input type="hidden" value="'.$ann_id.'" name="ann_id">
 					<span>Title:</span>
-					<input type="text" name="title" value="'.$title.'" data-validation="length" data-validation-length="max45" data-validation-error-msg="Enter less than 45 characters" placeholder="Title">
+					<input type="text" name="title" value="'.$title.'" data-validation="length required" data-validation-length="max45" data-validation-error-msg="Enter less than 45 characters" placeholder="Title">
 					<span>Start Date:</span>
-					<input type="text" name="date_start" class="datepickerAdmin" data-validation="required" value="'.date('Y-m-d',(strtotime($date_start))).'" placeholder="Date Start" required>
+					<input type="text" name="date_start" class="datepickerAdmin" readonly="readonly" data-validation="required" value="'.date('Y-m-d',(strtotime($date_start))).'" placeholder="Date Start" required>
 					<span>End Date:</span>
-					<input type="text" name="date_end" class="datepickerAdmin" value="'.date('Y-m-d',(strtotime($date_end))).'" data-validation="required" placeholder="End Date" required> 
+					<input type="text" name="date_end" class="datepickerAdmin" readonly="readonly" value="'.date('Y-m-d',(strtotime($date_end))).'" data-validation="required" placeholder="End Date" required> 
 					<span>Users who can view:</span>
 					<div class="inp-grp">
 					';
@@ -159,9 +159,9 @@
 								<span>Announcement:</span>
 								<textarea name="post" id="" cols="30" rows="5" data-validation="length required" data-validation-length="max500" data-validation-error-msg="Enter less than 500 characters" placeholder="Announcement"></textarea>
 								<span>Start Date:</span>
-								<input type="text" name="date_start" class="datepickerAdmin" data-validation="required" value="" placeholder="Date Start" required>
+								<input type="text" name="date_start" readonly="readonly" class="datepickerAdmin" data-validation="required" value="" placeholder="Date Start" required>
 								<span>End Date:</span>
-								<input type="text" name="date_end" class="datepickerAdmin" value="" data-validation="required" placeholder="End Date" required>
+								<input type="text" name="date_end" readonly="readonly" class="datepickerAdmin" value="" data-validation="required" placeholder="End Date" required>
 								<span>Attachment:</span>
 								<input type="file" name="attachment" id="" placeholder="Attachment(optional)">
 								<span>Users who can view:</span>
@@ -219,9 +219,9 @@
 					<span>Announcement:</span>
 					<textarea name="post" id="" cols="30" rows="5" placeholder="Announcement" data-validation="length required" data-validation-length="max500" data-validation-error-msg="Enter less than 500 characters" value="'.$post.'">'.$post.'</textarea>
 					<span>Start Date:</span>
-					<input type="date" name="date_start" class="datepickerAdmin" data-validation="required" value="'.date('Y-m-d',(strtotime($date_start))).'" placeholder="Date Start" required>
+					<input type="text" name="date_start" readonly="readonly" class="datepickerAdmin" data-validation="required" value="'.date('Y-m-d',(strtotime($date_start))).'" placeholder="Date Start" required>
 					<span>End Date:</span>
-					<input type="date" name="date_end" class="datepickerAdmin" value="'.date('Y-m-d',(strtotime($date_end))).'" data-validation="required" placeholder="End Date" required> 
+					<input type="text" name="date_end" readonly="readonly" class="datepickerAdmin" value="'.date('Y-m-d',(strtotime($date_end))).'" data-validation="required" placeholder="End Date" required> 
 					<span>Attachment:</span>
 					<span class="attachment">Current File: '.$attachment.'</span>
 					<input type="file" name="attachment" id="" value="'.$attachment.'" placeholder="Attachment(optional)">

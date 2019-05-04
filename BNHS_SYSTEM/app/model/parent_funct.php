@@ -42,8 +42,7 @@ class ParentFunct
 
 	public function showHolidays(){
 		$admin_id = $_SESSION['accid'];
-		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e') as date_start_1,  DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, DAY(CURDATE()), DAY(date_start) FROM announcements WHERE (view_lim like '%2%' or view_lim='0') AND title IS NOT NULL AND holiday='Yes' AND (MONTH(date_start)=MONTH(CURDATE()) AND DAY(date_start) >= DAY(CURDATE()));") or die ("failed!");
-		$sql->bindParam(1, $admin_id);
+		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e') as date_start_1,  DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, DAY(CURDATE()), DAY(date_start) FROM announcements WHERE (view_lim like '%2%' or view_lim like '%0%') AND title IS NOT NULL AND holiday='Yes' AND (date_start between now() and adddate(now(), +15))") or die ("failed!");
 		$sql->execute();
 		if($sql->rowCount()>0){
 			while($r = $sql->fetch(PDO::FETCH_ASSOC)){

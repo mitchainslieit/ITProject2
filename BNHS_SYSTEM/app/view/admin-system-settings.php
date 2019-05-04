@@ -24,17 +24,6 @@
 			extract($_POST);
 			$obj->transferStudents($student_transfer);
 		}
-		
-		/*if(isset($_POST['update-button2'])){
-			extract($_POST);
-			$obj->updateAnnouncement($ann_id, $post, $date_start, $date_end, $view_lim, $_FILES['attachment']);
-		}
-		if(isset($_POST['delete-button'])){
-			extract($_POST);
-			$obj->deleteEvent($ann_id);
-		}
-		*/
-		
 	?>
 	<div class="contentpage">
 		<div class="row">
@@ -57,9 +46,9 @@
 										extract($value);
 										echo'
 										<span>Start of School Year:</span>
-										<input type="text" name="sy_start" class="datepickerAdmin" data-validation="required" value="'.$sy_start.'" placeholder="Date Start" required>
+										<input type="text" name="sy_start" readonly="readonly" data-validation="required" class="datepickerAdmin" data-validation="required" value="'.$sy_start.'" placeholder="Date Start" required>
 										<span>End of School Year:</span>
-										<input type="text" name="sy_end" class="datepickerAdmin" value="'.$sy_end.'" data-validation="required" placeholder="End Date" required>
+										<input type="text" name="sy_end" readonly="readonly" data-validation="required" class="datepickerAdmin" value="'.$sy_end.'" data-validation="required" placeholder="End Date" required>
 										<button name="start-button" class="customButton">Yes <i class="fas fa-save fnt"></i></button>
 										';
 									}

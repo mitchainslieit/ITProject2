@@ -5,7 +5,7 @@ class AdminFunct{
 		$this->conn = new Connection;
 		$this->conn = $this->conn->connect();
 		/*$this->conn->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );*/
-		error_reporting(0);
+		/*error_reporting(0);*/
 	}
 	/**************** GENERAL ****************/
 	public function insertLogs($log_event, $log_desc){

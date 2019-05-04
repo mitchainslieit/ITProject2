@@ -230,7 +230,7 @@ button.inline-btn { display: inline-block; margin: 0 5px; }
 #faculty_home .contentpage .widget .classesContent .cont5 tr:nth-child(4),
 #faculty_home .contentpage .widget .classesContent .cont3 tr:nth-child(7),
 #faculty_home .contentpage .widget .classesContent .cont5 tr:nth-child(7) {background-color: #3C8DBC;color: #fff;}
-.faculty-classes-page form > * { display: block; margin-top: 15px; }
+.faculty-classes-page form > * { display: block; margin-top: 15px; margin:2px auto;}
 
 /* assessment */
 #faculty_home .contentpage .print-container .assessmentContent{ padding: 30px;}

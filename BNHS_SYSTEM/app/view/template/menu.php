@@ -4,6 +4,7 @@ $page = explode("-", str_replace('url=', '', $_SERVER['QUERY_STRING']));
 switch($page[0]) {
 	case 'faculty' : 
 		echo '<li '.$this->helpers->isActiveMenu("faculty-dashboard").'><a href="'.URL.'"><i class="fas fa-home fnt"></i>Dashboard</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("faculty-calendar").'><a href="'.URL.'faculty-calendar"><i class="far fa-calendar"></i>Calendar</a></li>';
 		echo '<li '.$this->helpers->isActiveMenu("faculty-enroll").'><a href="'.URL.'faculty-enroll"><i class="fas fa-user-plus"></i>Enroll Student</a></li>';
 		if ($_SESSION['adviser'] === 'Yes' && $_SESSION['transfer_enabled'] === 'Yes') {
 			if ($_SESSION['transfer_enabled'] === 'Yes') {
@@ -29,7 +30,6 @@ switch($page[0]) {
 		} else {
 			echo '<li '.$this->helpers->isActiveMenu("faculty-grades").'><a href="'.URL.'faculty-grades"><i class="fas fa-star-half-alt"></i>Grades</a></li>';
 		}
-		echo '<li '.$this->helpers->isActiveMenu("faculty-calendar").'><a href="'.URL.'faculty-calendar"><i class="far fa-calendar"></i>Calendar</a></li>';
 		break;
 	case 'student' :
 		echo '<li '.$this->helpers->isActiveMenu("student-dashboard").'><a href="'.URL.'"><i class="fas fa-home fnt"></i>Dashboard</a></li>';

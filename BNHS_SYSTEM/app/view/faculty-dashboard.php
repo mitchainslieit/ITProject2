@@ -36,7 +36,7 @@
 					<div class="header">
 						<p>	
 							<i class="far fa-calendar-alt fnt"></i>
-							<span>Calendar</span>
+							<span>Holiday</span>
 						</p>
 					</div>
 					<div class="eventcontent">

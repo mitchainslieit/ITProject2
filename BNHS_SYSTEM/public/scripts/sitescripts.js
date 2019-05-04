@@ -94,289 +94,296 @@ $('[name=dialog]').dialog({
 	}
 });
 
-$('#existing-guardian-autofill-submit').on('click', function() {
-	var data = new Array('filloutform', 'guar_id=' + $(this).siblings('#existing-guardian-autofill').val());
-	$('#faculty_home .contentpage .widget .enrollcontent .enrollment-form .save button').attr("disabled", true);
-
-	$.ajax({
-		type: 'POST',
-		url: 'app/model/faculty-exts/faculty-ajax.php',
-		data: {data:data},
-		success: function(result) {
-			$('[name=dialog]').dialog('close');
-			$('#auto-fill').load('faculty-enroll #auto-fill .form-row');
-			$('#faculty_home .contentpage .widget .enrollcontent .enrollment-form .save button').attr("disabled", false);
-		}
-	});
-});
-
-
-$('#faculty_home .contentpage .widget .studentContent #adv-table-1 tr td').on('click', 'button.transfer', function() {
-	var data = new Array('transfer', $(this).siblings('.stud_id').val());
-
-	$.ajax({
-		context: this,
-		type: 'POST',
-		url: 'app/model/faculty-exts/faculty-ajax.php',
-		data: {data:data},
-		success: function(result) {
-			$(this).append(result);
-		}
-	});
-});
-
-$('#faculty_home .contentpage .widget .studentContent .details').on('click', 'button.cancel', function() {
-	var data = new Array('cancel', $(this).siblings('.stud_id').val());
-
-	$.ajax({
-		context: this,
-		type: 'POST',
-		url: 'app/model/faculty-exts/faculty-ajax.php',
-		data: {data:data},
-		success: function(result) {
-			$(this).append(result);
-		}
-	});
-});
-
-$('#faculty_home .contentpage .widget .studentContent .details').on('click', 'button.accept', function() {
-	var data = new Array('accept', $(this).siblings('.stud_id').val());
-
-	$.ajax({
-		context: this,
-		type: 'POST',
-		url: 'app/model/faculty-exts/faculty-ajax.php',
-		data: {data:data},
-		success: function(result) {
-			$(this).append(result);
-		}
-	});
-});
-
-$('#faculty_home .contentpage .widget .studentContent .details').on('click', 'button.reject', function() {
-	var data = new Array('reject', $(this).siblings('.stud_id').val());
-
-	$.ajax({
-		context: this,
-		type: 'POST',
-		url: 'app/model/faculty-exts/faculty-ajax.php',
-		data: {data:data},
-		success: function(result) {
-			$(this).append(result);
-		}
-	});
-});
-
 /*******Parent-Account*******/
-var parent_table1 = $('#customParentTable').DataTable({
-	"columnDefs": [{
-		"targets": [2,3],
-		"visible": false
-	}]
-});
+if ($('body').is('[class*="parent-"]')) {
+	var parent_table1 = $('#customParentTable').DataTable({
+		"columnDefs": [{
+			"targets": [2,3],
+			"visible": false
+		}]
+	});
 
-var parent_table2 = $('#table-attendance').DataTable({
-	"columnDefs": [{
-		"targets": [3],
-		"visible": false
-	}]
-});
+	var parent_table2 = $('#table-attendance').DataTable({
+		"columnDefs": [{
+			"targets": [3],
+			"visible": false
+		}],
+		"language": {
+	      "emptyTable": "THERE ARE NO ABSENCES YET."
+	    }
+	});
 
-var par_select_child = $('.parent-account-page .contentpage .widget .contleft .innercont1 .eventcontent .tl select#select-children').val();
-parent_table1.column(2).search(par_select_child ? par_select_child : '', true, false).draw();
+	var par_select_child = $('.parent-account-page .contentpage .widget .contleft .innercont1 .eventcontent .tl select#select-children').val();
+	parent_table1.column(2).search(par_select_child ? par_select_child : '', true, false).draw();
 
-$('.parent-account-page .customContent span.wlrno').each(function() {
-	if ($(this).data('lrno') != par_select_child) {
-		$(this).hide();
-	}
-});
-
-$('.parent-account-page .contentpage .widget .contleft .innercont1 .eventcontent .tl select#select-children').on('change', function () {
-	var data = new Array($(this).val(), $(this).siblings('select').val());
 	$('.parent-account-page .customContent span.wlrno').each(function() {
-		$(this).show();
-		if ($(this).data('lrno') != $('.parent-account-page .contentpage .widget .contleft .innercont1 .eventcontent .tl select#select-children').val()) {
+		if ($(this).data('lrno') != par_select_child) {
 			$(this).hide();
 		}
 	});
-	parent_table1.column(2).search('^'+data[0]+'$' ? data[0] : '', true, false).column(3).search(data[1]).draw();
-})
 
-$('.parent-account-page .contentpage .widget .contleft .innercont1 .eventcontent .tl select#select-year').on('change', function () {
-	var data = new Array($(this).val(), $(this).siblings('select').val());
-	parent_table1.column(3).search('^'+data[0]+'$' ? data[0] : '', true, false).column(2).search('^'+data[1]+'$' ? data[1] : '', true, false).draw();
-})
+	$('.parent-account-page .contentpage .widget .contleft .innercont1 .eventcontent .tl select#select-children').on('change', function () {
+		var data = new Array($(this).val(), $(this).siblings('select').val());
+		$('.parent-account-page .customContent span.wlrno').each(function() {
+			$(this).show();
+			if ($(this).data('lrno') != $('.parent-account-page .contentpage .widget .contleft .innercont1 .eventcontent .tl select#select-children').val()) {
+				$(this).hide();
+			}
+		});
+		parent_table1.column(2).search('^'+data[0]+'$' ? data[0] : '', true, false).column(3).search(data[1]).draw();
+	})
+
+	$('.parent-account-page .contentpage .widget .contleft .innercont1 .eventcontent .tl select#select-year').on('change', function () {
+		var data = new Array($(this).val(), $(this).siblings('select').val());
+		parent_table1.column(3).search('^'+data[0]+'$' ? data[0] : '', true, false).column(2).search('^'+data[1]+'$' ? data[1] : '', true, false).draw();
+	})
 
 
-/*******Parent-Attendance*******/
-var par_select_att = $('.parent-attendance-page #select-attendance').val();
-parent_table2.column(3).search(par_select_att ? par_select_att : '', true, false).draw();
+	/*******Parent-Attendance*******/
+	var par_select_att = $('.parent-attendance-page #select-attendance').val();
+	parent_table2.column(3).search(par_select_att ? par_select_att : '', true, false).draw();
 
-$('.parent-attendance-page .eventcontent span.wlrno').each(function() {
-	if ($(this).data('lrno') != par_select_att) {
-		$(this).hide();
-	}
-});
-
-$('.parent-attendance-page #select-attendance').on('change', function () {
-	var data = new Array($(this).val(), $(this).siblings('select').val());
 	$('.parent-attendance-page .eventcontent span.wlrno').each(function() {
-		$(this).show();
-		if ($(this).data('lrno') != $('.parent-attendance-page #select-attendance').val()) {
+		if ($(this).data('lrno') != par_select_att) {
 			$(this).hide();
 		}
 	});
-	parent_table2.column(3).search('^'+data+'$' ? data : '', true, false).column(3).search(data [0]).draw();
-})
 
-$('.parent-attendance-page #select-attendance').on('change', function () {
-	var data = $(this).val();
-	parent_table2.column(3).search(data ? data : '', true, false).draw();
-});
+	$('.parent-attendance-page #select-attendance').on('change', function () {
+		var data = new Array($(this).val(), $(this).siblings('select').val());
+		$('.parent-attendance-page .eventcontent span.wlrno').each(function() {
+			$(this).show();
+			if ($(this).data('lrno') != $('.parent-attendance-page #select-attendance').val()) {
+				$(this).hide();
+			}
+		});
+		parent_table2.column(3).search('^'+data+'$' ? data : '', true, false).column(3).search(data [0]).draw();
+	})
 
-$('.parent-grades-page #select-child-grade').on('change', function() {
-	var data = 'lrno=' + $(this).val();
-
-	$.ajax({
-		type: 'POST',
-		url: 'app/model/unstructured/parent-changeSession.php',
-		data: data,
-		success: function(result) {
-			$('#table-grade-student').load('parent-grades  #grade-student');
-		}
+	$('.parent-attendance-page #select-attendance').on('change', function () {
+		var data = $(this).val();
+		parent_table2.column(3).search(data ? data : '', true, false).draw();
 	});
-});
 
-$('.parent-schedule-page #select-child-schedule').on('change', function() {
-	var data = 'lrno=' + $(this).val();
+	$('.parent-grades-page #select-child-grade').on('change', function() {
+		var data = 'lrno=' + $(this).val();
 
-	$.ajax({
-		type: 'POST',
-		url: 'app/model/unstructured/parent-changeSession.php',
-		data: data,
-		success: function(result) {
-			$('#table-children-schedule').load('parent-schedule #table-children-schedule table');
-		}
+		$.ajax({
+			type: 'POST',
+			url: 'app/model/unstructured/parent-changeSession.php',
+			data: data,
+			success: function(result) {
+				$('#table-grade-student').load('parent-grades  #grade-student');
+			}
+		});
 	});
-});
 
-$('.parent-coreValues-page #select-core-value').on('change', function() {
-	var data = 'lrno=' + $(this).val();
+	$('.parent-schedule-page #select-child-schedule').on('change', function() {
+		var data = 'lrno=' + $(this).val();
 
-	$.ajax({
-		type: 'POST',
-		url: 'app/model/unstructured/changeSession.php',
-		data: data,
-		success: function(result) {
-			$('#table-core-value').load('parent-coreValues #coreValue-student');
-		}
+		$.ajax({
+			type: 'POST',
+			url: 'app/model/unstructured/parent-changeSession.php',
+			data: data,
+			success: function(result) {
+				$('#table-children-schedule').load('parent-schedule #table-children-schedule table');
+			}
+		});
 	});
-});
 
-/*Add page title using the active-menu*/
-getCurrentSection('sec1');
+	$('.parent-coreValues-page #select-core-value').on('change', function() {
+		var data = 'lrno=' + $(this).val();
 
-$('.faculty-editclass-page #getCurrentLevel').on('change', function() {
-	var val = $(this).val();
-	getCurrentSection(val);
-});
-
-function getCurrentSection(value) {
-	var showThis = '.faculty-editclass-page .table-scroll #'+value;
-	var hideThis = '.faculty-editclass-page .table-scroll .classes-edit:not(#'+value+')';
-	$(hideThis).each(function() {
-		$(this).hide();
+		$.ajax({
+			type: 'POST',
+			url: 'app/model/unstructured/changeSession.php',
+			data: data,
+			success: function(result) {
+				$('#table-core-value').load('parent-coreValues #coreValue-student');
+			}
+		});
 	});
-	$(showThis).show();
-}	
+}
 
-$('.faculty-editclass-page .classes-sched').on('change', 'select.editclass-teacher', function() {
-	var dept = $(this).find(':selected').data('facdept');
-	var sibling = $(this).siblings('select.editclass-subjects');
-	if (dept != null) {
-		$(sibling).find('option').each(function() {
+if ($('body').is('[class*="faculty-"]')) {
+	getCurrentSection('sec1');
+
+	$('.faculty-editclass-page #getCurrentLevel').on('change', function() {
+		var val = $(this).val();
+		getCurrentSection(val);
+	});
+
+	function getCurrentSection(value) {
+		var showThis = '.faculty-editclass-page .table-scroll #'+value;
+		var hideThis = '.faculty-editclass-page .table-scroll .classes-edit:not(#'+value+')';
+		$(hideThis).each(function() {
 			$(this).hide();
 		});
-		$(sibling).find('option[data-subdept="'+dept+'"]').each(function() {
-			$(this).show();
-		});
-	} else {
-		$(this).siblings('select.editclass-subjects').val('');
-		$(sibling).find('option').each(function() {
-			$(this).show();
-		});
-	}
-});
+		$(showThis).show();
+	}	
 
-$('.faculty-editclass-page .classes-sched').on('change', 'select.editclass-subjects', function() {
-	var dept = $(this).find(':selected').data('subdept');
-	var sibling = $(this).siblings('select.editclass-teacher');
-	if (dept != null) {
-		$(sibling).find('option').each(function() {
-			$(this).hide();
-		});
-		$(sibling).find('option[data-facdept="'+dept+'"]').each(function() {
-			$(this).show();
-		});
-	} else {
-		$(this).siblings('select.editclass-teacher').val('');
-		$(sibling).find('option').each(function() {
-			$(this).show();
-		});
-	}
-});
-
-$('.faculty-editclass-page .classes-sched').on('click', 'button.reset', function(e) {
-	e.preventDefault();
-	$('select.editclass-teacher, select.editclass-subjects').find('option').each(function() {
-		$(this).show();
-	});
-	$('.faculty-editclass-page .classes-sched').trigger("reset");
-});
-
-var faculty_grades_table = $('#grades-list').DataTable({
-	"columnDefs" : [{
-		"targets" : [6,7],
-		"visible" : false,
-	}]
-});
-
-$('#grades-filter .boxs1').on('click', '#filterGradesTable', function() {
-	var select1 = $(this).siblings('select[name=sectionList]').val();
-	var select2 = $(this).siblings('select[name=subjList]').val();
-	faculty_grades_table.column(6).search(select1 ? select1 : '', true, false).column(7).search(select2 ? "^" + select2 + "$" : '', true, false).draw();
-});
-
-$('.faculty-attendance-form .date-subj').on('change', '.datepicker-attendance', function() {
-	var data = new Array('att-changedate', $(this).val(), $(this).data('section'));
-	
-	$.ajax({
-		context: this,
-		type: 'get',
-		url: 'app/model/faculty-exts/faculty-ajax.php',
-		data: {data:data},
-		success: function (result) {
-			$(this).parentsUntil('.date-subj').parent().siblings('.table-cont').find('tbody').empty();
-			$(this).parentsUntil('.date-subj').parent().siblings('.table-cont').find('tbody').append(result);
+	$('.faculty-editclass-page .classes-sched').on('change', 'select.editclass-teacher', function() {
+		var dept = $(this).find(':selected').data('facdept');
+		var sibling = $(this).siblings('select.editclass-subjects');
+		if (dept != null) {
+			$(sibling).find('option').each(function() {
+				$(this).hide();
+			});
+			$(sibling).find('option[data-subdept="'+dept+'"]').each(function() {
+				$(this).show();
+			});
+		} else {
+			$(this).siblings('select.editclass-subjects').val('');
+			$(sibling).find('option').each(function() {
+				$(this).show();
+			});
 		}
 	});
-});
 
-$('.faculty-attendance-form .table-cont tbody').on('click', 'input', function() {
-	if ($(this).val() == 'Present') {
-		$(this).val('Late');
-		$(this).removeClass('present');
-		$(this).addClass('late');
-	} else if ($(this).val() == 'Late') {
-		$(this).val('Absent');
-		$(this).removeClass('late');
-		$(this).addClass('absent');
-	} else {
-		$(this).val('Present');
-		$(this).removeClass('absent');
-		$(this).addClass('present');
-	}
-});
+	$('.faculty-editclass-page .classes-sched').on('change', 'select.editclass-subjects', function() {
+		var dept = $(this).find(':selected').data('subdept');
+		var sibling = $(this).siblings('select.editclass-teacher');
+		if (dept != null) {
+			$(sibling).find('option').each(function() {
+				$(this).hide();
+			});
+			$(sibling).find('option[data-facdept="'+dept+'"]').each(function() {
+				$(this).show();
+			});
+		} else {
+			$(this).siblings('select.editclass-teacher').val('');
+			$(sibling).find('option').each(function() {
+				$(this).show();
+			});
+		}
+	});
+
+	$('.faculty-editclass-page .classes-sched').on('click', 'button.reset', function(e) {
+		e.preventDefault();
+		$('select.editclass-teacher, select.editclass-subjects').find('option').each(function() {
+			$(this).show();
+		});
+		$('.faculty-editclass-page .classes-sched').trigger("reset");
+	});
+
+	var faculty_grades_table = $('#grades-list').DataTable({
+		"columnDefs" : [{
+			"targets" : [6,7],
+			"visible" : false,
+		}]
+	});
+
+	$('#grades-filter .boxs1').on('click', '#filterGradesTable', function() {
+		var select1 = $(this).siblings('select[name=sectionList]').val();
+		var select2 = $(this).siblings('select[name=subjList]').val();
+		faculty_grades_table.column(6).search(select1 ? select1 : '', true, false).column(7).search(select2 ? "^" + select2 + "$" : '', true, false).draw();
+	});
+
+	$('.faculty-attendance-form .date-subj').on('change', '.datepicker-attendance', function() {
+		var data = new Array('att-changedate', $(this).val(), $(this).data('section'));
+		
+		$.ajax({
+			context: this,
+			type: 'get',
+			url: 'app/model/faculty-exts/faculty-ajax.php',
+			data: {data:data},
+			success: function (result) {
+				$(this).parentsUntil('.date-subj').parent().siblings('.table-cont').find('tbody').empty();
+				$(this).parentsUntil('.date-subj').parent().siblings('.table-cont').find('tbody').append(result);
+			}
+		});
+	});
+
+	$('.faculty-attendance-form .table-cont tbody').on('click', 'input', function() {
+		if ($(this).val() == 'Present') {
+			$(this).val('Late');
+			$(this).removeClass('present');
+			$(this).addClass('late');
+		} else if ($(this).val() == 'Late') {
+			$(this).val('Absent');
+			$(this).removeClass('late');
+			$(this).addClass('absent');
+		} else {
+			$(this).val('Present');
+			$(this).removeClass('absent');
+			$(this).addClass('present');
+		}
+	});
+
+	$('#existing-guardian-autofill-submit').on('click', function() {
+	var data = new Array('filloutform', 'guar_id=' + $(this).siblings('#existing-guardian-autofill').val());
+
+	$('#faculty_home .contentpage .widget .enrollcontent .enrollment-form .save button').attr("disabled", true);
+		$.ajax({
+			type: 'POST',
+			url: 'app/model/faculty-exts/faculty-ajax.php',
+			data: {data:data},
+			success: function(result) {
+				$('[name=dialog]').dialog('close');
+				$('#auto-fill').load('faculty-enroll #auto-fill .form-row');
+				$('#faculty_home .contentpage .widget .enrollcontent .enrollment-form .save button').attr("disabled", false);
+			}
+		});
+	});
+
+
+	$('#faculty_home .contentpage .widget .studentContent #adv-table-1 tr td').on('click', 'button.transfer', function() {
+		var data = new Array('transfer', $(this).siblings('.stud_id').val());
+
+		$.ajax({
+			context: this,
+			type: 'POST',
+			url: 'app/model/faculty-exts/faculty-ajax.php',
+			data: {data:data},
+			success: function(result) {
+				$(this).append(result);
+			}
+		});
+	});
+
+	$('#faculty_home .contentpage .widget .studentContent .details').on('click', 'button.cancel', function() {
+		var data = new Array('cancel', $(this).siblings('.stud_id').val());
+
+		$.ajax({
+			context: this,
+			type: 'POST',
+			url: 'app/model/faculty-exts/faculty-ajax.php',
+			data: {data:data},
+			success: function(result) {
+				$(this).append(result);
+			}
+		});
+	});
+
+	$('#faculty_home .contentpage .widget .studentContent .details').on('click', 'button.accept', function() {
+		var data = new Array('accept', $(this).siblings('.stud_id').val());
+
+		$.ajax({
+			context: this,
+			type: 'POST',
+			url: 'app/model/faculty-exts/faculty-ajax.php',
+			data: {data:data},
+			success: function(result) {
+				$(this).append(result);
+			}
+		});
+	});
+
+	$('#faculty_home .contentpage .widget .studentContent .details').on('click', 'button.reject', function() {
+		var data = new Array('reject', $(this).siblings('.stud_id').val());
+
+		$.ajax({
+			context: this,
+			type: 'POST',
+			url: 'app/model/faculty-exts/faculty-ajax.php',
+			data: {data:data},
+			success: function(result) {
+				$(this).append(result);
+			}
+		});
+	});
+}
+
 
 
 /****************************************** END OF FRONT-END FUNCTIONALITIES USING JQUERY (CALLED WITHOUT WAITING FOR THE PAGE TO FULLY LOAD) ******************************************/

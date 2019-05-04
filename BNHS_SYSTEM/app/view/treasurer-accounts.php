@@ -126,7 +126,7 @@ echo '
 		<div class="box1" id="columncontent">
 			<label id="date">
 				<span class="heading"> Select payment date: </span>
-				<input type="text" name="pay_date" class="datepicker-payment" placeholder="" required/>
+				<input type="text" name="pay_date" readonly="readonly" class="datepicker-payment" placeholder="" required/>
 			</label>
 			<label id ="orno">
 				<span class="heading">OR Number:</span>

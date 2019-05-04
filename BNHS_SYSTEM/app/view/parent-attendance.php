@@ -38,6 +38,7 @@
                                                 <th>Date</th>
                                                 <th>Subject</th>
                                                 <th>Remarks</th>
+                                                <th>Lrno</th>
                                             </tr>
                                         </thead>
                                         <tbody>

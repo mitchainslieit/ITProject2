@@ -64,7 +64,7 @@
 					<div class="header">
 						<p>	
 							<i class="far fa-calendar-alt fnt"></i>
-							<span>Calendar</span>
+							<span>Holidays</span>
 						</p>
 					</div>
 					<div class="eventcontent">
@@ -72,7 +72,7 @@
 							<table id="eventDataTable">
 								<thead>
 									<tr>
-										<th class="tleft title">Upcoming Holidays<br>This Month</th>
+										<th class="tleft title">Upcoming Holidays</th>
 									</tr>
 									<tr>
 										<th class="tleft custPad2">Holiday Title</th>

@@ -1,4 +1,5 @@
 /***************************student page****************************/
+.longTitle{white-space: unset !important; width: 250px}
 .align-right {text-align: right;}
 .align-left {text-align: left;}
 .bold {font-weight: 700;}
@@ -185,8 +186,8 @@
 .eventBox #eventDataTable{width: 100% !important; margin: 0;}
 .attachment{font-style: italic; color: #1a0dab; margin: 0}
 .eventBox{margin-top: 20px}
-.holidayBox{margin-top: 20px}
-.holidayBox #eventDataTable{width: 475px !important; margin: 0}
+.holidayBox{margin-top: 20px}/* 
+.holidayBox #eventDataTable{width: 475px !important; margin: 0} */
 h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
 .contentpage .dashboardWidget table.dataTable thead .title{border-top: none !important;}
 .contentpage .dashboardWidget table.dataTable tbody td{border: none !important; border-bottom: 1px solid #ddd !important; padding: 15px !important; white-space: unset;}
