@@ -27,7 +27,7 @@
 					<div class="cont1">
 						<div name="content">
 							<button name="opener" class="customButton">Add subject <i class="fas fa-plus fnt"></i></button>
-							<div name="dialog" title="Add Class">
+							<div name="dialog" title="Add Subject">
 								<form action="admin-subjects" method="POST" autocomplete="off">
 									<span>Subject Level:</span>
 									<select name="subj_level" data-validation="required">
