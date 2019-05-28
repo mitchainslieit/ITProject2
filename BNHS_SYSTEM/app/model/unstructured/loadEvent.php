@@ -9,13 +9,12 @@ class LoadCalendar {
 
 	public function getEvents() {
 		$data = array();
-		/*$query = "SELECT * FROM announcements ORDER BY ann_id";*/
-		$query ="SELECT * FROM announcements";
+		$query = "SELECT * FROM announcements ORDER BY ann_id";
 		$statement = $this->conn->prepare($query);
 		$statement->execute();
 		$result = $statement->fetchAll();
-		foreach($result as $row)
-		{
+
+		foreach($result as $row) {
 			$data[] = array(
 				'id'   => $row["ann_id"],
 				'title'   => $row["title"],
@@ -23,6 +22,7 @@ class LoadCalendar {
 				'end'   => $row["date_end"]
 			);
 		}
+
 		echo json_encode($data);
 	}
 }

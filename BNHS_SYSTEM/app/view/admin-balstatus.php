@@ -16,7 +16,7 @@
 				</div>
 				<div class="widgetContent balContent">
 					<p>Miscellaneous Fee: &#x20B1; <?php $obj->getMiscFee(); ?></p>
-
+	
 					<div class="cont1">
 						<div class="box box1">
 							<p>Grade Level and Section:</p>

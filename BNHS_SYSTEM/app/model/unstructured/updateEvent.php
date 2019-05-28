@@ -1,22 +1,28 @@
 <?php
+require '../connection.php';
+class updateCalendarEvent {
 
-//update.php
+	public function __construct() {
+		$this->conn = new Connection;
+		$this->conn = $this->conn->connect();
+	}
 
-/*$conn = new PDO("mysql:host=localhost; dbname=bnhs","root","");*/
-$conn = new PDO("mysql:host=192.168.254.111; dbname=bnhs_final","bnhs","bnhs");
-
-if(isset($_POST["id"]))
-{
-	$query = "UPDATE announcements SET title=:title, date_start=:date_start, date_end=:date_end WHERE ann_id=:ann_id";
-	$statement = $conn->prepare($query);
-	$statement->execute(
-		array(
-			':title'  => $_POST['title'],
-			':date_start' => $_POST['start'],
-			':date_end' => $_POST['end'],
-			':ann_id'   => $_POST['id']
-		)
-	);
+	public function updateEvent() {
+		if(isset($_POST["id"]))
+		{
+			$query = "UPDATE announcements SET title=:title, date_start=:date_start, date_end=:date_end WHERE ann_id=:ann_id";
+			$statement = $this->conn->prepare($query);
+			$statement->execute(
+				array(
+					':title'  => $_POST['title'],
+					':date_start' => $_POST['start'],
+					':date_end' => $_POST['end'],
+					':ann_id'   => $_POST['id']
+				)
+			);
+		}
+	}
 }
-
+$updateCalendarEvent = new updateCalendarEvent;
+$updateCalendarEvent->updateEvent();
 ?>

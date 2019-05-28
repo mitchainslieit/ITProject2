@@ -1,3 +1,4 @@
+
 <?php require 'app/model/admin-funct.php'; $obj = new AdminFunct;?>
 	<?php 
 		$this->conn = new Connection;

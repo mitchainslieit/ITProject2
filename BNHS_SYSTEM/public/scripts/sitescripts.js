@@ -557,11 +557,20 @@ $( ".datepickerAdmin" ).datepicker({
 	changeYear: true,
 	yearRange: "+0:+100"
 });
-		
-$('#ptaTable').DataTable();
+	
+$("#checkAl").click(function () {
+	$('input:checkbox').not(this).prop('checked', this.checked);
+});
+	
+$("#checkAl1").click(function () {
+	$('input:checkbox').not(this).prop('checked', this.checked);
+});
 	
 $("#noFilterTable").DataTable({
-		dom: "lBfrtip",
+	"initComplete": function (settings, json) {  
+		$("#stud-list, #admin-table, #admin-table-withScroll").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
 	"paging":   false,
   	"ordering": false,
 	buttons: [
@@ -569,28 +578,156 @@ $("#noFilterTable").DataTable({
 	],
 	});
 
-$( "#eventDataTable, #announcementDataTable, #historyDataTable" ).DataTable({
+$( "#eventDataTable, #announcementDataTable, #historyDataTable, #notif" ).DataTable({
+	"initComplete": function (settings, json) {  
+		$("#stud-list, #admin-table, #admin-table-withScroll").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
 	"paging":   false,
   	"ordering": false,
   	"info": false,
-	 buttons: false,
-	 "searching":false
+	buttons: false,
+	"searching":false,
+	stateSave: true
 });
 
-$( "#stud-list, .admin-table, .admin-table-withScroll" ).DataTable({
-	"scrollX": true,
-	dom: "lBfrtip",
-	fixedColumns: {
-  		leftColumns: 1
-   	},
-	buttons: [
-   	'copy','excel','pdf', 'csv','print'
-	],
+
+$( "#stud-list, #admin-table, #admin-table-withScroll" ).DataTable({
+	//"scrollX": true,            
+	"initComplete": function (settings, json) {  
+		$("#stud-list, #admin-table, #admin-table-withScroll").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	stateSave: true,
 	"lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
 	
 });
 
-$('#calendarAdmin').fullCalendar({
+$adminTableSection = $('#admin-table-section').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-section").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: [1,2]
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: [1,2]
+		},
+		pageSize: 'Folio'
+	}
+	],
+});
+$adminTableClasses = $('#admin-table-classes').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-classes").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: [0,1,2,3]
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: [0,1,2,3]
+		},
+		pageSize: 'Folio'
+	}
+	],
+});
+$adminTableSubject = $('#admin-table-subject').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-subject").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: [1,2,3]
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: [1,2,3]
+		},
+		pageSize: 'Folio'
+	}
+	],
+});
+$adminTableFaculty = $('#admin-table-faculty').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-faculty").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: [1,2,3,4,5,6]
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: [1,2,3,4,5,6]
+		},
+		pageSize: 'Folio'
+	}
+	],
+});
+$adminTableParent = $('#admin-table-treasurer').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-treasurer").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: [1,2,3]
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: [1,2,3]
+		},
+		pageSize: 'Folio'
+	}
+	],
+});
+$adminTableEvents = $('#admin-table-events').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-events").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: [1,2,3,4]
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: [1,2,3,4]
+		},
+		pageSize: 'Folio'
+	}
+	],
+});
+	var calendarAdmin = $('#calendarAdmin').fullCalendar({
 	editable:true,
 	header:{
 		left:'prev,next today',
@@ -612,7 +749,7 @@ $('#calendarAdmin').fullCalendar({
 			type:"POST",
 			data:{title:title, start:start, end:end, id:id},
 			success:function(){
-				calendar.fullCalendar('refetchEvents');
+				calendarAdmin.fullCalendar('refetchEvents');
 				alert('Event Update');
 			}
 		})
@@ -630,12 +767,12 @@ $('#calendarAdmin').fullCalendar({
 			data:{title:title, start:start, end:end, id:id},
 			success:function()
 			{
-				calendar.fullCalendar('refetchEvents');
-				alert("Event Updated");
+				calendarAdmin.fullCalendar('refetchEvents');
+				alert("Event Updated");	
 			}
 		});
 	},
-
+	
 	eventClick:function(event)
 	{
 		if(confirm("Are you sure you want to remove it?"))
@@ -647,7 +784,7 @@ $('#calendarAdmin').fullCalendar({
 				data:{id:id},
 				success:function()
 				{
-					calendar.fullCalendar('refetchEvents');
+					calendarAdmin.fullCalendar('refetchEvents');
 					alert("Event Removed");
 				}
 			})
@@ -673,15 +810,29 @@ $( '#faculty_home .contentpage .widget .studentContent .cont .filtStudTable' ).c
 });
 
 var adminTable = $('#admin-table-balstatus').DataTable({
-	"scrollX": true,
+	"initComplete": function (settings, json) {  
+		$("#admin-table-balstatus").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
 	dom: "lBfrtip",
-	fixedColumns: {
-  		leftColumns: 1
-   	},
 	"columnDefs" : [{
 		"targets" : [7],
 		"visible" : false
-	}]
+	}],
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: ':visible'
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: ':visible'
+		},
+		pageSize: 'Folio'
+	}
+	],
 });
 
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
@@ -697,13 +848,26 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 var adminTable3 = $('#admin-table-enrolled').DataTable({
 	"scrollX": true,
 	dom: "lBfrtip",
-	fixedColumns: {
-  		leftColumns: 1
-   	},
 	"columnDefs" : [{
 		"targets" : [8],
 		"visible" : false
-	}]
+	}],
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: ':visible'
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: ':visible'
+		},
+		orientation: 'landscape',
+		pageSize: 'Folio'
+	}
+	],
 });
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_enrolled', function() {
 	var val3 = $(this).val();
@@ -712,37 +876,145 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 
 
 var adminTable4 = $('#admin-table-payhist').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-logs").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
 	"scrollX": true,
 	dom: "lBfrtip",
-	fixedColumns: {
-  		leftColumns: 1
-   	},
 	"columnDefs" : [{
 		"targets" : [8],
 		"visible" : false
-	}]
+	}],
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: [0,1,2,3,4,5,6]
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: [0,1,2,3,4,5,6]
+		},
+		orientation: 'landscape',
+		pageSize: 'Folio'
+	}
+	],
 });
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_payhist', function() {
 	var val4 = $(this).val();
 	adminTable4.column(8).search(val4 ? "^" + val4 + "$"  : '', true, false).draw();
 });
 
-var adminTable5 = $('#admin-table-logs').DataTable();
+var adminTable5 = $('#admin-table-logs').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-logs").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: [0,1,2,3]
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: [0,1,2,3]
+		},
+		orientation: 'landscape',
+		pageSize: 'Folio'
+	}
+	],
+});
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.log_events', function() {
 	var val5 = $(this).val();
 	adminTable5.column(2).search(val5 ? val5 : '', true, false).draw();
 });
 
-getCurrentSection('sec1');
 
-$('.admin-faculty-page #getCurrentLevel').on('change', function() {
-	var val = $(this).val();
-	getCurrentSection(val);
+var adminTable6 = $('#admin-table-student').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-student").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+		},
+		orientation: 'landscape'
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+		},
+		orientation: 'landscape',
+		pageSize: 'Folio'
+	}
+	],
 });
 
-function getCurrentSection(value) {
-var showThis = '.admin-faculty-page .table-scroll #'+value;
-var hideThis = '.admin-faculty-page .table-scroll .classes-edit:not(#'+value+')';
+$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
+	var val6 = $(this).val();
+	adminTable6.column(5).search(val6 ? "^" + val6 + "$"  : '', true, false).draw();
+});
+
+var adminTable7 = $('#admin-table-parent').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-parent").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: [1,2,3,4,5,6,7,8]
+		},
+		orientation: 'landscape'
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: [1,2,3,4,5,6,7,8]
+		},
+		orientation: 'landscape',
+		pageSize: 'Folio'
+	}
+	],
+});
+
+$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
+	var val7 = $(this).val();
+	adminTable7.column(5).search(val7 ? "^" + val7 + "$"  : '', true, false).draw();
+});
+
+var adminTable8 = $('#admin-table-request').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-request").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	}
+});
+
+$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level', function(e) {
+	var val8 = $(this).val();
+	adminTable8.column(4).search(val8 ? "^" + val8 + "$"  : '', true, false).draw();
+});
+
+var secCurrent = $('.admin-classes-page #getCurrentLevel').val();
+getCurrentSection1(secCurrent);
+
+$('.admin-classes-page #getCurrentLevel').on('change', function() {
+	var val = $(this).val();
+	getCurrentSection1(val);
+});
+
+function getCurrentSection1(value) {
+var showThis = '.admin-classes-page .table-scroll #'+value;
+var hideThis = '.admin-classes-page .table-scroll .classes-edit:not(#'+value+')';
 $(hideThis).each(function() {
 	$(this).hide();
 });

@@ -20,7 +20,18 @@
 			extract($_POST);
 			$obj->deleteEvent($ann_id);
 		}
-		
+		if(isset($_POST['delete-button2'])){
+			extract($_POST);
+			$obj->deleteAnnouncement($ann_id);
+		}
+		if(isset($_POST['delete-all-button1'])){
+			extract($_POST);
+			$obj->multipleDeleteEvents();
+		}
+		if(isset($_POST['delete-all-button2'])){
+			extract($_POST);
+			$obj->multipleDeleteAnnouncements();
+		}
 	?>
 	<div class="contentpage">
 		<div class="row">
@@ -32,7 +43,7 @@
 					</div>
 					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
 				</div>
-				<div class="widgetContent">
+				<div class="widgetContent eventContent">
 					<div class="cont1">
 						<button name="opener" class="customButton">Add event <i class="fas fa-plus fnt"></i></button>
 						<div name="dialog" title="Create events" >
@@ -44,7 +55,7 @@
 								<span>End Date:</span>
 								<input type="text" name="date_end" class="datepickerAdmin" readonly="readonly" value="" data-validation="required" placeholder="End Date" required>
 								<span>Users who can view:</span>
-								<div class="inp-grp">
+								<div class="inp-grp1">
 									<input type="checkbox" name="view_lim[]" value="0" data-validation="checkbox_group" data-validation-qty="1-3"><span>All</span>
 									<input type="checkbox" name="view_lim[]" value="1"><span>Faculty</span>
 									<input type="checkbox" name="view_lim[]" value="2"><span>Parent</span>
@@ -56,9 +67,11 @@
 						</div>
 					</div>
 					<div class="cont2"> 
-						<table class="admin-table" class="display">
+						<form action="admin-events" method="POST" id="form1"></form>
+						<table id="admin-table-events" class="display">
 							<thead>
 								<tr>
+									<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form1"> </th>
 									<th class="tleft">Title</th>
 									<th class="tleft">Date Start</th>
 									<th class="tleft">Date End</th>
@@ -75,6 +88,7 @@
  extract($value);
  echo '
  <tr>
+ 	<td><input type="checkbox" id="checkItem" name="check[]" value="'.$ann_id.'" form="form1"></td>
 	<td class="tleft">'.$title.'</td>
 	<td class="tleft">'.$date_start_1.'</td>
 	<td class="tleft">'.$date_end_1.'</td>
@@ -100,7 +114,7 @@
 					<span>End Date:</span>
 					<input type="text" name="date_end" class="datepickerAdmin" readonly="readonly" value="'.date('Y-m-d',(strtotime($date_end))).'" data-validation="required" placeholder="End Date" required> 
 					<span>Users who can view:</span>
-					<div class="inp-grp">
+					<div class="inp-grp1">
 					';
 					$checked_arr=array();
 					$checked_arr =	explode(",", $value['view_lim']);  
@@ -139,6 +153,8 @@
 ?>
 							</tbody>
 						</table>
+						<p class="tleft"><button type="submit" form="form1" name="delete-all-button1" class="customButton">Delete <i class="fas fa-trash-alt"></i></button></p>
+						
 					</div>
 				</div>
 			</div>
@@ -151,7 +167,7 @@
 					</div>
 					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
 				</div>
-				<div class="widgetContent">
+				<div class="widgetContent eventContent">
 					<div class="cont1">
 						<button name="opener" class="customButton">Add announcement <i class="fas fa-plus fnt"></i></button>
 						<div name="dialog" title="Create announcement" >
@@ -165,7 +181,7 @@
 								<span>Attachment:</span>
 								<input type="file" name="attachment" id="" placeholder="Attachment(optional)">
 								<span>Users who can view:</span>
-								<div class="inp-grp">
+								<div class="inp-grp1">
 									<input type="checkbox" name="view_lim[]" value="0" data-validation="checkbox_group" data-validation-qty="1-3"><span>All</span>
 									<input type="checkbox" name="view_lim[]" value="1"><span>Faculty</span>
 									<input type="checkbox" name="view_lim[]" value="2"><span>Parent</span>
@@ -177,9 +193,11 @@
 						</div>
 					</div>
 					<div class="cont2">
-						<table class="admin-table-withScroll" class="display" width="100%">
+						<form action="admin-events" method="POST" id="form2"></form>
+						<table id="admin-table-withScroll" class="display" width="100%">
 							<thead>
 								<tr>
+									<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl1" class="selectAllCheck" form="form2"> </th>
 									<th class="tleft">Announcement</th>
 									<th class="tleft">Date Start</th>
 									<th class="tleft">Date End</th>
@@ -197,6 +215,7 @@
  extract($value);
  echo '
  <tr>
+ 	<td><input type="checkbox" id="checkItem" name="check[]" value="'.$ann_id.'" form="form2"></td>
 	<td class="tleft longText">'.$post.'</td>
 	<td class="tleft">'.$date_start_1.'</td>
 	<td class="tleft">'.$date_end_1.'</td>
@@ -226,7 +245,7 @@
 					<span class="attachment">Current File: '.$attachment.'</span>
 					<input type="file" name="attachment" id="" value="'.$attachment.'" placeholder="Attachment(optional)">
 					<span>Users who can view:</span>
-					<div class="inp-grp">
+					<div class="inp-grp1">
 					';
 					$checked_arr=array();
 					$checked_arr =	explode(",", $value['view_lim']);  
@@ -254,7 +273,7 @@
 				<form action="admin-events" method="POST">
 					<p>Are you sure you want to delete this announcement?</p>
 					<input type="hidden" value="'.$ann_id.'" name="ann_id">
-					<button name="delete-button" class="customButton">Yes <i class="fas fa-save fnt"></i></button>
+					<button name="delete-button2" class="customButton">Yes <i class="fas fa-save fnt"></i></button>
 				</form>
 			</div>  
 		</div>
@@ -265,6 +284,8 @@
 ?>
 							</tbody>
 						</table>
+						<p class="tleft"><button type="submit" form="form2" name="delete-all-button2" class="customButton">Delete <i class="fas fa-trash-alt"></i></button></p>
+						
 					</div>
 				</div>
 			</div>

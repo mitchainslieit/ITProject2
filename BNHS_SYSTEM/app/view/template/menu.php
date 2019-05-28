@@ -78,10 +78,12 @@ switch($page[0]) {
 		echo '<li '.$this->helpers->isActiveMenu("admin-feetype").'><a href="'.URL.'admin-feetype"><i class="fas fa-money-check fnt"></i>Fee Type</a></li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-balstatus").'><a href="'.URL.'admin-balstatus"><i class="fas fa-sync fnt"></i>Student Payment Status</a></li>';
 		echo '</ul>';
-		echo '</li>';
+		echo '</li>';	
 		echo '<li '.$this->helpers->isActiveMenu("admin-section").'><a href="'.URL.'admin-section"><i class="fas fa-book-open fnt"></i>Section</a></li>';
 		echo '<li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-classes").'><a href="'.URL.'admin-classes"><i class="fas fa-plus fnt"></i>Class</a></li>';
+		echo '<li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-transfer").'><a href="'.URL.'admin-transfer"><i class="fas fa-bell fnt"></i>Accept Request</a></li>';
 		echo '<li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-subjects").'><a href="'.URL.'admin-subjects"><i class="fas fa-book-reader fnt"></i>Subject</a></li>';
 		echo '<li>';

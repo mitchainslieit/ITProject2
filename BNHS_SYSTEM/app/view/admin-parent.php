@@ -33,6 +33,34 @@
 			extract($_POST);
 			if($obj->resetParentPassword($acc_id));
 		}
+		if(isset($_POST['delete-all-button'])){
+			extract($_POST);
+			$obj->multipleDeleteParent();
+		}
+		if(isset($_POST['reset-all-button'])){
+			extract($_POST);
+			$obj->multipleResetParent();
+		}
+		if(isset($_POST['reset-all-guardianAcc'])){
+			extract($_POST);
+			$obj->multipleResetGuardian();
+		}
+		if(isset($_POST['deactive-button'])){
+			extract($_POST);
+			$obj->deactiveTreasurer();
+		}
+		if(isset($_POST['active-button'])){
+			extract($_POST);
+			$obj->activeTreasurer();
+		}
+		if(isset($_POST['deactive-button2'])){
+			extract($_POST);
+			$obj->deactiveGuardian();
+		}
+		if(isset($_POST['active-button2'])){
+			extract($_POST);
+			$obj->activeGuardian();
+		}
 	?>
 	<div class="contentpage">
 		<div class="row">
@@ -59,9 +87,11 @@
 							</form>
 						</div>
 					</div>
-					<table id="ptaTable" class="display" width="100%">
+					<form action="admin-parent" method="POST" id="form1"></form>
+					<table id="admin-table-treasurer" class="display" width="100%">
 						<thead>
 							<tr>
+								<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form1"> </th>
 								<th class="tleft custPad">PTA Treasurer</th>
 								<th class="tleft custPad">Username</th>
 								<th class="tleft custPad">Account Status</th>
@@ -77,6 +107,7 @@ $studentName = $obj->studentName();*/
 $status = ['Active','Deactivated'];
 echo '
 	<tr>
+		<td><input type="checkbox" id="checkItem" name="check[]" value="'.$acc_trid.'" form="form1"></td>
 		<td class="tleft custPad">'.$tr_fname.' '.$tr_midname.' '.$tr_lname.'</td>
 		<td class="tleft custPad">'.$username.'</td>
 		<td class="tleft custPad">'.$acc_status.'</td>
@@ -175,6 +206,8 @@ echo '
 </select>-->				
 						</tbody>
 					</table> 
+					<p class="tleft buttonContainer"><button type="submit" form="form1" name="delete-all-button" class="customButton">Delete <i class="fas fa-trash-alt"></i></button>
+					<button type="submit" form="form1" name="reset-all-button" class="customButton">Reset <i class="fas fa-retweet"></i></button><button type="submit" form="form1" name="deactive-button" class="customButton">Deactivate <i class="fas fa-exchange-alt"></i></button><button type="submit" form="form1" name="active-button" class="customButton">Activate <i class="fas fa-exchange-alt"></i></button></p>
 				</div>
 			</div>
 			<div class="widget">	
@@ -186,14 +219,26 @@ echo '
 					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
 				</div>
 				<div class="widgetContent parentContent">
-					<table class="admin-table-withScroll" class="display">
+					<div class="cont1">
+						<div class="box box1">
+							<p>Grade Level and Section:</p>
+							<select name="gradeAndsection" id="gradeAndsection" class="year_level_balstatus1">
+								<option value="">All</option>
+								<?php $obj->getGradeAndSection2(); ?>
+							</select>
+						</div>
+					</div>
+					<form action="admin-parent" method="POST" id="form2"></form>
+					<table id="admin-table-parent" class="display">
 						<thead>
 							<tr>
+								<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl1" class="selectAllCheck" form="form2"> </th>
 								<th class="tleft">Parent Name</th>
 								<th class="tleft">Address</th>
 								<th class="tleft">Mobile Number</th>
 								<th class="tleft">Telephone Number</th>
 								<th class="tleft">Child Name</th>
+								<th class="tleft">Child Grade Level and Section</th>
 								<th class="tleft">Username</th>
 								<th class="tleft">Status</th>
 								<th>Action</th>
@@ -205,19 +250,21 @@ extract($value);
 $status = ['Active','Deactivated'];
 echo '
 <tr>
+	<td><input type="checkbox" id="checkItem" name="check[]" value="'.$acc_idx.'" form="form2"></td>
 	<td class="tleft custPad2">'.$guar_fname.' '.$guar_midname.' '.$guar_lname.'</td>
-	<td class="tleft custPad2">'.$guar_address.'</td>
+	<td class="tleft custPad2">'.$guar_address.'</td>	
 	<td class="tleft custPad2">'.$guar_mobno.'</td>
 	<td class="tleft custPad2">'.$guar_telno.'</td>
 	<td class="tleft custPad2">'.$first_name.' '.$last_name.'</td>
+	<td class="tleft custPad2">Grade '.$year_level.' - '.$sec_name.'</td>
 	<td class="tleft custPad2">'.$username.'</td>
 	<td class="tleft custPad2">'.$acc_status.'</td>
 	<td class="action">
 		<div name="content">
 			<button name="opener">
 				<div class="tooltip">
-					<i class="fas fa-retweet"></i>
-					<span class="tooltiptext">Reset</span>
+					<i class="fas fa-edit"></i>
+					<span class="tooltiptext">edit</span>
 				</div>
 			</button>
 			<div name="dialog" title="Reset Parent Account">
@@ -234,7 +281,7 @@ echo '
 					<span>Mobile Number:</span>
 					<input type="text" name="guar_mobno" value="'.$guar_mobno.'" data-validation="length custom required" data-validation-length="11-11" data-validation-regexp="^[0-9\-+ ]+$" data-validation-error-msg="Enter 11 digits" placeholder="" minlength="11" maxlength="11">
 					<span>Telephone Number:</span>
-					<input type="text" name="guar_telno" value="'.$guar_telno.'" data-validation="length custom" data-validation-length="max11" data-validation-regexp="^[0-9\-+ ]+$" data-validation-error-msg="Enter less than 11 digits only" placeholder="" maxlength="11">
+					<input type="text" name="guar_telno" value="'.$guar_telno.'" placeholder="" maxlength="11">
 					<span>Child name:</span>
 					<input type="text" name="guar_fname" value="'.$first_name.' '.$last_name.'" placeholder="First name" required disabled>
 					<button name="reset-button" class="customButton">Reset <i class="fas fa-save fnt"></i></button>
@@ -287,6 +334,8 @@ echo '
 ?>
 						</tbody>
 					</table>
+					<p class="tleft buttonContainer">
+					<button type="submit" form="form2" name="reset-all-guardianAcc" class="customButton">Reset <i class="fas fa-retweet"></i></button><button type="submit" form="form2" name="deactive-button2" class="customButton">Deactivate <i class="fas fa-exchange-alt"></i></button><button type="submit" form="form2" name="active-button2" class="customButton">Activate <i class="fas fa-exchange-alt"></i></button></p>
 				</div>
 			</div>
 		</div>

@@ -23,3 +23,6 @@
 	<script type="text/javascript" src="<?php echo URL; ?>public/vendors/sweetalert/sweetalert.js"></script>
 	<script type="text/javascript" src="<?php echo URL; ?>public/vendors/tooltip/dist/js/tooltipster.bundle.min.js"></script>
 	<script type="text/javascript" src="<?php echo URL; ?>public/vendors/google-chart/loader.js"></script>
+	
+	<!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/> -->
+	

@@ -35,7 +35,26 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 .custPad2{padding: 0px 8px 0px 20px !important;}
 .longText{white-space: unset !important; text-align: justify;}
 .longTitle{white-space: unset !important; width: 250px}
-.admin-table, .admin-table-withScroll, #ptaTable, #noFilterTable, #admin-table-balstatus, #admin-table-payhist, #historyDataTable, #admin-table-enrolled{width: 100% !important}
+#admin-table, 
+#admin-table-withScroll, 
+#ptaTable, 
+#noFilterTable, 
+#admin-table-balstatus, 
+#admin-table-payhist, 
+#historyDataTable, 
+#admin-table-enrolled,
+#admin-table-section{width: 100% !important}
+#noFilterTable{margin: 20px 0}
+#admin_home .contentpage .widget .sectionContent thead tr th:first-of-type,
+#admin_home .contentpage .widget .feeTypeContent thead tr th:first-of-type,
+#admin_home .contentpage .widget .subjectContent thead tr th:first-of-type,
+#admin_home .contentpage .widget .facultyContent thead tr th:first-of-type,
+#admin_home .contentpage .widget .ptaContent thead tr th:first-of-type,
+#admin_home .contentpage .widget .studentContent thead tr th:first-of-type,
+#admin_home .contentpage .widget .eventContent thead tr th:first-of-type,
+#admin_home .contentpage .widget .transferContent thead tr th:first-of-type{width: 60px !important; padding: 0px!important}
+#checkAl1, #checkAl, #checkItem{width: 100% !important}
+
 /* tooltip */
 .tooltip {position: relative;display: inline-block;}
 .tooltip .tooltiptext {visibility: hidden;width: 68px;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;bottom: 150%;left: 50%;margin-left: -39px;}
@@ -45,13 +64,12 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 .dataTables_wrapper tbody tr:first-of-type .action:last-of-type .tooltip:hover .tooltiptext {visibility: visible;}
 .dataTables_wrapper tbody tr:first-of-type .action:last-of-type .tooltip .tooltiptext {height: 16.8px; visibility: hidden;width: 68px;background-color: black;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;top: 150%;left: 50%;margin-left: -34px;}
 .dataTables_wrapper tbody tr:first-of-type .action:last-of-type .tooltip .tooltiptext::after {content: "";position: absolute;top: -10px;left: 50%;margin-left: -5px;border-width: 5px;border-style: solid;border-color: transparent transparent black transparent;}
-
+#checkItem{width: 100%}
 /*clearings*/
 .clear{ clear:both;}
 .clearfix:after {content:"."; display:block; height:0; clear:both;visibility:hidden;font-size: 0;}
 .clearfix {display:block;}
 /**************************************************CONTENT PAGE**********************************************************************/
-
 
 /* dialog */
 .ui-dialog{padding:0px !important; font-family: 'Open Sans' !important;}
@@ -63,12 +81,15 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 .ui-dialog .ui-dialog-titlebar,.ui-dialog .ui-dialog-content{padding: 15px 28px !important}
 .ui-dialog .ui-dialog-titlebar-close {right: 20px !important}
 
-
 /*widget template*/
 #admin_home .contentpage .widget {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 25px; margin-bottom: 40px}
 #admin_home .contentpage .widget .header {display: flex; justify-content: space-between;padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
 #admin_home .contentpage .widget .header p{padding: 0; margin: 0}
 #admin_home .contentpage .widget .widgetContent{padding: 25px 23px 0 23px;}
+
+/* section */
+span.selectAll{font-size: 11px; display: block}
+.selectAllCheck{vertical-align: middle;}
 
 /*dashboard*/
 .eventBox #eventDataTable{width: 475px !important; margin: 0}
@@ -115,7 +136,7 @@ h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
 /* payment status */
 #admin_home .contentpage .widget .balContent .cont1{display: unset}
 #admin_home .contentpage .widget .balContent > p{text-align: left}
-#admin_home .contentpage .widget .balContent .cont1 .box{display: flex; width: 420px; justify-content: space-between; align-items: center; margin-bottom: 15px}
+#admin_home .contentpage .widget .balContent .cont1 .box, #admin_home .contentpage .widget .studentContent .cont1 .box, #admin_home .contentpage .widget .parentContent .cont1 .box, #admin_home .contentpage .widget .transferContent .cont1 .box{display: flex; width: 420px; justify-content: space-between; align-items: center; margin-bottom: 15px}
 #admin_home .contentpage .widget .balContent .cont1 .box select{width: 215px; height: 33px;}
 
 
@@ -143,6 +164,7 @@ h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
 #admin_home .contentpage .widget .widgetcontent td{white-space:nowrap;height: 40px;font-size: 14px; border: 1px solid #ddd; padding: 2px 8px;}
 #admin_home .contentpage .widget .widgetcontent td i { margin: 0 10px; }
 #admin_home .contentpage .widget .editContent{padding: 30px !important}
+
 /* parent */
 .ptaContent > [name="content"], .parentContent > [name="content"]{text-align: left;}
 .widgetParent{margin-bottom: 30px;}
@@ -152,10 +174,16 @@ h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
 #admin_home .contentpage .widget .parentContent .customTable th>i{padding-left: 10px}
 #admin_home .contentpage .widget .parentContent .customTable td{white-space:nowrap;height: 36px;font-size: 14px; border: 1px solid #ddd;}
 
+/* student/parent */
+#admin_home .contentpage .widget .studentContent .cont1, #admin_home .contentpage .widget .parentContent .cont1  {width: 390px;}
 
+/* Transfer Request */
+#admin_home .contentpage .widget .transferContent .cont1{width: 245px}  
+.buttonContainer button{margin-right: 20px;}
 /* event */
-input[type="checkbox"]{width: 11% !important;}
+#admin_home .contentpage .widget .eventContent input[type="checkbox"]{width: 11% }
 span.attachment{font-weight: 400; font-style: italic; display: block}
+.inp-grp1 input[type="checkbox"]{width: calc(100% / 5 - 57px)}
 
 /* reports */
 #admin_home .contentpage .widget .payHistoryContent .cont1,#admin_home .contentpage .widget .enrolledContent .cont1{display: unset}
@@ -168,6 +196,7 @@ span.attachment{font-weight: 400; font-style: italic; display: block}
 #admin_home .contentpage .widget .logsContent .cont1{width: 170px;}
 .logLongText{white-space: unset !important; text-align: justify;}
 #admin_home .contentpage .widget .systemContent #ui-datepicker-div{display: block !important;} 
+
 /* system settings */
 #admin_home .contentpage .widget .systemContent .cont1{display: unset; text-align: left;}
 #admin_home .contentpage .widget .systemContent .cont1 .innerCont{margin-top: 20px; display: block;}

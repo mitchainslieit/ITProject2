@@ -12,6 +12,10 @@
 			extract($_POST);
 			$obj->deleteSubject($subj_id);
 		}
+		if(isset($_POST['delete-all-button'])){
+			extract($_POST);
+			$obj->multipleDeleteSubject();
+		}
 	?>
 	<div class="contentpage" id="contentpage">
 		<div class="row">
@@ -23,7 +27,7 @@
 					</div>
 					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
 				</div>
-				<div class="widgetContent">
+				<div class="widgetContent subjectContent">
 					<div class="cont1">
 						<div name="content">
 							<button name="opener" class="customButton">Add subject <i class="fas fa-plus fnt"></i></button>
@@ -58,80 +62,84 @@
 						</div>
 					</div>
 					<div class="cont2">
-						<table class="admin-table" class="stripe row-border order-column">
-							<thead>
-								<tr>
-									<th class="tleft custPad">Subject Level</th>
-									<th class="tleft custPad">Subject Department</th>
-									<th class="tleft custPad">Subject Name</th>
-									<th>Actions</th>
-								</tr>
-							</thead>
-							<tbody>
-<?php foreach ($obj->showSingleTable("subject") as $value) {
-extract($value);
-$department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 'TLE', 'Values'];
-$subject_level = ['7', '8', '9', '10'];
-echo '
-	<tr>
-		<td class="tleft custPad">'.$subj_level.'</td>
-		<td class="tleft custPad">'.$subj_dept.'</td>
-		<td class="tleft custPad">'.$subj_name.'</td>
-		<td class="action">
-			<div name="content">
-				<button name="opener">
-					<div class="tooltip">
-						<i class="fas fa-edit"></i>
-						<span class="tooltiptext">edit</span>
-					</div>
-				</button>
-				<div name="dialog" title="Update subjects data">
-					<form action="admin-subjects" method="POST" required autocomplete="off">
-						<input type="hidden" name="subj_id" value="'.$subj_id.'" required>
-						<span>Subject Level:</span>
-						<select name="subj_level" value="" data-validation="required"  required>
-						';
-						for ($c = 0; $c < sizeof($subject_level); $c++) {
-							echo $subj_level === $subject_level[$c] ? '<option value="'.$subject_level[$c].'" selected="selected">'.$subject_level[$c].'</option>' : '<option value="'.$subject_level[$c].'">'.$subject_level[$c].'</option>';	
-						}
-						echo '	
-						</select>
-						<span>Subject Department:</span>
-						<select name="subj_dept" data-validation="required" required>
-						';
-						for ($c = 0; $c < sizeof($department); $c++) {
-							echo $subj_dept === $department[$c] ? '<option value="'.$department[$c].'" selected="selected">'.$department[$c].'</option>' : '<option value="'.$department[$c].'">'.$department[$c].'</option>';	
-						}
-						echo '
-						</select>
-						<span>Subject Name:</span>
-						<input type="text" data-validation="length custom" data-validation-length="max45" data-validation-regexp="^[a-zA-Z0-9\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphanumerics only" name="subj_name" value="'.$subj_name.'" data-validation="required" required>
-						<button name="update-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
-					</form>
-				</div>  
-			</div>
-			<div name="content">
-				<button name="opener">
-					<div class="tooltip">
-						<i class="fas fa-trash-alt"></i>
-						<span class="tooltiptext">delete</span>
-					</div>
-				</button>
-				<div name="dialog" title="Delete subject data">
-					<form action="admin-subjects" method="POST" required>
-						<p>Are you sure you want to delete this subject?</p>
-						<input type="hidden" value="'.$subj_id.'" name="subj_id">
-						<button name="delete-button" class="customButton">Yes <i class="fas fa-save fnt"></i></button>
-					</form>
-				</div>  
-			</div>
-		</td>
-	</tr>
-	';
-}
-?>
-							</tbody>
-						</table>
+						<form action="admin-subjects" method="POST" id="form1"></form>
+							<table id="admin-table-subject" class="stripe row-border order-column" class="display">
+								<thead>
+									<tr>
+										<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form1"> </th>
+										<th class="tleft custPad">Subject Level</th>
+										<th class="tleft custPad">Subject Department</th>
+										<th class="tleft custPad">Subject Name</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+	<?php foreach ($obj->showSingleTable("subject") as $value) {
+	extract($value);
+	$department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 'TLE', 'Values'];
+	$subject_level = ['7', '8', '9', '10'];
+	echo '
+		<tr>
+			<td><input type="checkbox" id="checkItem" name="check[]" value="'.$subj_id.'" form="form1"></td>
+			<td class="tleft custPad">'.$subj_level.'</td>
+			<td class="tleft custPad">'.$subj_dept.'</td>
+			<td class="tleft custPad">'.$subj_name.'</td>
+			<td class="action">
+				<div name="content">
+					<button name="opener">
+						<div class="tooltip">
+							<i class="fas fa-edit"></i>
+							<span class="tooltiptext">edit</span>
+						</div>
+					</button>
+					<div name="dialog" title="Update subjects data">
+						<form action="admin-subjects" method="POST" required autocomplete="off">
+							<input type="hidden" name="subj_id" value="'.$subj_id.'" required>
+							<span>Subject Level:</span>
+							<select name="subj_level" value="" data-validation="required"  required>
+							';
+							for ($c = 0; $c < sizeof($subject_level); $c++) {
+								echo $subj_level === $subject_level[$c] ? '<option value="'.$subject_level[$c].'" selected="selected">'.$subject_level[$c].'</option>' : '<option value="'.$subject_level[$c].'">'.$subject_level[$c].'</option>';	
+							}
+							echo '	
+							</select>
+							<span>Subject Department:</span>
+							<select name="subj_dept" data-validation="required" required>
+							';
+							for ($c = 0; $c < sizeof($department); $c++) {
+								echo $subj_dept === $department[$c] ? '<option value="'.$department[$c].'" selected="selected">'.$department[$c].'</option>' : '<option value="'.$department[$c].'">'.$department[$c].'</option>';	
+							}
+							echo '
+							</select>
+							<span>Subject Name:</span>
+							<input type="text" data-validation="length custom" data-validation-length="max45" data-validation-regexp="^[a-zA-Z0-9\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphanumerics only" name="subj_name" value="'.$subj_name.'" data-validation="required" required>
+							<button name="update-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
+						</form>
+					</div>  
+				</div>
+				<div name="content">
+					<button name="opener">
+						<div class="tooltip">
+							<i class="fas fa-trash-alt"></i>
+							<span class="tooltiptext">delete</span>
+						</div>
+					</button>
+					<div name="dialog" title="Delete subject data">
+						<form action="admin-subjects" method="POST" required>
+							<p>Are you sure you want to delete this subject?</p>
+							<input type="hidden" value="'.$subj_id.'" name="subj_id">
+							<button name="delete-button" class="customButton">Yes <i class="fas fa-save fnt"></i></button>
+						</form>
+					</div>  
+				</div>
+			</td>
+		</tr>
+		';
+	}
+	?>
+								</tbody>
+							</table>
+							<p class="tleft"><button type="submit" form="form1" name="delete-all-button" class="customButton">Delete <i class="fas fa-trash-alt"></i></button></p>
 					</div>
 				</div>
 			</div>

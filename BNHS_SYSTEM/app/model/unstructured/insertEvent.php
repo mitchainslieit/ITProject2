@@ -1,16 +1,31 @@
+
 <?php
-/*$conn = new PDO("mysql:host=localhost; dbname=bnhs","root","");*/
-$conn = new PDO("mysql:host=192.168.254.111; dbname=bnhs_final","bnhs","bnhs");
-if(isset($_POST["title"]))
-{
-	$query = "INSERT INTO announcements (title, date_start, date_end) VALUES (:title, :date_start, :date_end)";
-	$statement = $conn->prepare($query);
-	$statement->execute(
-		array(
-			':title'  => $_POST['title'],
-			':date_start' => $_POST['start'],
-			':date_end' => $_POST['end']
-		)
-	);
+require '../connection.php';
+class insertCalendarEvent {
+
+	public function __construct() {
+		$this->conn = new Connection;
+		$this->conn = $this->conn->connect();
+	}
+
+	public function insertEvent() {
+		$admin_id = $_SESSION['accid'];
+		var_dump($admin_id);
+		if(isset($_POST["title"]))
+		{
+			$query = "INSERT INTO announcements (title, date_start, date_end, post_adminid) VALUES (:title, :date_start, :date_end, :post_adminid)";
+			$statement = $this->conn->prepare($query);
+			$statement->execute(
+				array(
+					':title'  => $_POST['title'],
+					':date_start' => $_POST['start'],
+					':date_end' => $_POST['end'],
+					':post_adminid' => $admin_id
+				)
+			);
+		}
+	}
 }
+$insertCalendarEvent = new insertCalendarEvent;
+$insertCalendarEvent->insertEvent();
 ?>

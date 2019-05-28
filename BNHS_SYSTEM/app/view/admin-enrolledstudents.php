@@ -52,7 +52,13 @@ echo '
 	<td class="tleft">'.$gender.'</td>
 	<td class="tleft">'.$ethnicity.'</td>
 	<td class="tleft">'.$stud_status.'</td>
-	<td class="tleft">'.$curr_stat.'</td>
+	<td class="tleft">';
+	if($curr_stat == 'New'){
+		echo 'Transferee';
+	}else{
+		echo 'Old';
+	}
+	echo'</td>
 	<td class="tleft">'.str_replace(' ', '', strtolower(('Grade'.$year_level.'-'.$sec_name))).'</td>
 </tr>	
 ';

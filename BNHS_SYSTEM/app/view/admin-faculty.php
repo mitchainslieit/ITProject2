@@ -21,6 +21,22 @@
 			extract($_POST);
 			if($obj->resetFacultyPassword($acc_id));
 		}
+		if(isset($_POST['delete-all-button'])){
+			extract($_POST);
+			$obj->multipleDeleteFaculty();
+		}
+		if(isset($_POST['reset-all-button'])){
+			extract($_POST);
+			$obj->multipleResetFaculty();
+		}
+		if(isset($_POST['deactive-button'])){
+			extract($_POST);
+			$obj->multipleUpdateAccountStatusToDeactive();
+		}
+		if(isset($_POST['active-button'])){
+			extract($_POST);
+			$obj->multipleUpdateAccountStatusToActive();
+		}
 	?>
 	<div class="contentpage" id="contentpage">
 		<div class="row">
@@ -32,7 +48,7 @@
 					</div>
 					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
 				</div>
-				<div class="widgetContent">
+				<div class="widgetContent facultyContent">
 					<div class="cont1">
 						<div name="content">
 							<button name="opener" class="customButton">Create new account<i class="fas fa-plus fnt"></i></button>
@@ -80,36 +96,57 @@
 						</div>
 					</div>
 					<div class="cont2">
-						<table class="admin-table" class="display">
+						<form action="admin-faculty" method="POST" id="form1"></form>
+						<table id="admin-table-faculty" class="display">
 							<thead>
 								<tr>
+									<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form1"> </th>
 									<th>Employee ID</th>
 									<th>Name</th>
 									<th>Department</th>
 									<th>Username</th>
 									<th>Adviser</th>
 									<th>Status</th>
-									<th>Can Edit Section</th>
+									<!-- <th>Can Edit Section</th> -->
 									<th>Action</th>
 								</tr>
 							</thead>
 							<tbody>
  <?php
  /*$department = $obj->department();*/
- foreach($obj->showTwoTables("faculty","accounts", "acc_idz", "acc_id") as $row){
+ /*<td>'.$sec_privilege.'</td>*/
+/*<span>Can edit section:</span>
+<select name="sec_privilege" value="" >
+if($obj->priv() === true) {
+	if($sec_privilege=='Yes'){
+		echo '<option value="Yes" selected>Yes</option>';
+		echo '<option value="No">No</option>';
+	}else{
+		echo '<option value="No" selected>No</option>';
+	}
+}else{
+	if($sec_privilege=='No'){
+		echo '<option value="Yes">Yes</option>';
+		echo '<option value="No" selected>No</option>';
+	}
+}
+</select>*/
+
+ foreach($obj->showFacList() as $row){
  extract($row);
  $department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 'TLE', 'Values'];
  $adviser = ['Yes', 'No'];
  $status = ['Active','Deactivated'];
  echo '
  <tr>
+ 	<td><input type="checkbox" id="checkItem" name="check[]" value="'.$acc_idz.'" form="form1"></td>
  	<td class="tleft custPad2">'.$fac_no.'</td>
  	<td class="tleft custPad2">'.$fac_fname.' '.$fac_midname.' '.$fac_lname.'</td>
  	<td class="tleft custPad2">'.$fac_dept.'</td>
  	<td class="tleft custPad2">'.$username.'</td>
- 	<td>'.$fac_adviser.'</td>
+ 	<td>'.$viewHandledSection.'</td>
  	<td>'.$acc_status.'</td>
- 	<td>'.$sec_privilege.'</td>
+ 	
  	<td class="action">
  		<div name="content">
 			<button name="opener">
@@ -142,25 +179,6 @@
 					';
 					for ($c = 0; $c < sizeof($adviser); $c++) {
 						echo $fac_adviser === $adviser[$c] ? '<option value="'.$adviser[$c].'" selected="selected">'.$adviser[$c].'</option>' : '<option value="'.$adviser[$c].'">'.$adviser[$c].'</option>';	
-					}
-					echo '
-					</select>
-					<span>Can edit section:</span>
-					<select name="sec_privilege" value="" >
-					';
-					
-					if($obj->priv() === true) {
-						if($sec_privilege=='Yes'){
-							echo '<option value="Yes" selected>Yes</option>';
-							echo '<option value="No">No</option>';
-						}else{
-							echo '<option value="No" selected>No</option>';
-						}
-					}else{
-						if($sec_privilege=='No'){
-							echo '<option value="Yes">Yes</option>';
-							echo '<option value="No" selected>No</option>';
-						}
 					}
 					echo '
 					</select>
@@ -229,25 +247,7 @@
  ?>
 							</tbody>
 						</table>
-					</div>
-				</div>
-			</div>
-			<div class="widget">	
-				<div class="header">	
-					<p>	<i class="fa fa-user fnt"></i><span>Adviser Class Schedule</span></p>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
-				</div>	
-				<div class="editContent widgetcontent">
-					<div class="cont2">
-						<div class="table-scroll">
-							<div class ="cont fl">
-								<span>SECTION: </span>
-								<select name="sec_id" id="getCurrentLevel">
-									<?php $obj->showSections(); ?>
-								</select>
-							</div>
-							<?php $obj->showTabledSections(); ?>
-						</div>
+						<p class="tleft buttonContainer"><button type="submit" form="form1" name="delete-all-button" class="customButton">Delete <i class="fas fa-trash-alt"></i></button><button type="submit" form="form1" name="reset-all-button" class="customButton">Reset <i class="fas fa-retweet"></i></button><button type="submit" form="form1" name="deactive-button" class="customButton">Deactivate <i class="fas fa-exchange-alt"></i></button><button type="submit" form="form1" name="active-button" class="customButton">Activate <i class="fas fa-exchange-alt"></i></button></p>
 					</div>
 				</div>
 			</div>

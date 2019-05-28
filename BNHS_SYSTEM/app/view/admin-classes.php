@@ -45,11 +45,11 @@
 						</div>
 					</div>
 					<div class="cont2">
-						<table class="admin-table" class="display">
+						<table id="admin-table-classes" class="display">
 							<thead>
 								<tr>
 									<th class="tleft custPad">Employee ID</th>
-									<th class="tleft custPad">Name</th>
+									<th class="tleft custPad">Adviser</th>
 									<th class="tleft custPad">Section Name</th>
 									<th class="tleft custPad">Grade Level</th>
 									<th>Action</th>
@@ -112,6 +112,25 @@ echo '
 ?>
 							</tbody>
 						</table>
+					</div>
+				</div>
+			</div>
+			<div class="widget">	
+				<div class="header">	
+					<p>	<i class="fa fa-user fnt"></i><span>Adviser Class Schedule</span></p>
+					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+				</div>	
+				<div class="editContent widgetcontent">
+					<div class="cont2">
+						<div class="table-scroll">
+							<div class ="cont fl">
+								<span>SECTION: </span>
+								<select name="sec_id" id="getCurrentLevel">
+									<?php $obj->showSections(); ?>
+								</select>
+							</div>
+							<?php $obj->showTabledSections(); ?>
+						</div>
 					</div>
 				</div>
 			</div>
