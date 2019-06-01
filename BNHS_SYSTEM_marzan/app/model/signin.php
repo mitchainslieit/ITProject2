@@ -29,10 +29,11 @@ class Signin {
 						$_SESSION['user_type'] = $user['acc_type'];
 						$_SESSION['username'] = $user['username'];
 						$_SESSION['accid'] = $user['acc_id'];
-						$_SESSION['acc_details'] = $user['acc_details'];
+						$_SESSION['acc_details'] = $user['acc_details'];	
 						$_SESSION['account_name'] = $this->getName($user['acc_id'], $user['acc_type']);
 						switch ($user['acc_type']) {
 							case 'Admin': 
+								$this->getFacultyRequests();
 								echo '<meta http-equiv="refresh" content="0"; url=admin-dashboard">';
 								break;
 							case 'Student': 
@@ -73,6 +74,12 @@ class Signin {
 		$_SESSION['transfer_enabled'] = $result['student_transfer'];
 	}
 
+	private function getFacultyRequests(){
+		$query=$this->conn->prepare("SELECT * FROM student WHERE sec_stat='Temporary'");
+		$query->execute();
+		$_SESSION['adminNotif'] = $query->rowCount();	
+	}
+	
 	private function errorMessage($message) {	
 		echo "<div class='modal-container'>
 		<div class='modal-box'>

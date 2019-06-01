@@ -21,6 +21,46 @@ class AdminFunct{
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
+	public function addRequest($request_desc){
+		try {
+			$sql3=$this->conn->prepare("INSERT INTO request SET request_type='Insert', request_desc=:request_desc, request_id='Temporary'");
+			$sql3->execute(array(
+				':request_desc' => $request_desc, 
+			)); 	
+		}catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
+	public function updateRequest($req_id, $request_desc){
+		try {
+			$sql3=$this->conn->prepare("UPDATE request SET request_type='Update', request_desc=:request_desc, request_status='Temporary' where request_id=:request_id");
+			$sql3->execute(array(
+				':request_desc' => $request_desc, 
+				':request_id' =>$req_id
+			)); 	
+		}catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
+	public function deleteRequest($req_id, $request_desc){
+		try {
+			$sql3=$this->conn->prepare("UPDATE request SET request_type=:request_type, request_desc=:request_desc, request_status='Temporary' where request_id=:request_id");
+			$sql3->execute(array(
+				':request_type' => 'Delete', 
+				':request_desc' => $request_desc, 
+				':request_id' =>$req_id
+			)); 	
+		}catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
+	public function getRequestID(){
+		$queryGetID=$this->conn->prepare("SELECT request_id FROM request ORDER BY request_id desc LIMIT 1");
+		$queryGetID->execute();
+		$rowQueryGetID=$queryGetID->fetch(PDO::FETCH_ASSOC);
+		$request_id=$rowQueryGetID['request_id'];
+		return $request_id;
+	}
 	public function getById($id){
 
 		$sql=$this->conn->prepare("SELECT * FROM Faculty WHERE fac_id = :fac_id");
@@ -82,8 +122,21 @@ class AdminFunct{
 		if($checkbox !== null){
 			for($i=0;$i<count($checkbox);$i++){
 				$del_id = $checkbox[$i]; 
+			
+				$queryGetID=$this->conn->prepare("SELECT * FROM budget_info_temp where bd_id=:bd_id");
+				$queryGetID->execute(array(
+					':bd' => $del_id
+				));
+				$rowQueryGetID=$queryGetID->fetch(PDO::FETCH_ASSOC);
+				$req_id=$rowQueryGetID['bd_request'];
+				$budget_name=$rowQueryGetID['bd_name'];
+				$request_desc='Delete Fee Type '.$budget_name;
 				
-				$sql1=$this->conn->prepare("SELECT budget_name, total_amount FROM budget_info WHERE budget_id=:budget_id");
+				$this->deleteRequest($req_id, $request_desc);
+				$this->alert("Success!", "The delete request has been sent for Fee Type  $budget_name.", "success", "admin-feetype");
+			
+				
+			/*	$sql1=$this->conn->prepare("SELECT budget_name, total_amount FROM budget_info WHERE budget_id=:budget_id");
 				$sql1->execute(array(
 					':budget_id'=>$del_id
 				));
@@ -146,7 +199,7 @@ class AdminFunct{
 					$this->alert("Success!", "The selected item/s has been successfully deleted", "success", "admin-feetype");
 				}else{
 					$this->alert("Error!", "You are not allowed to delete the selected item/s", "error", "admin-feetype");
-				}
+				}*/
 			}
 		}else{
 			$this->alert("Error!", "Please select atleast one item", "error", "admin-feetype");
@@ -158,14 +211,22 @@ class AdminFunct{
 			$query1->execute();
 			$row1=$query1->fetch(PDO::FETCH_ASSOC);
 			$prev_misc_fee=$row1['misc_fee'];
-
-			$query2=$this->conn->prepare("INSERT INTO budget_info (budget_name, total_amount, acc_amount) VALUES(:budget_name, :total_amount, '0')");
+			
+			$curYear = date('Y');
+			$request_desc='Add Fee Type '.$budget_name.' with amount of '.$total_amount;
+			$this->addRequest($request_desc);
+			$request_id=$this->getRequestID();
+			
+			$query2=$this->conn->prepare("INSERT INTO budget_info_temp (bd_name, tot_amt, acc_amt, bd_sy, bd_request) VALUES(:bd_name, :tot_amt, '0', :bd_sy, :bd_request)");
 			
 			if($query2->execute(array(
-				':budget_name' => $budget_name,
-				':total_amount' => $total_amount
+				':bd_name' => $budget_name,
+				':tot_amt' => $total_amount,
+				':bd_request' => $request_id,
+				':bd_sy' => $curYear
 			))){
-				$query3=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee, (SUM(total_amount) - $prev_misc_fee) as difference FROM budget_info");
+				/*superadmin add fee type*/
+				/*$query3=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee, (SUM(total_amount) - $prev_misc_fee) as difference FROM budget_info");
 				$query3->execute();
 				$row3=$query3->fetch(PDO::FETCH_ASSOC);
 				$difference=$row3['difference'];
@@ -179,7 +240,7 @@ class AdminFunct{
 						':difference' => $difference
 					));
 				}		
-				
+
 				$query6 = $this->conn->prepare("SELECT * FROM payment");
 				$query6->execute();
 				if($query6->rowCount() > 0){
@@ -194,15 +255,8 @@ class AdminFunct{
 						)) or die ('failed');
 					}
 				}
-				
-				$query9=$this->conn->prepare("SELECT * FROM budget_info ORDER BY 1 DESC LIMIT 1");
-				$query9->execute();
-				$row9=$query9->fetch(PDO::FETCH_ASSOC);
-				$budget_name=$row9['budget_name'];
-				$log_event="Insert";
-				$log_desc="Added Fee Type ".$budget_name." with amount of ".number_format($total_amount, 2);
-				$this->insertLogs($log_event, $log_desc);
-				$this->alert("Success!", "A new Fee Type has been created! Fee Type: $budget_name, Amount: $total_amount", "success", "admin-feetype");
+				*/
+				$this->alert("Success!", "The request has been sent!", "success", "admin-feetype");
 			}else{	
 				$this->alert("Error!", "Failed to add Fee Type! This Fee Type already exist.", "error", "admin-feetype");
 			}
@@ -212,18 +266,28 @@ class AdminFunct{
 	}
 	public function updateFeeType($id, $budget_name, $total_amount){
 		try{
+			$queryGetID=$this->conn->prepare("SELECT * FROM budget_info_temp where bd_id=:bd_id");
+			$queryGetID->execute(array(
+				':bd_id' => $id
+			));
+			$rowQueryGetID=$queryGetID->fetch(PDO::FETCH_ASSOC);
+			$req_id=$rowQueryGetID['bd_request'];
+			$request_desc='Update Fee Type '.$budget_name. ' with amount of '.$total_amount;
+			$this->updateRequest($req_id, $request_desc);
+			
 			$query1=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee FROM budget_info");
 			$query1->execute();
 			$row1=$query1->fetch(PDO::FETCH_ASSOC);
 			$prev_misc_fee=$row1['misc_fee'];
 			
-			$sql1=$this->conn->prepare("UPDATE budget_info SET budget_name=:budget_name, total_amount=:total_amount WHERE budget_id=:budget_id");
+			$sql1=$this->conn->prepare("UPDATE budget_info_temp SET bd_name=:bd_name, tot_amt=:tot_amt WHERE bd_id=:bd_id");
 			if($sql1->execute(array(
-				':budget_name' => $budget_name,
-				':total_amount' => $total_amount,
-				':budget_id'=>$id
+				':bd_name' => $budget_name,
+				':tot_amt' => $total_amount,
+				':bd_id'=>$id
 			))){
-				$query6=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee FROM budget_info");
+				/*superadmin update fee type*/
+				/*$query6=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee FROM budget_info");
 				$query6->execute();
 				$row6=$query6->fetch(PDO::FETCH_ASSOC);
 				$prev_misc_fee2=$row6['misc_fee'];
@@ -272,8 +336,8 @@ class AdminFunct{
 				$budget_name=$row['budget_name'];
 				$log_event="Update";
 				$log_desc="Updated the Fee Type ".$budget_name." with amount of ".number_format($total_amount, 2);
-				$this->insertLogs($log_event, $log_desc);
-				$this->alert("Success!", "Fee Type  $budget_name with amount of $total_amount has been updated.", "success", "admin-feetype");
+				$this->insertLogs($log_event, $log_desc);*/
+				$this->alert("Success!", "The update request has been sent for Fee Type  $budget_name with amount of $total_amount.", "success", "admin-feetype");
 			}else{	
 				 $this->alert("Error!", "Failed to update Fee Type!", "error", "admin-feetype");
 			}
@@ -283,7 +347,22 @@ class AdminFunct{
 	}
 	public function deleteFeeType($id, $table){
 		try{
-			$sql1=$this->conn->prepare("SELECT budget_name, total_amount FROM budget_info WHERE budget_id=:budget_id");
+			$queryGetID=$this->conn->prepare("SELECT * FROM budget_info_temp where bd_id=:bd_id");
+			if($queryGetID->execute(array(
+				':bd_id' => $id
+			))){
+				$rowQueryGetID=$queryGetID->fetch(PDO::FETCH_ASSOC);
+				$req_id=$rowQueryGetID['bd_request'];
+				$budget_name=$rowQueryGetID['bd_name'];
+				$request_desc='Delete Fee Type '.$budget_name;
+				
+				$this->deleteRequest($req_id, $request_desc);
+				$this->alert("Success!", "The delete request has been sent for Fee Type  $budget_name.", "success", "admin-feetype");
+			}else{
+				$this->alert("Error!", "Failed to delete Fee Type!", "error", "admin-feetype");
+			}
+			/*superadmin delete fee type*/
+			/*$sql1=$this->conn->prepare("SELECT budget_name, total_amount FROM budget_info WHERE budget_id=:budget_id");
 			$sql1->execute(array(
 				':budget_id'=>$id
 			));
@@ -347,10 +426,21 @@ class AdminFunct{
 				$this->alert("Success!", "Fee Type  $budget_name has been deleted.", "success", "admin-feetype");
 			}else{	
 				$this->alert("Error!", "Failed to delete Fee Type!", "error", "admin-feetype");
-			}
+			}*/
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
 		}
+	}
+	public function showFeeType(){
+		$sql = $this->conn->prepare("SELECT * FROM request join budget_info_temp on request_id=bd_request") or die ("failed!");
+		$sql->execute();
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+			return $data;
+		}
+		return $sql;
 	}
 	/**************** END FEE TYPE **************/
 
@@ -418,6 +508,71 @@ class AdminFunct{
 		return $data;
 	}
 	/********* END STUDENT PAYMENT STATUS **********/
+	
+	/********* CURRICULUM SECTION *****************/
+	
+	public function getCurriculum() {
+		$sql=$this->conn->prepare("SELECT cc_id, c_desc from curriculum_temp join request on request_id=curr_request");
+		$sql->execute();
+		if($sql->rowCount() > 0){
+			while($row=$sql->fetch(PDO::FETCH_ASSOC)){
+				$data[] = $row;
+			}
+			return $data;
+		}
+		return $sql;
+		
+	}
+
+	public function createCurriculum($post) {
+		$checkInputs = false;
+		for($x = 0; $x < count($post['subj_level']); $x++) {
+			if ($post['subj_level'][$x] !== '' && $post['subj_dept'][$x] !== '' && $post['subj_name'][$x] !== '') {
+				$checkInputs = true;
+				break;
+			}
+		}
+		if ($checkInputs === true) {
+			$today = date("Y-m-d");
+			$subj_level = array();
+			$subj_dept = array();
+			$subj_name = array();
+			for ($c = 0; $c < count($post['subj_level']); $c++) {
+				if ($post['subj_level'][$c] !== '' && $post['subj_dept'][$c] !== '' && $post['subj_name'][$c] !== '') {
+					$subj_level[] = $post['subj_level'][$c];
+					$subj_dept[] = $post['subj_dept'][$c];
+					$subj_name[] = $post['subj_name'][$c];
+				} 
+			}
+			$request_desc='Add Curriculum '.$post['curr_name'];
+			$this->addRequest($request_desc);
+			$req_id=$this->getRequestID();
+			$insert_curr = $this->conn->prepare('INSERT INTO curriculum_temp SET c_desc=:c_desc, curr_request=:curr_request');
+			$insert_curr->execute(array(
+				':c_desc' => $post['curr_name'],
+				':curr_request' => $req_id
+			)) or die($this-> alert("Error!", "Error inserting a curriculum.", "error", "admin-curriculum"));
+			
+			for ($c = 0; $c < count($subj_level); $c++) {
+				$insert = 'INSERT INTO subject_temp (s_level, s_dept, s_name, curriculum_temp) VALUES (';
+				$insert .= '\''.$subj_level[$c].'\',';
+				$insert .= '\''.$subj_dept[$c].'\',\''.$subj_name[$c].'\',';
+				$insert .= '\''.$req_id.'\')';
+				var_dump($subj_level[$c]);
+				var_dump($subj_dept[$c]);
+				var_dump($subj_name[$c]);
+				var_dump($req_id);
+				
+				$q3 = $this->conn->query($insert) or die($this-> alert("Error!", "Failed to add subjects to curriculum!", "error", "admin-curriculum"));
+			}
+			$this->alert("Success!", "You have successfully created a curriculum!", "success", "admin-subjects");
+			
+		} else{
+			$this->alert("Error!", "You have not entered any subjects!", "error", "admin-subjects");
+		}
+		
+	}
+	/**************** END CURRICULUM SECTION *****/
 
 	/**************** SUBJECT *******************/
 	public function multipleDeleteSubject(){
@@ -540,7 +695,21 @@ class AdminFunct{
 		if($checkbox !== null){
 			for($i=0;$i<count($checkbox);$i++){
 				$del_id = $checkbox[$i]; 	
-				$sql = $this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
+				$querySearch=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
+				if($querySearch->execute(array(
+					':sectionid' => $del_id
+				))){
+					$rowQuerySearch=$querySearch->fetch(PDO::FETCH_ASSOC);
+					$req_id=$rowQuerySearch['sec_req'];
+					$sec_name=$rowQuerySearch['s_name'];
+					$request_desc='Delete Section '.$sec_name;
+					$this->deleteRequest($req_id, $request_desc);
+					$this->alert("Success!", "The selected item/s has been successfully deleted", "success", "admin-section");
+				}else{
+					$this->alert("Error!", "You are not allowed to delete the selected item/s, because there might be some student/s that has enrolled in this section", "error", "admin-section");
+				}
+				
+				/*$sql = $this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
 				$sql->execute(array(
 					':sec_id' => $del_id
 				));
@@ -556,11 +725,23 @@ class AdminFunct{
 					$this->alert("Success!", "The selected item/s has been successfully deleted", "success", "admin-section");
 				}else{
 					$this->alert("Error!", "You are not allowed to delete the selected item/s, because there might be some student/s that has enrolled in this section", "error", "admin-section");
-				}
+				}*/
 			}
 		}else{
 			$this->alert("Error!", "Please select atleast one item", "error", "admin-section");
 		}
+	}
+	
+	public function showSectionTable(){
+		$sql = $this->conn->prepare("SELECT * FROM request join section_temp on request_id=sec_req") or die ("failed!");
+		$sql->execute();
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+			return $data;
+		}
+		return $sql;
 	}
 	
 	public function showSection(){
@@ -613,63 +794,62 @@ class AdminFunct{
 	}
 	
 	public function addSection($sec_name, $grade_lvl){
-		/*$checkIfMaxReached = $this->conn->prepare("SELECT * FROM section WHERE grade_lvl = :grade_lvl");
-		$checkIfMaxReached->execute(array(
-			':grade_lvl' => $grade_lvl
-		));
-		$resultCount = $checkIfMaxReached->fetchAll();
-		if ($checkIfMaxReached->rowCount() < 2) {*/
-			try {
-				$created=date('Y-m-d H:i:s');	
-				$sql1=$this->conn->prepare("INSERT INTO Section SET sec_name=:sec_name, grade_lvl=:grade_lvl, timestamp_sec=:timestamp_sec");
-				if($sql1->execute(array(
-					':sec_name' => $sec_name,
-					':grade_lvl' => $grade_lvl,
-					':timestamp_sec' => $created
-				))){
-					$sql2=$this->conn->prepare("SELECT * FROM section ORDER BY 1 DESC LIMIT 1");
-					$sql2->execute(); 
-					$row=$sql2->fetch(PDO::FETCH_ASSOC);
-					$sec_name=$row['sec_name'];
-					$log_event="Insert";
-					$log_desc="Added Section ".$sec_name;
-					$this->insertLogs($log_event, $log_desc);
-					$this->alert("Success!", "A new section has been created! Class: $sec_name, Grade Level: $grade_lvl", "success", "admin-section");
-				}else{
-					$this->alert("Error!", "Failed to add section! This section already exist", "error", "admin-section");
-				}
-			} catch (PDOException $exception) {
-				die('ERROR: ' . $exception->getMessage());
+		try {
+			$created=date('Y-m-d H:i:s');	
+			$request_desc='Add Section Grade '.$grade_lvl. ' - '.$sec_name;
+			$this->addRequest($request_desc);
+			$request_id=$this->getRequestID();
+			$sql1=$this->conn->prepare("INSERT INTO section_temp SET s_name=:s_name, gr_lvl=:gr_lvl, tt_sec=:tt_sec, sec_req=:sec_req");
+			if($sql1->execute(array(
+				':s_name' => $sec_name,
+				':gr_lvl' => $grade_lvl,
+				':tt_sec' => $created,
+				':sec_req' => $request_id
+			))){
+				/*$sql2=$this->conn->prepare("SELECT * FROM section ORDER BY 1 DESC LIMIT 1");
+				$sql2->execute(); 
+				$row=$sql2->fetch(PDO::FETCH_ASSOC);
+				$sec_name=$row['sec_name'];
+				$log_event="Insert";
+				$log_desc="Added Section ".$sec_name;
+				$this->insertLogs($log_event, $log_desc);*/
+				$this->alert("Success!", "A new section has been created! Class: $sec_name, Grade Level: $grade_lvl", "success", "admin-section");
+			}else{
+				$this->alert("Error!", "Failed to add section! This section already exist", "error", "admin-section");
 			}
-		/*} else {
-			$this->alert("Error!", "Failed to add section! You have reached the max number of section", "error", "admin-section");
-		}*/
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
 	}
 	public function updateSection($id, $sec_name, $grade_lvl){
-		$sql1=$this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
+		$sql1=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
 		$sql1->execute(array(
-			':sec_id' => $id
+			':sectionid' => $id
 		)); 
 		$row1=$sql1->fetch(PDO::FETCH_ASSOC);
-		$secToUpdate=$row1['sec_name'];
-		$sql2=$this->conn->prepare("UPDATE Section 
-			SET  sec_name=:sec_name, 
-			grade_lvl=:grade_lvl
-			WHERE sec_id=:sec_id");	
+		$secToUpdate=$row1['s_name'];
+		$req_id=$row1['sec_req'];
+		$request_desc='Update Section Grade '.$grade_lvl. ' - '.$sec_name;
+		$this->updateRequest($req_id, $request_desc);
+		
+		$sql2=$this->conn->prepare("UPDATE section_temp 
+			SET  s_name=:s_name, 
+			gr_lvl=:gr_lvl
+			WHERE sectionid=:sectionid");	
 		if($sql2->execute(array(
-			':sec_name'=> $sec_name, 
-			':grade_lvl'=> $grade_lvl,
-			':sec_id' => $id
+			':s_name'=> $sec_name, 
+			':gr_lvl'=> $grade_lvl,
+			':sectionid' => $id
 		))){
-			$sql3=$this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
+			/*$sql3=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
 			$sql3->execute(array(
-				':sec_id' => $id
+				':sectionid' => $id
 			)); 
 			$row3=$sql3->fetch(PDO::FETCH_ASSOC);
-			$sec_name=$row3['sec_name'];
+			$sec_name=$row3['s_name'];
 			$log_event="Update";
 			$log_desc="Updated the Section ".$secToUpdate." to ".$sec_name;
-			$this->insertLogs($log_event, $log_desc);
+			$this->insertLogs($log_event, $log_desc);*/
 			$this->alert("Success!", "Section has been successfully updated", "success", "admin-section");
 		}else{
 			$this->alert("Error!", "Failed to update section", "error", "admin-section");
@@ -678,7 +858,20 @@ class AdminFunct{
 	}	
 	public function deleteSection($id){
 		try {
-			$sql = $this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
+			$querySearch=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
+			if($querySearch->execute(array(
+				':sectionid' => $id
+			))){
+				$rowQuerySearch=$querySearch->fetch(PDO::FETCH_ASSOC);
+				$req_id=$rowQuerySearch['sec_req'];
+				$sec_name=$rowQuerySearch['s_name'];
+				$request_desc='Delete Section '.$sec_name;
+				
+				$this->deleteRequest($req_id, $request_desc);
+			}else{
+				$this->alert("Error!", "Failed to delete section!", "error", "admin-section");
+			}
+			/*$sql = $this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
 			$sql->execute(array(
 				':sec_id' => $id
 			));
@@ -695,7 +888,7 @@ class AdminFunct{
 				$this->alert("Success!", "The section has been deleted", "success", "admin-section");
 			}else{	
 				$this->alert("Error!", "Failed to delete section!", "error", "admin-section");
-			}
+			}*/
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
 		}
@@ -708,9 +901,9 @@ class AdminFunct{
 		echo " " . $rowCount['sy'] . "-" . $rowCount1 . " ";
 	}
 	public function createSectionTable($row) {
-		$fac_id = $row['fac_idv'];
+		$fac_id = $row['fc_id'];
 		$getFacInfo = $this->conn->query("SELECT * FROM faculty WHERE fac_id = '".$fac_id."'");
-		$getSchedID = $this->conn->query("SELECT sched_id FROM schedule WHERE sched_yrlevel = '".$row['grade_lvl']."'");
+		$getSchedID = $this->conn->query("SELECT sched_id FROM schedule WHERE sched_yrlevel = '".$row['gr_lvl']."'");
 		$fac_info = $getFacInfo->fetch();
 		$sched_id = $getSchedID->fetch();
 		$teachers = function($info) {
@@ -763,16 +956,16 @@ class AdminFunct{
 			return $html;
 		};
 		$time_start = array('07:40:00', '08:40:00', '10:00:00', '11:00:00', '13:00:00', '14:00:00', '15:00:00');
-		$sched_1 = $this->getSchedInfo($sched_id['sched_id'], $time_start[0], $row['sec_id']);
-		$sched_2 = $this->getSchedInfo($sched_id['sched_id'], $time_start[1], $row['sec_id']);
-		$sched_3 = $this->getSchedInfo($sched_id['sched_id'], $time_start[2], $row['sec_id']);
-		$sched_4 = $this->getSchedInfo($sched_id['sched_id'], $time_start[3], $row['sec_id']);
-		$sched_5 = $this->getSchedInfo($sched_id['sched_id'], $time_start[4], $row['sec_id']);
-		$sched_6 = $this->getSchedInfo($sched_id['sched_id'], $time_start[5], $row['sec_id']);
-		$sched_7 = $this->getSchedInfo($sched_id['sched_id'], $time_start[6], $row['sec_id']);
+		$sched_1 = $this->getSchedInfo($sched_id['sched_id'], $time_start[0], $row['sectionid']);
+		$sched_2 = $this->getSchedInfo($sched_id['sched_id'], $time_start[1], $row['sectionid']);
+		$sched_3 = $this->getSchedInfo($sched_id['sched_id'], $time_start[2], $row['sectionid']);
+		$sched_4 = $this->getSchedInfo($sched_id['sched_id'], $time_start[3], $row['sectionid']);
+		$sched_5 = $this->getSchedInfo($sched_id['sched_id'], $time_start[4], $row['sectionid']);
+		$sched_6 = $this->getSchedInfo($sched_id['sched_id'], $time_start[5], $row['sectionid']);
+		$sched_7 = $this->getSchedInfo($sched_id['sched_id'], $time_start[6], $row['sectionid']);
 		$remove = function($sched) {
 			$html = '<form action="faculty-editclass"  method="POST">
-			<input type="hidden" name="sec" value="'.$sched['sec_id'].'">
+			<input type="hidden" name="sec" value="'.$sched['sectionid'].'">
 			<input type="hidden" name="sched" value="'.$sched['sched_id'].'">
 			<input type="hidden" name="subj_id" value="'.$sched['subj_id'].'">
 			<input type="hidden" name="timestart" value="'.$sched['time_start'].'">
@@ -782,7 +975,7 @@ class AdminFunct{
 			return $html;
 		};
 		echo '
-		<div id="sec'.$row['sec_id'].'" class="classes-edit">
+		<div id="sec'.$row['sectionid'].'" class="classes-edit">
 			<div class="sec-info">
 				<div class ="cont fr">
 					<div class="box2">
@@ -810,7 +1003,7 @@ class AdminFunct{
 									<div class="container">
 										<form action="faculty-editclass" method="POST" class="classes-sched">
 											<input type="hidden" name="sec_id" '.($sched_1['exist'] === true ? 'value="'.$sched_1['sec_id'].'"
-											' : 'value="'.$row['sec_id'].'"').'>
+											' : 'value="'.$row['sectionid'].'"').'>
 											<input type="hidden" name="sched_a" '.($sched_1['exist'] === true ? 'value="'.$sched_1['sched_id'].'"
 											' : 'value="'.$sched_id['sched_id'].'"').'>
 											<input type="hidden" name="subj_id" '.($sched_1['exist'] === true ? 'value="'.$sched_1['subj_id'].'"
@@ -886,16 +1079,16 @@ class AdminFunct{
 		</div>';
 	}
 	public function showSections() {
-		$sql = $this->conn->query("SELECT * FROM section");
+		$sql = $this->conn->query("SELECT * FROM section_temp");
 		$result = $sql->fetchAll();
 		$option = '';
 		foreach ($result as $row) {
-			$option .= '<option value="sec'.$row['sec_id'].'">Grade '.$row['grade_lvl'].' - '.$row['sec_name'].'</option>';
+			$option .= '<option value="sec'.$row['sectionid'].'">Grade '.$row['gr_lvl'].' - '.$row['s_name'].'</option>';
 		}
 		echo $option;
 	}
 	public function showTabledSections() {
-		$sql = $this->conn->query("SELECT * FROM section") or die("query failed!");
+		$sql = $this->conn->query("SELECT * FROM section_temp") or die("query failed!");
 		$result = $sql->fetchAll();
 		foreach($result as $row) {
 			$this->createSectionTable($row);
@@ -937,11 +1130,11 @@ class AdminFunct{
 			);
 			return $data;
 		} else {
-			$sql = $this->conn->query("SELECT grade_lvl FROM section WHERE sec_id = '".$sec_id."'");
+			$sql = $this->conn->query("SELECT sec_id FROM section WHERE sec_id = '".$sec_id."'");
 			$sec_info = $sql->fetch();
 			$data = array(
 				'sec_id' => $sec_id,
-				'subj_level' => $sec_info['grade_lvl'],
+				'subj_level' => $sec_info['gr_lvl'],
 				'sched_id' => $sched_id,
 				'time_start' => $time_start,
 				'exist' => false
@@ -957,7 +1150,7 @@ class AdminFunct{
 		if($checkbox !== null){
 			for($i=0;$i<count($checkbox);$i++){
 				$del_id = $checkbox[$i]; 
-				$query1 = $this->conn->prepare("SELECT sec_id, stud_id, grade_lvl from student join section on secc_id=sec_id WHERE stud_id=:id");
+				$query1 = $this->conn->prepare("SELECT * from student join section on secc_id=sec_id WHERE stud_id=:id");
 				$query1->execute(array(
 					':id' => $del_id
 				));
@@ -965,34 +1158,28 @@ class AdminFunct{
 				$section_id=$row1['sec_id'];
 				$student_id=$row1['stud_id'];
 				$grade_level=$row1['grade_lvl'];
+				$transfer_sec=$row1['transfer_sec'];
 				
-				$query2= $this->conn->prepare("SELECT sec_id as 'prev_sec',sec_name as 'prev_secname',grade_lvl from section where grade_lvl=:grade_lvl and sec_id <> :sec_id");
-				$query2->execute(array(
-					':grade_lvl' => $grade_level,
-					':sec_id' => $section_id
-				));
-				$row2=$query2->fetch(PDO::FETCH_ASSOC);
-				$prev_sec=$row2['prev_sec'];
-				$prev_secname=$row2['prev_secname'];
-				
-				$update = $this->conn->prepare("UPDATE student SET sec_stat = 'Permanent', secc_id=:secc_id WHERE stud_id =:id ");
+				$update = $this->conn->prepare("UPDATE student SET sec_stat = 'Permanent', transfer_sec=:transfer_sec, secc_id=:secc_id WHERE stud_id =:id ");
 				if($update->execute(array(
 					':id' => $del_id,
-					':secc_id' => $prev_sec
+					':transfer_sec' => null,
+					':secc_id' => $transfer_sec
 				))){
 					$sql3=$this->conn->prepare("SELECT CONCAT(first_name,' ',middle_name,' ',last_name) as 'fullname', sec_name FROM student join section on secc_id=sec_id WHERE stud_id=:stud_id");
 					$sql3->execute(array(
 						':stud_id' => $del_id
 					)); 
 					$row3=$sql3->fetch(PDO::FETCH_ASSOC);
+					$_SESSION['adminNotif'] = $sql3->rowCount();
 					$fullname=$row3['fullname'];
 					$sec_name=$row3['sec_name'];
 					$log_event="Update";
 					$log_desc="Student: ".$fullname." has been successfully transferred to ".$sec_name;
 					$this->insertLogs($log_event, $log_desc);
-					$this->alert('Success!', 'You have successfully transferred the selected item/s', "success", "admin-transfer");
+					$this->alert('Success!', 'You have successfully transferred the student to a diffent section', "success", "admin-transfer");
 				} else {
-					$this->alert('Error!', "Failed to transfer the selected item/s", "error", "admin-transfer");
+					$this->alert('Error!', "Failed to transfer the student to a different section", "error", "admin-transfer");
 				}
 			}
 		}else{
@@ -1000,7 +1187,7 @@ class AdminFunct{
 		}
 	}
 	public function acceptSingleRequest($stud_id){
-		$query1 = $this->conn->prepare("SELECT sec_id, stud_id, grade_lvl from student join section on secc_id=sec_id WHERE stud_id=:id");
+		$query1 = $this->conn->prepare("SELECT * from student join section on secc_id=sec_id WHERE stud_id=:id");
 		$query1->execute(array(
 			':id' => $stud_id
 		));
@@ -1008,20 +1195,13 @@ class AdminFunct{
 		$section_id=$row1['sec_id'];
 		$student_id=$row1['stud_id'];
 		$grade_level=$row1['grade_lvl'];
+		$transfer_sec=$row1['transfer_sec'];
 		
-		$query2= $this->conn->prepare("SELECT sec_id as 'prev_sec',sec_name as 'prev_secname',grade_lvl from section where grade_lvl=:grade_lvl and sec_id <> :sec_id");
-		$query2->execute(array(
-			':grade_lvl' => $grade_level,
-			':sec_id' => $section_id
-		));
-		$row2=$query2->fetch(PDO::FETCH_ASSOC);
-		$prev_sec=$row2['prev_sec'];
-		$prev_secname=$row2['prev_secname'];
-		
-		$update = $this->conn->prepare("UPDATE student SET sec_stat = 'Permanent', secc_id=:secc_id WHERE stud_id =:id ");
+		$update = $this->conn->prepare("UPDATE student SET sec_stat = 'Permanent', transfer_sec=:transfer_sec, secc_id=:secc_id WHERE stud_id =:id ");
 		if($update->execute(array(
 			':id' => $stud_id,
-			':secc_id' => $prev_sec
+			':transfer_sec' => null,
+			':secc_id' => $transfer_sec
 		))){
 			$sql3=$this->conn->prepare("SELECT CONCAT(first_name,' ',middle_name,' ',last_name) as 'fullname', sec_name FROM student join section on secc_id=sec_id WHERE stud_id=:stud_id");
 			$sql3->execute(array(
@@ -1044,9 +1224,10 @@ class AdminFunct{
 		if($checkbox !== null){
 			for($i=0;$i<count($checkbox);$i++){
 				$del_id = $checkbox[$i]; 
-				$update = $this->conn->prepare("UPDATE student SET sec_stat = 'Permanent' WHERE stud_id =:id");
+				$update = $this->conn->prepare("UPDATE student SET sec_stat = 'Permanent', transfer_sec=:transfer_sec WHERE stud_id =:id");
 				if($update->execute(array(
-					':id' => $del_id
+					':id' => $del_id,
+					':transfer_sec' => null
 				))){
 					$sql3=$this->conn->prepare("SELECT CONCAT(first_name,' ',middle_name,' ',last_name) as 'fullname', sec_name FROM student join section on secc_id=sec_id WHERE stud_id=:stud_id");
 					$sql3->execute(array(
@@ -1057,10 +1238,9 @@ class AdminFunct{
 					$sec_name=$row3['sec_name'];
 					$log_event="Update";
 					$log_desc="Successfully rejected the transferring of student(Name:".$fullname.") to ".$sec_name;
-					$this->insertLogs($log_event, $log_desc);
-					$this->alert('Success!', 'You have successfully rejected the transferring of student to a diffent section', "success", "admin-transfer");
+					$this->alert('Success!', 'Successfully rejected the transferring of student', "success", "admin-transfer");
 				} else {
-					$this->alert('Error!', "You haven't choose any student!", "error", "admin-transfer");
+					$this->alert('Error!', "Failed to reject the transferring of student to a different section", "error", "admin-transfer");
 				}
 			}
 		}else{
@@ -1068,80 +1248,30 @@ class AdminFunct{
 		}
 	}
 	public function rejectSingleRequest($stud_id){
-		$update = $this->conn->prepare("UPDATE student SET sec_stat = 'Permanent' WHERE stud_id =:id");
+		$update = $this->conn->prepare("UPDATE student SET sec_stat = 'Permanent', transfer_sec=:transfer_sec WHERE stud_id =:id");
 		if($update->execute(array(
-			':id' => $stud_id
+			':id' => $stud_id,
+			':transfer_sec' => null
 		))){
-		$sql3=$this->conn->prepare("SELECT CONCAT(first_name,' ',middle_name,' ',last_name) as 'fullname', sec_name FROM student join section on secc_id=sec_id WHERE stud_id=:stud_id");
-		$sql3->execute(array(
-			':stud_id' => $stud_id
-		)); 
-		$row3=$sql3->fetch(PDO::FETCH_ASSOC);
-		$fullname=$row3['fullname'];
-		$sec_name=$row3['sec_name'];
-		$log_event="Update";
-		$log_desc="Successfully rejected the transferring of student(Name:".$fullname.") to ".$sec_name;
-			$this->alert('Success!', 'Your request has been sent', "success", "admin-transfer");
+			$sql3=$this->conn->prepare("SELECT CONCAT(first_name,' ',middle_name,' ',last_name) as 'fullname', sec_name FROM student join section on secc_id=sec_id WHERE stud_id=:stud_id");
+			$sql3->execute(array(
+				':stud_id' => $stud_id
+			)); 
+			$row3=$sql3->fetch(PDO::FETCH_ASSOC);
+			$fullname=$row3['fullname'];
+			$sec_name=$row3['sec_name'];
+			$log_event="Update";
+			$log_desc="Successfully rejected the transferring of student(Name:".$fullname.") to ".$sec_name;
+			$this->alert('Success!', 'Successfully rejected the transferring of student', "success", "admin-transfer");
 		} else {
 			$this->alert('Error!', "Failed to reject the transferring of student to a different section", "error", "admin-transfer");
 		}
 	}
-	public function getNotif(){
-		$sql = $this->conn->prepare("SELECT *, CONCAT(first_name, ' ', middle_name, ' ', last_name) as stud_fullname FROM accounts JOIN faculty ON acc_id = acc_idz JOIN section ON fac_id = fac_idv JOIN student ON sec_id = secc_id WHERE sec_stat = 'Temporary' AND grade_lvl = (SELECT grade_lvl FROM accounts JOIN faculty ON acc_id = acc_idz JOIN section ON fac_id = fac_idv WHERE acc_id = :acc_id) AND acc_id <> :acc_id");
-		$sql->execute(array(':acc_id' => $_SESSION['accid']));
-		$result = $sql->fetchAll();
-		$_SESSION['notif'] = $sql->rowCount();
-		$data = array();
-		$data['addthis'] = array();
-		foreach($result as $row) {
-			$data['addthis'][] = '
-			<tr>
-				<td width="15%">'.$row['stud_lrno'].'</td>
-				<td width="65%">'.$row['stud_fullname'].'</td>
-				<td width="20%"><input class="stud_id" type="hidden" value="'.$row['stud_id'].'"><button class="accept inline-btn">Accept</button><button class="reject inline-btn">Reject</button></td>
-			</tr>
-			';
-		}
-		$data['response'] = $_SESSION['notif'];
-		echo json_encode($data);
-	}
-
-	public function getNewAttTable() {
-		$getStuds = $this->conn->prepare("SELECT  CONCAT(last_name, ', ', first_name, ' ', middle_name) AS 'Name', CONCAT('GRADE ', year_level, ' - ', sec_name) AS 'stud_sec', CASE WHEN s.stud_id NOT IN (SELECT  stud_ida FROM attendance where attendance.att_date = :att_date GROUP BY 1) THEN 'No remarks yet' WHEN s.stud_id IN (SELECT  stud_ida FROM attendance GROUP BY 1) THEN (SELECT  remarks FROM attendance att JOIN schedsubj ss ON att.fac_idb = ss.fw_id && att.sec_ide = ss.sw_id && att.subjatt_id = ss.schedsubjb_id JOIN subject ON subject.subj_id = att.subjatt_id JOIN student st ON st.stud_id = att.stud_ida JOIN faculty ON att.fac_idb = faculty.fac_id JOIN section sec ON sec.sec_id = att.sec_ide JOIN accounts ON accounts.acc_id = faculty.acc_idz WHERE acc_id = :accid AND sec_ide = :sec_id AND att_date = :att_date AND s.stud_id = st.stud_id) END 'remarks', subj_name, stud_id, sec_id FROM schedsubj ss JOIN subject ON ss.schedsubjb_id = subject.subj_id JOIN facsec fs ON (fs.fac_idy = ss.fw_id && fs.sec_idy = ss.sw_id) JOIN faculty ON fac_idy = fac_id JOIN section ON fs.sec_idy = section.sec_id JOIN student s ON secc_id = sec_id JOIN accounts ON acc_idz = :accid WHERE sec_id = :sec_id  UNION SELECT  CONCAT(last_name, ', ', first_name, ' ', middle_name) AS 'Name', CONCAT('GRADE ', year_level, ' - ', sec_name) AS 'stud_sec', remarks, subj_name, stud_id, sec_id FROM attendance att JOIN schedsubj ss ON att.fac_idb = ss.fw_id && att.sec_ide = ss.sw_id && att.subjatt_id = ss.schedsubjb_id JOIN subject ON subject.subj_id = att.subjatt_id JOIN student sst ON sst.stud_id = att.stud_ida JOIN faculty ON att.fac_idb = faculty.fac_id JOIN section sec ON sec.sec_id = att.sec_ide JOIN accounts ON accounts.acc_id = faculty.acc_idz WHERE acc_id = :accid AND sec_ide = :sec_id AND att_date = :att_date GROUP BY 1 ORDER BY 1");
-		$getStuds ->execute(array(
-			':accid' => $_SESSION['accid'],
-			':sec_id' => $_GET['data'][2],
-			':att_date' => $_GET['data'][1]
-		));
-		$studResult = $getStuds->fetchAll();
-		$draw = array();
-		$html = '';
-		$c = 0;
-		foreach ($studResult as $stud) {
-			$option = '';
-			if ($stud['remarks'] == 'No remarks yet') {
-				$option = '<input type="text" name="student['.$c.'][attendance]" value="Present" class="present" readonly="">';
-			} else if ($stud['remarks'] == 'Late') {
-				$option = '<input type="text" name="student['.$c.'][attendance]" value="Late" class="late" readonly="">';
-			} else if ($stud['remarks'] == 'Absent') {
-				$option = '<input type="text" name="student['.$c.'][attendance]" value="Absent" class="absent" readonly="">';
-			}
-			$input = '
-			<label>'.$option.'</label>
-			<input type="hidden" name="student['.$c.'][student_id]" value="'.$stud['stud_id'].'">
-			';
-			$html .= '<tr>';
-			$html .= '<td>'.$stud['Name'].'</td>';
-			$html .= '<td>'.$input.'</td>';
-			$html .= '</tr>';
-			$c++;
-		}
-		echo $html;
-	}
-
+	
 	public function showOppoStudent() {
-		$sql = $this->conn->prepare("SELECT *, CONCAT(first_name, ' ', middle_name, ' ', last_name) as stud_fullname, CONCAT(fac_fname, ' ', fac_midname, ' ', fac_lname) as faculty_fullname, CASE WHEN fac_id IN (select fac_idv from section) THEN (select sec_name from section s where s.grade_lvl=section.grade_lvl and s.sec_id <> section.sec_id) end as 'oppositeSection' FROM accounts JOIN faculty ON acc_id = acc_idz JOIN section ON fac_id = fac_idv JOIN student ON sec_id = secc_id WHERE sec_stat = 'Temporary'");	
+		$sql = $this->conn->prepare("SELECT *,CONCAT(stud.first_name, ' ', stud.middle_name, ' ', stud.last_name) as stud_fullname, CONCAT(fac_fname, ' ', fac_midname, ' ', fac_lname) as faculty_fullname, sec.sec_name as 'currentSection', sec2.sec_name as 'transferToSection' from student stud join section sec on secc_id=sec.sec_id join section sec2 on stud.transfer_sec=sec2.sec_id join faculty on sec.fac_idv=fac_id where stud.sec_stat='Temporary'");	
 		$sql->execute();
+		$_SESSION['adminNotif'] = $sql->rowCount();
 		if($sql->rowCount()>0){
 			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
 				$data[]=$r;
@@ -1149,50 +1279,13 @@ class AdminFunct{
 			return $data;
 		}
 		return $sql;
-		
-		
-	}
-	public function updateStudentInfo($post) {
-		$sql = $this->conn->prepare("SELECT * FROM student WHERE stud_lrno = :stud_lrno");
-		$sql->execute(array(
-			':stud_lrno' => $post['stud_lrno']
-		));
-		$exist = $sql->rowCount();
-		if (!($exist > 0)) {
-			$getStudInfo = $this->conn->prepare("SELECT *, CONCAT(first_name, ' ', middle_name, ' ', last_name) as 'stud_fullname' FROM student WHERE stud_id = :student_id");
-			$getStudInfo->execute(array(
-				':student_id' => $post['student_id']
-			));
-			$result = $getStudInfo->fetch();
-			$update_info = $this->conn->prepare("UPDATE student SET stud_lrno = :stud_lrno, last_name = :last_name, first_name = :first_name, middle_name =:middle_name, gender = :gender, stud_address = :address, stud_bday = :stud_bday, mother_name = :mother_name, father_name = :father_name, nationality = :nationality, ethnicity = :ethnicity, blood_type = :blood_type, medical_stat = :medical_stat  WHERE stud_id = :student_id");
-			$update_info->execute(array(
-				':stud_lrno' => $post['stud_lrno'],
-				':last_name' => $post['last_name'],
-				':first_name' => $post['first_name'],
-				':middle_name' => $post['middle_name'],
-				':gender' => $post['gender'],
-				':address' => $post['address'],
-				':stud_bday' => $post['stud_bday'],
-				':mother_name' => $post['mother_name'],
-				':father_name' => $post['father_name'],
-				':nationality' => $post['nationality'],
-				':ethnicity' => $post['ethnicity'],
-				':blood_type' => $post['blood_type'],
-				':medical_stat' => (isset(($post['medical_stat'])) ? $post['medical_stat'] : null),
-				':student_id' => $post['student_id']
-			));
-			$this->createLog('Update', 'Updated the details of '.$result['stud_fullname']);
-			$this->others->Message('Success!,', 'The details of '.$result['stud_fullname'].' has been changed', "success", "faculty-student");
-		} else {
-			$this->others->Message('Error!,', "You can't use that LRN No. because it already exist!", "error", "faculty-student");
-		}
 	}
 	/**************** END TRANSFER STUDENT *******/
 
 	/**************** CLASS **********************/
 	
 	public function showClasses(){
-		$sql=$this->conn->prepare("SELECT fac_no, CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS fullname, sec_name, grade_lvl, fac_id, sec_id FROM faculty JOIN section ON fac_id=fac_idv WHERE fac_adviser='Yes'");
+		$sql=$this->conn->prepare("SELECT *,fac_no, CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS fullname, s_name, gr_lvl, fac_id, sectionid FROM faculty JOIN section_temp ON fac_id=fc_id join request on request_id=sec_req WHERE fac_adviser='Yes'");
 		$sql->execute();
 		if($sql->rowCount()>0){
 			while($r=$sql->fetch(PDO::FETCH_ASSOC)){
@@ -1203,14 +1296,14 @@ class AdminFunct{
 		return $sql;
 	}
 	public function section() {
-		$sql = $this->conn->prepare("SELECT sec_id, sec_name, grade_lvl FROM Section WHERE fac_idv IS NULL");
+		$sql = $this->conn->prepare("SELECT sectionid, s_name, gr_lvl FROM section_temp WHERE fac_idv IS NULL");
 		$sql->execute();
 		while ($row = $sql->fetch()) {
-			echo "<option value='" . $row['sec_id'] . "'>".$row['grade_lvl']." - " . $row['sec_name'] . "</option>";
+			echo "<option value='" . $row['sectionid'] . "'>".$row['gr_lvl']." - " . $row['s_name'] . "</option>";
 		}
 	}
 	public function facultylist(){
-		$sql = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty WHERE fac_adviser='Yes' and fac_id NOT IN (SELECT fac_idv FROM section JOIN faculty ON fac_id=fac_idv) ");
+		$sql = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty WHERE fac_adviser='Yes' and fac_id NOT IN (SELECT fc_id FROM section_temp JOIN faculty ON fac_id=fc_id) ");
 		$sql->execute();
 		while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
 			echo "<option value='" . $row['fac_id'] . "'>" . $row['facultyname'] . "</option>";
@@ -1236,6 +1329,12 @@ class AdminFunct{
 	}
 	public function addClass($sec_id, $fac_idv){	
 		try {
+			$querySearch = $this->conn->prepare("SELECT * FROM section where sec_id=:sec_id");
+			$querySearch->execute(array(
+				':sec_id' => $sec_id
+			));
+			$rowQuerySearch = $querySearch->fetch(PDO::FETCH_ASSOC);
+			$request_id = $rowQuerySearch['sec_request'];
 			$sql=$this->conn->prepare("UPDATE Section 
 			SET  fac_idv=:fac_idv
 			WHERE sec_id=:sec_id");
@@ -1270,22 +1369,24 @@ class AdminFunct{
 				$day='Monday,Tuesday,Wednesday,Thursday,Friday';
 				$time_start='07:40:00';
 				$time_end='08:40:00';
-				$sql6=$this->conn->prepare("INSERT INTO schedsubj SET schedsubja_id=:schedsubja_id, schedsubjb_id=:schedsubjb_id, day=:day,time_start=:time_start, time_end=:time_end, fw_id=:fw_id, sw_id=:sw_id, timestamp_ss=:timestamp_ss");
+				$sql6=$this->conn->prepare("INSERT INTO schedsubj_temp SET ss_ida=:ss_ida, ss_idb=:ss_idb, ssb_day=:ssb_day,ssb_timestart=:ssb_timestart, ssb_timeend=:ssb_timeend, ss_fwid=:ss_fwid, ss_swid=:ss_swid, ss_timestamp=:ss_timestamp, status_ss=:status_ss");
 				$sql6->execute(array(
-					':schedsubja_id' => $schedsubja_id,
-					':schedsubjb_id' => $schedsubjb_id,
-					':day' => $day,
-					':time_start' =>$time_start,
-					':time_end' =>$time_end,
-					':fw_id' => $faculty_id,
-					':sw_id' => $section_id,
-					':timestamp_ss' => $created
+					':ss_ida' => $schedsubja_id,
+					':ss_idb' => $schedsubjb_id,
+					':ssb_day' => $day,
+					':ssb_timestart' =>$time_start,
+					':ssb_timeend' =>$time_end,
+					':ss_fwid' => $faculty_id,
+					':ss_swid' => $section_id,
+					':ss_timestamp' => $created,
+					':status_ss' => 'Temporary'
 				));
-				$sql5=$this->conn->prepare("INSERT INTO facsec SET fac_idy=:fac_idy, sec_idy=:sec_idy");
+				/*include to superadmin*/
+				/*$sql5=$this->conn->prepare("INSERT INTO facsec SET fac_idy=:fac_idy, sec_idy=:sec_idy");
 				$sql5->execute(array(
 					':fac_idy' => $faculty_id,
 					':sec_idy' => $section_id
-				));
+				));*/
 				
 				$sql7=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name, grade_lvl FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
 				$sql7->bindParam(1, $fac_idv);				
@@ -1296,8 +1397,8 @@ class AdminFunct{
 				$grade_lvl=$row7['grade_lvl'];
 				$log_event="Insert";
 				
-				$log_desc="Added ".$sec_adviser." as an adviser in Grade: ".$grade_lvl.", Section: ".$sec_name;
-				$this->insertLogs($log_event, $log_desc);
+				$request_desc="Add ".$sec_adviser." as an adviser in Grade ".$grade_lvl." - ".$sec_name;
+				$this->updateRequest($request_id, $request_desc);
 				$this->alert("Success!", "A new class has been created! Class: $sec_name, Teacher-in-charge: $facultyName", "success", "admin-classes");
 			
 			}else{
@@ -1309,14 +1410,19 @@ class AdminFunct{
 	}	
 	public function updateClass($sec_id, $fac_idv){
 		try {
+			$querySearch = $this->conn->prepare("SELECT * FROM section where sec_id=:sec_id");
+			$querySearch->execute(array(
+				':sec_id' => $sec_id
+			));
+			$rowQuerySearch = $querySearch->fetch(PDO::FETCH_ASSOC);
+			$request_id = $rowQuerySearch['sec_request'];
+			
 			$getPrevID=$this->conn->prepare("SELECT * FROM section JOIN faculty on fac_id=fac_idv WHERE sec_id=?");
 			$getPrevID->bindParam(1, $sec_id);
 			$getPrevID->execute();
 			$rowgetPrevID = $getPrevID->fetch();
 			$prevSecID = $rowgetPrevID['sec_id'];
 			$prevFacID = $rowgetPrevID['fac_id'];
-			/*var_dump($prevSecID);
-			var_dump($prevFacID);*/
 			
 			$sql=$this->conn->prepare("UPDATE Section 
 			SET  fac_idv=:fac_idv
@@ -1346,7 +1452,7 @@ class AdminFunct{
 				$row3=$sql4->fetch();
 				$schedsubjb_id = $row3['subj_id'];
 				
-				$querySearch = $this->conn->prepare("SELECT * FROM schedsubj WHERE fw_id=:faculty_id AND sw_id=:sec_id");
+				$querySearch = $this->conn->prepare("SELECT * FROM schedsubj_temp WHERE ss_fwid=:faculty_id AND ss_swid=:sec_id");
 				$querySearch->execute(array(
 					':faculty_id' => $prevFacID,
 					':sec_id' => $prevSecID
@@ -1356,27 +1462,23 @@ class AdminFunct{
 				$time_end='08:40:00';
 				
 				if($querySearch->rowCount()>0){
-					$delete_schedsubj = $this->conn->prepare("DELETE FROM schedsubj WHERE fw_id=:fw_id AND sw_id=:sw_id");
+					$delete_schedsubj = $this->conn->prepare("DELETE FROM schedsubj_temp WHERE ss_fwid=:ss_fwid AND ss_swid=:ss_swid");
 					$delete_schedsubj->execute(array(
-						':fw_id' => $prevFacID,
-						':sw_id' => $prevSecID
+						':ss_fwid' => $prevFacID,
+						':ss_swid' => $prevSecID
 					)) or die("FAILED");
 					
-					$sql6=$this->conn->prepare("INSERT INTO schedsubj SET schedsubja_id=:schedsubja_id, schedsubjb_id=:schedsubjb_id, day=:day,time_start=:time_start, time_end=:time_end, fw_id=:fw_id, sw_id=:sw_id");
-					/*var_dump($sec_id);
-					var_dump($fac_idv);
-					var_dump($schedsubja_id);
-					var_dump($schedsubjb_id);*/
+					$sql6=$this->conn->prepare("INSERT INTO schedsubj_temp SET ss_ida=:ss_ida, ss_idb=:ss_idb, ssb_day=:ssb_day,ssb_timestart=:ssb_timestart, ssb_timeend=:ssb_timeend, ss_fwid=:ss_fwid, ss_swid=:ss_swid");
 					$sql6->execute(array(
-						':schedsubja_id' => $schedsubja_id,
-						':schedsubjb_id' => $schedsubjb_id,
-						':day' => $day,
-						':time_start' =>$time_start,
-						':time_end' =>$time_end,
-						':fw_id' => $fac_idv,
-						':sw_id' => $sec_id	
+						':ss_ida' => $schedsubja_id,
+						':ss_idb' => $schedsubjb_id,
+						':ssb_day' => $day,
+						':ssb_timestart' =>$time_start,
+						':ssb_timeend' =>$time_end,
+						':ss_fwid' => $fac_idv,
+						':ss_swid' => $sec_id	
 					));
-					$delete_allfacsec = $this->conn->query("DELETE FROM facsec");
+/*					$delete_allfacsec = $this->conn->query("DELETE FROM facsec");
 					$getFWSW = $this->conn->query("SELECT fw_id, sw_id FROM schedsubj");
 					$result = $getFWSW->fetchAll();
 					foreach ($result as $row) {
@@ -1385,21 +1487,17 @@ class AdminFunct{
 							':fw_id' => $row['fw_id'],
 							':sw_id' => $row['sw_id']
 						));
-					}
+					}*/
 				}else{
-					$sql7=$this->conn->prepare("INSERT INTO schedsubj SET schedsubja_id=:schedsubja_id, schedsubjb_id=:schedsubjb_id, day=:day,time_start=:time_start, time_end=:time_end, fw_id=:fw_id, sw_id=:sw_id");
-					/*var_dump($sec_id);
-					var_dump($fac_idv);
-					var_dump($schedsubja_id);
-					var_dump($schedsubjb_id);*/
+					$sql7=$this->conn->prepare("INSERT INTO schedsubj_temp SET ss_ida=:ss_ida, ss_idb=:ss_idb, ssb_day=:ssb_day,ssb_timestart=:ssb_timestart, ssb_timeend=:ssb_timeend, ss_fwid=:ss_fwid, ss_swid=:ss_swid");
 					$sql7->execute(array(
-						':schedsubja_id' => $schedsubja_id,
-						':schedsubjb_id' => $schedsubjb_id,
-						':day' => $day,
-						':time_start' =>$time_start,
-						':time_end' =>$time_end,
-						':fw_id' => $fac_idv,
-						':sw_id' => $sec_id	
+						':ss_ida' => $schedsubja_id,
+						':ss_idb' => $schedsubjb_id,
+						':ssb_day' => $day,
+						':ssb_timestart' =>$time_start,
+						':ssb_timeend' =>$time_end,
+						':ss_fwid' => $fac_idv,
+						':ss_swid' => $sec_id	
 					));
 				
 				}
@@ -1410,9 +1508,9 @@ class AdminFunct{
 				$sec_adviser=$row8['facultyname'];
 				$sec_name =$row8['sec_name'];
 				$grade_lvl=$row8['grade_lvl'];
-				$log_event="Update";
-				$log_desc="Adviser: ".$sec_adviser.", Grade: ".$grade_lvl.", Section: ".$sec_name;
-				$this->insertLogs($log_event, $log_desc);
+				
+				$request_desc="Update Adviser: ".$sec_adviser." as an adviser in Grade ".$grade_lvl." - ".$sec_name;
+				$this->updateRequest($request_id, $request_desc);
 				$this->alert("Success!", "Class has been updated", "success", "admin-classes");
 			}else{
 				$this->alert("Error!", "Failed to update class!", "error", "admin-classes");
@@ -3138,16 +3236,16 @@ class AdminFunct{
 		return $sql;
 	}
 	public function getMiscFee(){
-		$sql=$this->conn->prepare("SELECT * FROM balance");
+		$sql=$this->conn->prepare("SELECT SUM(tot_amt) as 'totalMiscFee' FROM request join budget_info_temp on request_id=bd_request where request_status='Permanent'");
 		$sql->execute();
-		$rowCount=$sql->fetch();
-		echo " ". number_format($rowCount['misc_fee'], 2) . " ";
+		$rowMiscFee=$sql->fetch(PDO::FETCH_ASSOC);
+		echo " ". number_format($rowMiscFee['totalMiscFee'], 2) . " ";
 		}
 	public function getTotalTotalAmount(){
-		$sql=$this->conn->prepare("SELECT sum(total_amount) FROM budget_info");
+		$sql=$this->conn->prepare("SELECT sum(tot_amt) FROM budget_info_temp join request on request_id=bd_request WHERE request_status='Permanent'");
 		$sql->execute();
 		$rowCount=$sql->fetch();
-		echo " ". number_format($rowCount['sum(total_amount)'], 2) . " ";
+		echo " ". number_format($rowCount['sum(tot_amt)'], 2) . " ";
 	}
 	public function showPaymentHistory($bal_id, $stud_lrno, $first_name, $middle_name, $last_name, $year_level, $sec_name, $orno, $pay_date, $pay_amt){
 		$sql=$this->conn->query("SELECT bal_id, stud_lrno, CONCAT(first_name,' ', middle_name,' ', last_name) AS Name, year_level, sec_name, DATE_FORMAT(MAX(p.pay_date), '%M %e %Y - %H:%i:%S') AS 'payment_date', pm.orno, SUM(pm.pay_amt) AS pay_amount FROM payment p
@@ -3237,7 +3335,12 @@ class AdminFunct{
 	/*************** SYSTEM SETTING *******************/
 
 	public function insertHolidays(){
-
+		$query=$this->conn->prepare("SELECT * FROM announcements where holiday='Yes'");
+		$query->execute();
+		if($query->rowCount() > 0){
+			$queryDelete=$this->conn->prepare("DELETE FROM announcements where holiday='Yes'");
+			$queryDelete->execute();
+		}
 		$curYear = date('Y'); 
 		$array_holiday = ['New Year', 'Chinese Lunar New Year', 'People Power Anniversary', 'The Day of Valor', 'Maundy Thursday', 'Good Friday', 'Black Saturday', 'Easter Sunday', 'Labor Day', 'Eidul-Fitar', 'Independence Day', 'Eid al-Adha (Feast of the Sacrifice)', 'Eid al-Adha Day 2', 'Ninoy Aquino Day', 'National Heroes Day', 'All Saints Day', 'All Souls Day', 'Bonifacio Day', 'Feast of the Immaculate Conception', 'Christmas Eve', 'Christmas Day', 'Rizal Day', 'New Years Eve'];
 		$array_start_date = [$curYear.'-01-01 00:00:00', $curYear.'-02-05 00:00:00', $curYear.'-02-25 00:00:00', $curYear.'-04-09 00:00:00', $curYear.'-04-18 00:00:00', $curYear.'-04-19 00:00:00', $curYear.'-04-20 00:00:00', $curYear.'-04-21 00:00:00', $curYear.'-05-01 00:00:00', $curYear.'-06-06 00:00:00', $curYear.'-06-12 00:00:00', $curYear.'-08-12 00:00:00', $curYear.'-08-13 00:00:00', $curYear.'-08-21 00:00:00', $curYear.'-08-26 00:00:00', $curYear.'-11-01 00:00:00', $curYear.'-11-02 00:00:00', $curYear.'-11-30 00:00:00', $curYear.'-12-08 00:00:00', $curYear.'-12-24 00:00:00', $curYear.'-12-25 00:00:00', $curYear.'-12-30 00:00:00', $curYear.'-12-31 00:00:00'];
@@ -3253,6 +3356,7 @@ class AdminFunct{
 				':post_adminid' => $_SESSION['accid']
 			));
 		}
+		$this->alert("Success!", "You have successfully inserted the holidays", "success", "admin-system-settings");
 	}
 	public function showSystemSettings(){
 		$sql=$this->conn->prepare("SELECT * FROM system_settings");

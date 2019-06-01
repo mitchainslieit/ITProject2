@@ -83,9 +83,9 @@ switch($page[0]) {
 		echo '<li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-classes").'><a href="'.URL.'admin-classes"><i class="fas fa-plus fnt"></i>Class</a></li>';
 		echo '<li>';
-		echo '<li '.$this->helpers->isActiveMenu("admin-transfer").'><a href="'.URL.'admin-transfer"><i class="fas fa-bell fnt"></i>Accept Request</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-transfer").'><a href="'.URL.'admin-transfer"><i class="fas fa-bell fnt"></i>Accept Request</a><span class="notification">'.$_SESSION['adminNotif'].'</span></li>';
 		echo '<li>';
-		echo '<li '.$this->helpers->isActiveMenu("admin-subjects").'><a href="'.URL.'admin-subjects"><i class="fas fa-book-reader fnt"></i>Subject</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-subjects").'><a href="'.URL.'admin-subjects"><i class="fas fa-book-reader fnt"></i>Curriculum</a></li>';
 		echo '<li>';
 		echo '<a href="'.' '.'" target="user-submenu" class="submenu-title"><span><i class="fas fa-user-plus fnt"></i>Users <i class="fa fa-angle-left pull-right"></i><span></a>';
 		echo '<ul class="sidebar-submenu" id="user-submenu">';

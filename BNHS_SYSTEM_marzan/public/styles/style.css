@@ -87,8 +87,8 @@ body {width: 100%; height:  100%; font-family: "OpenSans";}
 .menu-sidebar .menu nav ul li a span { display: flex; align-items: center; }
 .menu-sidebar .menu nav ul li a span i:first-of-type { display: inline-block; margin: 0 10px 0 15px; width: 20px; }
 .menu-sidebar .menu nav ul li a span i:last-of-type { margin: 0 20px 0 auto; transition: transform 0.3s linear; }
-.menu-sidebar .menu nav ul li#advisory { position: relative; }
-.menu-sidebar .menu nav ul li#advisory span.notification { position: absolute; font-size: 13px; width: 20px; text-align: center; padding: 5px 0; border-radius: 6px; right: 15px; top: 50%; transform: translateY(-50%); background: transparent; font-weight: 600; box-shadow: inset 1px 1px 4px 2px rgba(0, 0, 0, 0.31); text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.31); }
+.menu-sidebar .menu nav ul li { position: relative; }
+.menu-sidebar .menu nav ul li span.notification { position: absolute; font-size: 13px; width: 20px; text-align: center; padding: 5px 0; border-radius: 6px; right: 15px; top: 50%; transform: translateY(-50%); background: transparent; font-weight: 600; box-shadow: inset 1px 1px 4px 2px rgba(0, 0, 0, 0.31); text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.31); }
 .menu-sidebar .menu nav ul li #collapse-menu:hover i { cursor: pointer; animation: bounceleft 1s infinite; }
 .menu-sidebar .menu nav ul li.active > a span i:last-of-type {transform: rotate(-90deg);}
 .menu-sidebar .menu nav ul li.active-menu a { position: relative; background: #3c8dbc; }

@@ -1,8 +1,5 @@
 	<?php require 'app/model/admin-funct.php'; $obj = new AdminFunct(); ?>
 	<?php 
-		if(isset($_POST['modify-stud-details'])) {
-			$obj->updateStudentInfo($_POST);
-		} 
 		if(isset($_POST['accept-button-all'])){
 			extract($_POST);
 			$obj->acceptRequest();
@@ -20,6 +17,7 @@
 			$obj->rejectSingleRequest($stud_id);
 		}
 	?>
+	
 	<div class="contentpage" id="contentpage">
 		<div class="row">
 			<div class="widget">	
@@ -66,41 +64,19 @@ echo '
 	<td><input type="checkbox" id="checkItem" name="check[]" value="'.$stud_id.'" form="form1"></td>
 	<td class="tleft">'.$stud_lrno.'</td>
 	<td class="tleft">'.$stud_fullname.'</td>
-	<td class="tleft">'.$sec_name.'</td>
+	<td class="tleft">'.$currentSection.'</td>
 	<td class="tleft">'.$year_level.'</td>
 	<td class="tleft">'.$faculty_fullname.'</td>
-	<td class="tleft">'.$oppositeSection.'</td>
+	<td class="tleft">'.$transferToSection	.'</td>
 	<td class="tleft action">
-		<div name="content">
-			<button name="opener">
-				<div class="tooltip">
-					<i class="fas fa-check"></i>
-					<span class="tooltiptext">Accept</span>
-				</div>
-			</button>
-			<div name="dialog" title="Transfer student to a different section">
-				<form action="admin-transfer" method="POST" required autocomplete="off">
-					<input type="hidden" value="'.$stud_id.'" name="stud_id">
-					<p>Are you sure you want to transfer the student to a diffent section?</p>
-					<button name="accept-button" class="customButton" >Yes <i class="fas fa-save fnt"></i></button>
-				</form>
-			</div>  
-		</div>
-		<div name="content">
-			<button name="opener">
-				<div class="tooltip">
-					<i class="fas fa-trash-alt"></i>
-					<span class="tooltiptext">Reject</span>
-				</div>
-			</button>
-			<div name="dialog" title="Reject transferring of student">
-				<form action="admin-transfer" method="POST" required autocomplete="off">
-					<input type="hidden" value="'.$stud_id.'" name="stud_id">
-					<p>Are you sure you want to reject the transferring of student?</p>
-					<button name="reject-button" class="customButton" >Yes <i class="fas fa-save fnt"></i></button>
-				</form>
-			</div>  
-		</div>
+		<form action="admin-transfer" method="POST" required autocomplete="off">
+			<input type="hidden" value="'.$stud_id.'" name="stud_id">
+			<button name="accept-button" class="customButton" >Accept <i class="fas fa-check"></i></button>
+		</form>
+		<form action="admin-transfer" method="POST" required autocomplete="off">
+			<input type="hidden" value="'.$stud_id.'" name="stud_id">
+			<button name="reject-button" class="customButton" >Reject <i class="fas fa-trash"></i></button>
+		</form>
 	</td>
 </tr>';	
 }							

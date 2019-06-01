@@ -2,12 +2,16 @@
 	<?php 
 		if(isset($_POST['submit-button'])){
 			extract($_POST);
-			$obj->addClass($sec_id, $fac_idv);
+			$obj->addClass($sectionid, $fc_id);
 		}
 		if(isset($_POST['update-button'])){
 			extract($_POST);
-			$obj->updateClass($sec_id, $fac_idv);
+			$obj->updateClass($sectionid, $fc_id);
 		}
+	?>
+	<?php
+		$this->conn = new Connection;
+		$this->conn = $this->conn->connect();
 	?>
 	<div class="contentpage" id="contentpage">
 		<div class="row">
@@ -33,7 +37,7 @@
 										?>
 									</select>
 									<span>Section Name:</span>
-									<select name="sec_id" data-validation="required" required>
+									<select name="sectionid" data-validation="required" required>
 										<option selected disabled hidden value="">Select Section Name</option>
 										<?php
 											$obj->section();	
@@ -52,21 +56,49 @@
 									<th class="tleft custPad">Adviser</th>
 									<th class="tleft custPad">Section Name</th>
 									<th class="tleft custPad">Grade Level</th>
+<?php 
+										$queryCount=$this->conn->prepare("SELECT fac_no, CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS fullname, s_name, gr_lvl, fac_id, sectionid FROM faculty JOIN section ON fac_id=fc_id join request on request_id=sec_req WHERE fac_adviser='Yes' and request_status='Temporary'");
+										$queryCount->execute();
+										$rowQueryCount=$queryCount->rowCount();
+										echo $rowQueryCount > 0 ? '<th>Request</th>' : '';
+									echo '
 									<th>Action</th>
 								</tr>
 							</thead>
-							<tbody>
-<?php foreach ($obj->showClasses() as $value) {
+							<tbody>';
+foreach ($obj->showClasses() as $value) {
 extract($value);
 $faculty_id = $obj->faculty_id();
 $facultyname = $obj->facultyname();
 $section_type=['A','B'];
 echo '
-	<tr>
-		<td class="tleft custPad">'.$fac_no.'</td>
-		<td class="tleft custPad">'.$fullname.'</td>
-		<td class="tleft custPad">'.$sec_name.'</td>
-		<td class="tleft custPad">'.$grade_lvl.'</td>
+	<tr>';
+		echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$fac_no.'</span></td>' : ' <td class="tleft custPad">'.$fac_no.'</td>';
+		echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$fullname.'</span></td>' : '<td class="tleft custPad">'.$fullname.'</td>';
+		echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$s_name.'</span></td>' : '<td class="tleft custPad">'.$s_name.'</td>';
+		echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$gr_lvl.'</span></td>' : '<td class="tleft custPad">'.$gr_lvl.'</td>';
+		if($rowQueryCount > 0){
+			if($request_status == "Temporary"){
+				echo '
+				<td>For Approval to 
+				';
+				if($request_type == 'Insert'){
+					echo 'Add';
+				}else if($request_type == 'Update'){
+					echo 'Update';
+				}else if($request_type == 'Delete'){
+					echo 'Delete';
+				}else{
+					echo '';
+				}
+				echo'
+				</td>
+				';
+			}else{
+				echo '<td> </td>';
+			}
+		}
+		echo'
 		<td class="action">
 			<div name="content">
 				<button name="opener">
@@ -77,14 +109,14 @@ echo '
 				</button>
 				<div name="dialog" title="Update class data">
 					<form action="admin-classes" method="POST" required autocomplete="off">
-						<input type="hidden" name="sec_id" value="'.$sec_id.'">
+						<input type="hidden" name="sectionid" value="'.$sectionid.'">
 						<span>Employee ID</span>
 						<input type="text" name="" value="'.$fac_no.'" disabled="disabled">
 						<span>Adviser Name</span>
-						<select name="fac_idv" data-validation="required" >
+						<select name="fc_id" data-validation="required" >
 							';
 							for ($c = 0; $c < sizeof($faculty_id); $c++) {
-								if($fac_id==$faculty_id[$c]){
+								if($fc_id==$faculty_id[$c]){
 									echo '<option value="'.$faculty_id[$c].'" selected>';
 								}else{
 									echo '<option value="'.$faculty_id[$c].'"">';
@@ -95,11 +127,11 @@ echo '
 						</select>
 						<span>Section Name</span>
 						<select name="" disabled="disabled">
-							<option value="">'.$sec_name.'</option>
+							<option value="">'.$s_name.'</option>
 						</select>
 						<span>Grade Level:</span>
 						<select name="" disabled="disabled">
-							<option value="">'.$grade_lvl.'</option>
+							<option value="">'.$gr_lvl.'</option>
 						</select>
 						<button name="update-button" class="customButton">Update <i class="fas fa-save fnt"></i></button>
 					</form>
@@ -125,7 +157,7 @@ echo '
 						<div class="table-scroll">
 							<div class ="cont fl">
 								<span>SECTION: </span>
-								<select name="sec_id" id="getCurrentLevel">
+								<select name="sectionid" id="getCurrentLevel">
 									<?php $obj->showSections(); ?>
 								</select>
 							</div>
