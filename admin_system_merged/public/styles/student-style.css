@@ -1,0 +1,229 @@
+/***************************student page****************************/
+.longTitle{white-space: unset !important; width: 250px}
+.align-right {text-align: right;}
+.align-left {text-align: left;}
+.bold {font-weight: 700;}
+.total {color: green;}
+#calendar {margin:10px;}
+.head#soahead {margin: 15px;}
+.widgetcontent > table {margin-top: 10px;}
+/*****content page******/
+.contentpage table {text-align: center; border: 1px solid #e0e0e0; font-size: 15px; width: 90%; padding: 0px;}
+.contentpage td {border: 1px solid #e0e0e0; padding: 12px;}
+.contentpage th {padding: 10px;border: 1px solid #e0e0e0; }
+#breakdown th {padding: ;: 10px; border: 1px solid #e0e0e0;}
+#breakdown {margin: 20px}
+#announcements { position: relative; text-align: left;  padding: 10px 30px;}
+#announcements:not(:last-of-type):after { content: ''; display: block; position: absolute; width: 90%; height: 1px; background: #0400ff; background: -moz-linear-gradient(left, #0400ff 0%, #60abf8 64%, #4096ee 100%); background: -webkit-linear-gradient(left, #0400ff 0%,#60abf8 64%,#4096ee 100%); background: linear-gradient(to right, #0400ff 0%,#60abf8 64%,#4096ee 100%); filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0400ff', endColorstr='#4096ee',GradientType=1 );bottom: 0; right: 0; left: 0; margin: 0 auto; }
+#announcements h2 { font-size: 20px; font-weight: 400; }
+#announcements p { font-size: 15px; font-weight: 500; margin: 5px; }
+#announcements a { color: #036; text-decoration: underline; }
+#hpheader select {text-align: left;}
+/* #student-payment-history_length.dataTables_length {text-align: left;}
+#student-payment-history_filter.dataTables_filter {text-align: left;} */
+/* .contentpage tr:nth-child(even) {background-color: #f2f2f2} */
+
+/*student_home*/
+/*content page*/ 
+ .contentpage {margin: 0% 0% 0% 0%;}
+ .contentpage .summary {display: flex; justify-content: space-between;}
+ .contentpage .summary .head {display: flex; width: 58%; height: 20%; margin-top: 20px; margin-left: 50px;}
+ .contentpage .summary .head > img {width: 100px; height: 100px;}
+ .contentpage .summary .head > p {margin: 10px 73px 0px 9px; text-align: left; font-size: 30px;}
+
+/*widget classes*/
+ .contentpage .widget {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff;}
+ .contentpage .widget {font-size: 15px; margin: 3%;}
+ .contentpage .widget .header {display: flex; justify-content: space-between; padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+ .contentpage .widget .header p{padding: 0; margin: 0}
+ .contentpage .widget .widgetcontent {display: flex; flex-wrap: wrap;}
+/*eventwidget*/
+ .contentpage .eventwidget{display: flex;justify-content: space-between; margin-top: 3%; margin-left: 30px; margin-right: auto;}
+ .contentpage .eventwidget .contleft {max-height: 100%; margin-right: auto;}
+ .contentpage .eventwidget .contleft .cont {max-height: 850px; overflow: auto; padding: 0% 0% 0% 0%}
+ .contentpage .eventwidget .contleft .cont .continue{border-bottom: 1px solid grey; padding-bottom: 5px;}
+ .contentpage .eventwidget .contleft .cont .continue p {font-size: 17px;}
+ .contentpage .eventwidget .contleft .cont .continue input {box-sizing: border-box; border: 1px solid transparent; outline: none; background-color: white; padding-top: 8px; text-align: left; width: 500px;}
+ .contentpage .eventwidget .contleft .cont .continue a {float: left; padding-top: 8px; color: blue;}
+ .contentpage .eventwidget .contleft .cont .continue a:hover {text-decoration: underline;}
+ .contentpage .eventwidget .contleft .cont .conthead {font-size: 20px; text-align: left; border-bottom: 1px solid #F5F5F5; padding: 0% 0% 0% 0%}
+ .contentpage .eventwidget .contleft .cont .conthead p {margin: 5% 0% 0% 2%}
+ .contentpage .eventwidget .contleft .cont .conthead .continue#download {text-align: center;}
+ .contentpage .eventwidget .contleft .cont .box1 p {margin: 2px; padding: 2px;}
+ .contentpage .eventwidget .contleft .cont .box1 {font-size: 15px; text-align: left; margin-left: 25px;}
+ .contentpage .eventwidget .contleft .cont .box1 a{color: blue;}
+ .contentpage .eventwidget .contleft .cont .box1 a:hover{text-decoration: underline; color: blue;}
+ .contentpage .eventwidget .contleft .cont .box1 span{display: inline-block; vertical-align: left; line-height: normal;}
+ .contentpage .eventwidget .contleft {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding: 0px !important; margin-left: 20px; width: 52%; margin-right: auto; max-height: 900px;}
+ .contentpage .eventwidget .contleft .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366; position: sticky;}
+ .contentpage .eventwidget .contleft .header p{padding: 0; margin: 0}
+ .contentpage .eventwidget .contleft .eventcontent .box1 p {font-size: 15px;}
+/*contright*/
+ .contentpage .eventwidget .contright{width: 38%; margin-right: auto;}
+ .contentpage .eventwidget .contright .innercont1 {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding-bottom: 15px; }
+ .contentpage .eventwidget .contright .innercont1 .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+ .contentpage .eventwidget .contright .innercont1 .header p{padding: 0; margin: 0}
+ .contentpage .eventwidget .contright .innercont1 .eventcontent .echead p{font-weight: 700; font-family: arial;}
+ .contentpage .eventwidget .contright .innercont1 .eventcontent p {font-size: 15px; text-align: left; margin: 5px 0px 0px 20px;}
+ .contentpage .eventwidget .contright .innercont1 .eventcontent .contin p {margin-left: 35px;}
+ .contentpage .eventwidget .contright .innercont1 .eventcontent .contin a{color: blue;}
+ .contentpage .eventwidget .contright .innercont1 .eventcontent .contin a:hover{text-decoration: underline; color: blue;}
+ .contentpage .eventwidget .contright .innercont1 .eventcontent .contin table {width: 90%; font-size: 15px; border: 1px solid #e0e0e0; margin-right: auto; margin-left: auto; text-align: center; border-collapse: collapse;}
+ .contentpage .eventwidget .contright .innercont1 .eventcontent .contin th {border: 1px solid #e0e0e0; margin: 0px; padding: 3px; background-color: #e1e1e1;}
+ .contentpage .eventwidget .contright .innercont1 .eventcontent .contin td {font-size: 14px;}
+ .contentpage .eventwidget .contright .innercont2 {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding-bottom: 30px; margin-top: 30px;}
+ .contentpage .eventwidget .contright .innercont2 .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+ .contentpage .eventwidget .contright .innercont2 .header p{padding: 0; margin: 0}
+ .contentpage .eventwidget .contright .innercont2 .eventcontent>p{font-family: "Arial"; font-weight: 700; font-size: 18px; padding: 10px 20px; text-align: left;}
+.cont4 #legend {border-collapse: collapse; margin: 0px; width: 30%; border: none}
+.cont4 #legend td {border: none}
+#grade-student th{padding: 10px; border: 1px solid #e5e0e0;}
+#grade-student {margin: 20px 10px 10px 20px; margin-right: auto; text-align: center}
+/*Statements of account*/ 
+ .contentpage #soa > #soahead > #soatable {width: 90%; font-size:  15px; border: 1px solid #e0e0e0;  margin: 1% 0% 5% 6%; text-align: center; border-collapse: collapse;}
+ .contentpage .row .eventwidget #header {font-size: 18px; float: left; margin-left: 20px; font-weight: bold;}
+ .contentpage .row .eventwidget .cont .head #soatable tr:nth-child(even) {background-color: #f2f2f2}
+ .contentpage .row .eventwidget .cont .conthead {padding: 0% 0% 0% 0%}
+ .contentpage .row .eventwidget .contright .widgetcontent tr:nth-child(even) {background-color: #f2f2f2}
+/*Attendance*/
+ .contentpage #widget {width: 96%; box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; margin-left: auto; margin-right: auto; font-size: 15px;}
+ .contentpage #widget .header {display: flex; justify-content: space-between; margin-top: 40px;padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+ .contentpage #widget .header p{padding: 0; margin: 0}
+ .contentpage #widget .widgetcontent {margin: 30px; padding-bottom: 30px;}
+ .contentpage #widget .widgetcontent table {font-size: 15px; width: 100%; margin: 0px; border: 1px solid gray; border-collapse: collapse; }
+  .contentpage #widget .widgetcontent tr:nth-child(even) {background-color: #f2f2f2}
+ .contentpage #widget #stan {max-height: 550px;overflow: auto;}
+ .contentpage #widget .widgetcontent th {font-weight: 700; font-family: arial; padding: 10px;}
+  .contentpage #widget .widgetcontent td {padding: 10px;}
+ .contentpage #widget .widgetcontent th, .contentpage #widget .widgetcontent td{text-align: center;border: 1px solid #e5e0e0;}
+/*Student Information*/
+ .contentpage .row .container .cont1 {width: 35%; margin: 0% 0% 0% 4%}
+ .contentpage .row .container .cont2 {width: 90%;}
+ .contentpage .row .container .cont1 p {font-size: 25px; border-bottom: 1px solid #c0c0c0;}
+ .contentpage .row .eventwidget .contleft .cont .conthead .continue a{position: absolute; padding: 0% 0% 0% 1%}
+ .contentpage .row .eventwidget .contleft .cont .conthead .continue button{padding: 5% 15% 0% 13%}
+ .contentpage .row .eventwidget .contleft .cont .conthead .continue {font-size: 20px;}
+ .contentpage .row .eventwidget .contleft .cont .conthead svg {stroke:rgb(0,0,0);stroke-width:2}
+ .contentpage .row .container .cont1 img {width: 85%; height: 40%; margin-top: 20%; float: left; margin-left: 7%; padding-bottom: 4%;}
+ .contentpage .row .container {display: flex; justify-content: space-between;}
+ .contentpage .row .container .cont2 .widgetcontent p {font-size: 15px; font-weight: 500; font-family: arial;}
+ .contentpage .row .container .cont2 .widgetcontent {display: flex;justify-content: space-evenly; flex-wrap: wrap;}
+ .contentpage .row .container .cont2 .widgetcontent .conthead {text-align: left; width: 100%; margin-left: 5%; margin-right: 23%; border-bottom: 1px solid #e0e0e0; }
+ .contentpage .row .container .cont2 .widgetcontent .continue {text-align: left; width: 100%; padding: 4% 0% 0% 4%} 
+ .contentpage .row .container .cont2 .widgetcontent .continue form {font-size: 13px; text-align: left; padding: 0% 0% 0% 0%; width: 90%}
+ .contentpage .row .container .cont2 .widgetcontent .continue label {display: block; margin: 0px 0px 15px 0px;}
+ .contentpage .row .container .cont2 .widgetcontent .continue span {width: 200px; float: left; padding: 8px; float: left; margin-left: 15px;}
+ .contentpage .row .container .cont2 .widgetcontent .continue input {box-sizing: border-box; border: 1px solid #c2c2c2; box-shadow: 0px 0px 5px 0px #e0e0e0; border-radius: 5px; padding: 4px; outline: none; background-color: #f8f8f8; width: 45%}
+ .contentpage .row .container .cont2 .widgetcontent .continue input#contbtn {margin: 5px 150px 5px 5px; float: right; width: 15%; background-color: lightgray; color: black;}
+ .contentpage .row .container .cont3 {width: 35%; margin: 0% 0% 0% 4%} 
+ .contentpage .row .container .cont3 p {font-size: 25px;  border-bottom: 1px solid #c0c0c0;}
+ .contentpage .row .container .cont3 button{font-size: 15px; font-weight: 400; color: #000; display: inline-block; padding: 3% 8%; background: #fff; border: 1px solid #e0e0e0; transition: all 0.5s ease;}
+ .contentpage .row .container .cont3 img {width: 80%; height: 45%; margin-top: 20%; float: left; margin-left: 9%; padding-bottom: 4%;}
+ .contentpage .row .container .cont4 {width: 35%;margin: 0% 0% 0% 4%}
+ .contentpage .row .container .cont4 a {background-color: #fff; color: black; padding: 14px 40px; text-align: center; text-decoration: none; display: inline-block; font-size: 18px; margin: 5px;}
+ .contentpage .row .container .cont4 a:hover, .contentpage .row .container .cont4 a:active {color: #003388; box-shadow: 0px 0px 10px 5px #e0e0e0;}
+ .contentpage .row .container .cont4 p {font-size: 25px; border-bottom: 1px solid #c0c0c0;}
+ .contentpage .row .container .cont4 button{font-size: 15px; font-weight: 400; color: #000; display: inline-block; padding: 3% 8%; background: #fff; border: 1px solid #e0e0e0; transition: all 0.5s ease;}
+ .contentpage .row .container .cont4 img {width: 255px; height: auto; margin-top: 40px; float: left; margin-left: 15px; padding-bottom: 4%;}
+
+/***************************END****************************/
+/*footer*/
+#footer p.copy{font-size: 15px;color: #575a60;}
+/*Container Bot*/
+.leftmenu .containerBot{height: 40px; background: #1A2C3D; position: absolute; bottom: 51px; width: 100%}
+.leftmenu .containerBot .fnt{color: #fff; font-size: 21px;padding: 9px 15px; cursor: pointer;}
+.logo{margin-top: 25px;}
+/*inner pages*/
+.inner #content {min-height: 400px;padding: 40px 0}
+
+.inPrivacyBox {max-width: 850px; margin: 0 auto;}
+.inPrivacyBox p {text-align: justify!important;}
+
+/********ATTENDANCE*********/
+.contentpage .attendance .innercont1 {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; padding:0% 0% 3% 0%; margin: 2% 0% 0% 0%}
+.contentpage .attendance .innercont1 .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366; margin-top: 0 !important; }
+.contentpage .attendance .innercont1 .header p{padding: 0; margin: 0}
+.contentpage .attendance .innercont1 p{font-size: 15px; padding: 6px 0px;margin: 17px 0;}
+.contentpage .attendance .innercont1 .box{width: 80%;margin: 0 auto;}
+.contentpage .attendance .innercont1 .box1{background: #CC3333;}
+.contentpage .attendance .innercont1 .box2{background: #FF6600;}
+.contentpage .attendance .innercont1 .box3{background: #006699;}
+.contentpage .attendance .innercont1 {box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff;}
+.contentpage .attendance .innercont1 .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+.contentpage .attendance .innercont1 .header p{padding: 0; margin: 0}
+.contentpage .attendance .innercont1 .eventcontent{display: flex; justify-content: space-around; align-items: center; padding-top: 3%}
+.contentpage .attendance .innercont1 .eventcontent .table-scroll{width: 70%}
+.contentpage .attendance .innercont1 .eventcontent p{font-family: "Arial"; font-weight: 700; font-size: 18px; padding: 10px 20px; text-align: left;}
+.contentpage .attendance .innercont1 .eventcontent table{width: 80%;border-spacing:0;;width: 95%; border-collapse: separate; margin:auto;}
+.contentpage .attendance .innercont1 .eventcontent tr:nth-child(even) {background-color: #f2f2f2}
+.contentpage .attendance .innercont1 .eventcontent th{white-space:nowrap; font-size: 14px; border: 1px solid #ddd; font-family: Arial; font-weight: 700; padding: 9px 18px;}
+.contentpage .attendance .innercont1 .eventcontent th>i{padding-left: 10px}
+.contentpage .attendance .innercont1 .eventcontent td:first-of-type{text-align:left;padding-left:10px;}
+.contentpage .attendance .innercont1 .eventcontent td{padding-right:10px;height: 20%;text-align:right;font-size: 14px; border: 1px solid #ddd;}
+.contentpage .attendance .innercont1 .eventcontent .cont4 {display: flex;justify-content: space-between; align-items: baseline; margin-top: 20px;}
+.contentpage .attendance .innercont1 .eventcontent .cont4 .pagination {display: inline-flex;}
+.contentpage .attendance .innercont1 .eventcontent .cont4 .btn{font-size: 14px; color: #000; background: #fff; border: 1px solid #d1d3d6; cursor: pointer; padding:8px 12px; margin-left: -1px;}
+.contentpage .attendance .innercont1 .eventcontent .cont4 .active{background: #337AB7; color: #fff;}
+.contentpage .attendance .innercont1 .eventcontent .cont4 p{font-size: 14px;}
+.contentpage .attendance .innercont1 .eventcontent a{margin: 0% 0% 0% 4%}
+.contentpage #widget .widgetcontent #sched tr:nth-of-type(4), .contentpage #widget .widgetcontent #sched tr:nth-of-type(7) {background-color: #3C8DBC; color: #fff;}
+#note {font-size: 15px; color: red; font-weight: 700; text-align: left; margin-bottom: 10px;}
+ /************GRADES************/
+
+ .contentpage .grades #widget2 {width: 95%; box-shadow: 0px 0px 8px 1px #9aa5b7; background: #fff; margin-left: auto; margin-right: auto; font-size: 15px;}
+ .contentpage .grades #widget2 .header {display: flex; justify-content: space-between; margin-top: 40px;padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+ .contentpage .grades #widget2 .header p{padding: 0; margin: 0}
+ .contentpage .grades #widget2 .widgetcontent table {font-size: 15px; width: 100%; margin: 0px; border: 1px solid gray; padding: 5px;border-collapse: collapse; }
+ .contentpage .grades #widget2 #stan {max-height: 50%;overflow: auto;}
+ .contentpage .grades #widget2 .widgetcontent th {font-weight: 700; font-family: arial; background-color: #e0e0e0; padding: 1.5% 1.5% 1.5% 1.5%}
+ .contentpage .grades #widget2 .widgetcontent th, .contentpage .grades #widget2 .widgetcontent td{padding: 1% 1% 1% 1%; text-align: center;border: 1px solid #e5e0e0; width: 13%}
+ .contentpage .legend {margin: 0% 65% 0% 0%; }
+ .contentpage .legend p{ font-size: 25px;  }
+ .contentpage .legend table{font-size: 15px}
+
+ /*dashboard*/
+/*dashboard*/
+.eventBox #eventDataTable{width: 100% !important; margin: 0;}
+.attachment{font-style: italic; color: #1a0dab; margin: 0}
+.eventBox{margin-top: 20px}
+.holidayBox{margin-top: 20px}/* 
+.holidayBox #eventDataTable{width: 475px !important; margin: 0} */
+h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
+.contentpage .dashboardWidget table.dataTable thead .title{border-top: none !important;}
+.contentpage .dashboardWidget table.dataTable tbody td{border: none !important; border-bottom: 1px solid #ddd !important; padding: 15px !important; white-space: unset;}
+.contentpage .dashboardWidget table.dataTable thead th{border: none !important; border-bottom: 1px solid #ddd !important; padding: 15px !important; border-top: 1px solid #ddd !important;}
+.contentpage .dashboardWidget table.dataTable{border:none;}
+.contentpage .summary {display: flex; justify-content: space-between;}
+.contentpage .summary .box{width: calc(80%/4);padding: 7px 22px; opacity: 0.9}
+.contentpage .summary .box h4{font-size: 15px; color: #fff; text-align: left}
+.contentpage .summary .box h4>span{text-decoration: underline; font-weight: 700; font-family: Arial}
+.contentpage .summary .box1{background: #00C0EF;}
+.contentpage .summary .box2{background: #00A65A;}
+.contentpage .summary .box3{background: #F39C12;}
+.contentpage .summary .box4{background: #DD4B39;}
+.contentpage .summary .box .innercont{width: 100%; display: flex;justify-content: space-between;align-items: baseline; margin-top: 10px;}
+.contentpage .summary .box .innercont>span{font-size: 27px; color: #fff}
+.contentpage .summary .box .innercont>i{color: #fff; font-size: 50px;}
+
+/* dashboard widget/calendar */
+.tleft{text-align: left}
+.tright{text-align: right}
+.contentpage .dashboardWidget .contentpage th{border:none !important;}
+.contentpage .dashboardWidget{display: flex;justify-content: space-between; align-items: flex-start; width: 60%;}
+.contentpage .dashboardWidget .contright {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px; width: 42%; order: 2}
+.contentpage .calendarWidget .contright {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px; width: 100%; order: 2}
+.contentpage .dashboardWidget .contright .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+.contentpage .dashboardWidget .contright .header p{padding: 0; margin: 0}
+.contentpage .dashboardWidget .contright .eventcontent{padding: 10px 20px;}
+#dashboard-left{width: 90%; order: 1;}
+#dashboard-left .innercont2 {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px;}
+#dashboard-left .innercont2 .header {padding: 10px 23px;text-align: left; font-size: 15px;color: #fff; background: #003366;}
+#dashboard-left .innercont2 .header p{padding: 0; margin: 0}
+#dashboard-left .innercont2 .eventcontent{padding: 10px 20px}
+#dashboard-left .innercont2 .eventcontent>p{font-weight: 400; font-size: 14px; text-align: left; text-transform: uppercase; border-bottom: 1px solid #ddd; border-bottom-style: dashed;}
+
+#dashboard-calendar{width: 90%; margin: 20px 50px 20px 50px; margin: 30px auto;}
+
+#dashboard-calendar {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px; order: 2}
+#dashboard-calendar .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+#dashboard-calendar .header p{padding: 0; margin: 0}

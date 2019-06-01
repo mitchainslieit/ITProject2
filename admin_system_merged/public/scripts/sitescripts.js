@@ -91,8 +91,11 @@ $('[name=dialog]').dialog({
 	width: 'auto',
 	close: function() {
 		$('.faculty-editclass-page .classes-sched').trigger("reset");
+		$('.admin-subjects-page .admin-subjects').trigger("reset");
 	}
 });
+
+
 
 /*******Parent-Account*******/
 if ($('body').is('[class*="parent-"]')) {
@@ -472,6 +475,41 @@ $( document ).ready(function() {
 });
 
 var forTransferTable = $('#adv-table-2').DataTable();
+setInterval(function() {
+	var data = new Array('getNotif', parseInt($('body[class*="faculty-"] .menu-sidebar .menu nav ul li#advisory span.notification').text()));
+	if ($('body[class*="faculty-"] .menu-sidebar .menu nav ul li#advisory span.notification').length) {
+		$.ajax({
+			type: 'get',
+			url: 'app/model/faculty-exts/faculty-ajax.php',
+			data: {data:data},
+			success: function(result) {
+				try {
+					var data = JSON.parse(result);
+					var current_no = parseInt($('body[class*="faculty-"] .menu-sidebar .menu nav ul li#advisory span.notification').text());
+					var new_no = data["response"];
+					if ((current_no != new_no) && $('body').is('[class*="faculty-"]')) {
+						var new_data = data["addthis"];
+						$('body[class*="faculty-"] .menu-sidebar .menu nav ul li#advisory span.notification, #faculty_home .contentpage .widget .studentContent .notification').empty();
+						$('body[class*="faculty-"] .menu-sidebar .menu nav ul li#advisory span.notification, #faculty_home .contentpage .widget .studentContent .notification').append(new_no);
+						forTransferTable.clear().draw();
+						for (i = 0; i < new_data.length; i++) {
+							forTransferTable.row.add($(new_data[i])).draw();
+						}
+						$.ambiance({
+							message: "There is a change in your advisory class!",
+				            title: "Success!",
+				            type: "success"
+			        	});
+
+					}
+				} catch (e) {
+					
+				}
+			}
+		});
+	}
+}, 2000);
+
 
 $('#faculty_home .contentpage .widget .widgetcontent #classes-sched td .sched-info button span.edit').tooltipster({
     theme: 'tooltipster-borderless'
@@ -483,41 +521,6 @@ $('#faculty_home .contentpage .widget .widgetcontent #classes-sched td .sched-in
 /****************************************** END OF FRONT-END FUNCTIONALITIES USING JQUERY ******************************************/
 
 /****************************************** ADMIN FUNCTIONALITY ****************************************************/
-var adminTable8 = $('#admin-table-request').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#admin-table-request").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	}
-});
-
-setInterval(function() {
-	var data = new Array('getNotif', parseInt($('body[class*="admin-"] .menu-sidebar .menu nav ul li span.notification').text()));
-	if ($('body[class*="admin-"] .menu-sidebar .menu nav ul li span.notification').length) {
-		$.ajax({
-			type: 'get',
-			url: 'app/model/admin-exts/admin-ajax.php',
-			data: {data:data},
-			success: function(result) {
-				try {
-					var data = JSON.parse(result);
-					var current_no = parseInt($('body[class*="admin-"] .menu-sidebar .menu nav ul li span.notification').text());
-					var new_no = data["response"];
-					if ((current_no != new_no) && $('body').is('[class*="admin-"]')) {
-						var new_data = data["addthis"];
-						$('body[class*="admin-"] .menu-sidebar .menu nav ul li span.notification').empty();
-						$('body[class*="admin-"] .menu-sidebar .menu nav ul li span.notification').append(new_no);
-						adminTable8.clear().draw();
-						for (i = 0; i < new_data.length; i++) {
-							adminTable8.row.add($(new_data[i])).draw();
-						}
-					}
-				} catch (e) {
-					
-				}
-			}
-		});
-	}
-}, 2000);
-
 $('[name=opener2]').each(function () {
 	var panel = $(this).siblings('[name=dialog2]');
 	$(this).click(function () {
@@ -562,171 +565,53 @@ $("#checkAl").click(function () {
 	$('input:checkbox').not(this).prop('checked', this.checked);
 });
 	
-$("#checkAl1").click(function () {
-	$('input:checkbox').not(this).prop('checked', this.checked);
-});
+$('#ptaTable').DataTable();
 	
 $("#noFilterTable").DataTable({
-	"initComplete": function (settings, json) {  
-		$("#stud-list, #admin-table, #admin-table-withScroll").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
 	dom: "lBfrtip",
 	"paging":   false,
-	"ordering": false,
+  	"ordering": false,
 	buttons: [
-	'excel','pdf','print'
-	]
-});
+   	'excel','pdf','print'
+	],
+	});
 
 $( "#eventDataTable, #announcementDataTable, #historyDataTable, #notif" ).DataTable({
-	"initComplete": function (settings, json) {  
-		$("#stud-list, #admin-table, #admin-table-withScroll").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
 	"paging":   false,
   	"ordering": false,
   	"info": false,
 	buttons: false,
-	"searching":false,
-	stateSave: true
+	"searching":false
 });
 
+var adminTableCurriculum = $('#admin-table-curriculum').DataTable({
+	dom: 'lBfrtip',
+	"columnDefs": [{
+		"targets": [5],
+		"visible": false,
+	}],
+	buttons: [
+	'copy','excel','pdf', 'csv','print'
+	],
+	"lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]]
+});
+
+$( '#super_unique' ).on('change', function() {
+	var val = $(this).val();
+	adminTableCurriculum.column(5).search(val ? val : '', true, false).draw();
+});
 
 $( "#stud-list, #admin-table, #admin-table-withScroll" ).DataTable({
 	//"scrollX": true,            
 	"initComplete": function (settings, json) {  
 		$("#stud-list, #admin-table, #admin-table-withScroll").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
 	},
-	stateSave: true,
+	dom: "lBfrtip",
+	buttons: [
+	'copy','excel','pdf', 'csv','print'
+	],
 	"lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
 	
-});
-
-$adminTableSection = $('#admin-table-section').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#admin-table-section").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
-	dom: "lBfrtip",
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: [1,2]
-		}
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: [1,2]
-		},
-		pageSize: 'Folio'
-	}
-	],
-});
-$adminTableClasses = $('#admin-table-classes').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#admin-table-classes").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
-	dom: "lBfrtip",
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: [0,1,2,3]
-		}
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: [0,1,2,3]
-		},
-		pageSize: 'Folio'
-	}
-	],
-});
-$adminTableSubject = $('#admin-table-subject').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#admin-table-subject").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
-	dom: "lBfrtip",
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: [1,2,3]
-		}
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: [1,2,3]
-		},
-		pageSize: 'Folio'
-	}
-	],
-});
-$adminTableFaculty = $('#admin-table-faculty').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#admin-table-faculty").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
-	dom: "lBfrtip",
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: [1,2,3,4,5,6]
-		}
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: [1,2,3,4,5,6]
-		},
-		pageSize: 'Folio'
-	}
-	],
-});
-$adminTableParent = $('#admin-table-treasurer').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#admin-table-treasurer").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
-	dom: "lBfrtip",
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: [1,2,3]
-		}
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: [1,2,3]
-		},
-		pageSize: 'Folio'
-	}
-	],
-	
-});
-$adminTableEvents = $('#admin-table-events').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#admin-table-events").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
-	dom: "lBfrtip",
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: [1,2,3,4]
-		}
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: [1,2,3,4]
-		},
-		pageSize: 'Folio'
-	}
-	],
 });
 	var calendarAdmin = $('#calendarAdmin').fullCalendar({
 	editable:true,
@@ -818,25 +703,7 @@ var adminTable = $('#admin-table-balstatus').DataTable({
 	"columnDefs" : [{
 		"targets" : [7],
 		"visible" : false
-	}],
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: ':visible'
-		}
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: ':visible'
-		},
-		pageSize: 'Folio'
-	}
-	],
-	fixedColumns:   {
-		leftColumns: 1
-	}
+	}]
 });
 
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
@@ -850,31 +717,12 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 });
 
 var adminTable3 = $('#admin-table-enrolled').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#admin-table-enrolled").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
 	"scrollX": true,
 	dom: "lBfrtip",
 	"columnDefs" : [{
 		"targets" : [8],
 		"visible" : false
-	}],
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: ':visible'
-		}
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: ':visible'
-		},
-		orientation: 'landscape',
-		pageSize: 'Folio'
-	}
-	],
+	}]
 });
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_enrolled', function() {
 	var val3 = $(this).val();
@@ -883,61 +731,19 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 
 
 var adminTable4 = $('#admin-table-payhist').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#admin-table-payhist").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
 	"scrollX": true,
 	dom: "lBfrtip",
 	"columnDefs" : [{
 		"targets" : [8],
 		"visible" : false
-	}],
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: [0,1,2,3,4,5,6]
-		}
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: [0,1,2,3,4,5,6]
-		},
-		orientation: 'landscape',
-		pageSize: 'Folio'
-	}
-	],
-	 
+	}]
 });
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_payhist', function() {
 	var val4 = $(this).val();
 	adminTable4.column(8).search(val4 ? "^" + val4 + "$"  : '', true, false).draw();
 });
 
-var adminTable5 = $('#admin-table-logs').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#admin-table-logs").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
-	dom: "lBfrtip",
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: [0,1,2,3]
-		}
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: [0,1,2,3]
-		},
-		orientation: 'landscape',
-		pageSize: 'Folio'
-	}
-	],
-	"order": [[ 3, "desc" ]]
-});
+var adminTable5 = $('#admin-table-logs').DataTable();
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.log_events', function() {
 	var val5 = $(this).val();
 	adminTable5.column(2).search(val5 ? val5 : '', true, false).draw();
@@ -947,25 +753,7 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.log
 var adminTable6 = $('#admin-table-student').DataTable({
 	"initComplete": function (settings, json) {  
 		$("#admin-table-student").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
-	dom: "lBfrtip",
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-		},
-		orientation: 'landscape'
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-		},
-		orientation: 'landscape',
-		pageSize: 'Folio'
 	}
-	],
 });
 
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
@@ -976,34 +764,18 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 var adminTable7 = $('#admin-table-parent').DataTable({
 	"initComplete": function (settings, json) {  
 		$("#admin-table-parent").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
-	dom: "lBfrtip",
-	fixedColumns:   {
-		leftColumns: 1
-	},
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: [1,2,3,4,5,6,7,8]
-		},
-		orientation: 'landscape'
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: [1,2,3,4,5,6,7,8]
-		},
-		orientation: 'landscape',
-		pageSize: 'Folio'
 	}
-	],
-	
 });
 
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
 	var val7 = $(this).val();
 	adminTable7.column(5).search(val7 ? "^" + val7 + "$"  : '', true, false).draw();
+});
+
+var adminTable8 = $('#admin-table-request').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-request").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	}
 });
 
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level', function(e) {
@@ -1028,80 +800,14 @@ $(hideThis).each(function() {
 $(showThis).show();
 }
 
-var CurriculumTable = $('#curriculumTable').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#curriculumTable").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
-	stateSave: true,
-	paging: false,
-	info: false
-});
-
-$('#curriculumTable tbody').on( 'click', 'tr', function () {
-	if ( $(this).hasClass('selected') ) {
-		$(this).removeClass('selected');
-	}
-	else {
-		CurriculumTable.$('tr.selected').removeClass('selected');
-		$(this).addClass('selected');
-	}
-} );
-
-$('#addRow').on( 'click', function () {
-	CurriculumTable.row.add( [
-		'<select name="subj_level[]" data-validation="required"><option selected disabled hidden>Select Subject Level</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select>' ,
-		'<select name="subj_dept[]" data-validation="required" required><option selected disabled hidden>Select Department</option><option value="Filipino">Filipino</option><option value="Math">Math</option><option value="MAPEH">MAPEH</option><option value="Science">Science</option><option value="AP">AP</option><option value="Math">Math</option><option value="English">English</option><option value="TLE">TLE</option><option value="Math">Math</option></select>',
-		'<input type="text" name="subj_name[]" data-validation="length custom" data-validation-length="max45" data-validation-regexp="^[a-zA-Z0-9\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphaneumerics only" value="" data-validation="required" required placeholder="Subject Name" class="subject-name">'
-		] ).draw( false );
-	
-	counter++;
-} );
-$('#removeRow').click( function () {
-	/*CurriculumTable.row('tr:last').remove().draw( false );*/
-	CurriculumTable.row('.selected').remove().draw( false );
-} );
-
-    // Automatically add a first row of data
-    $('#addRow').click();
-    $('#removeRow').click(function(){
-    	$('tr:last').remove()
-    });
-
-var adminTableCurriculum = $('#admin-table-curriculum').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#admin-table-curriculum").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
-	dom: "lBfrtip",
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: [1,2,3]
-		},
-		orientation: 'landscape'
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: [1,2,3]
-		},
-		orientation: 'landscape',
-		pageSize: 'Folio'
-	}
-	],
-	"columnDefs": [{
-		"targets": [3],
-		"visible": false,
-	}],
-	"lengthMenu": [[10, 25, -1], [10, 25, "All"]]
-});
-
-$( '#super_unique' ).on('change', function() {
-	var val = $(this).val();
-	adminTableCurriculum.column(3).search(val ? val : '', true, false).draw();
-});
-
 $( '.sidebar-menu li' ).has('li.active-menu').addClass('active');
+
+$('#createSubject').click(function(){
+	$('.innerCont3').append('<div class="innerCont2"><div id="innerDiv"><span>Subject Level:</span><select name="subj_level[]" data-validation="required"><option selected disabled hidden>Select Subject Level</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></div><div id="innerDiv"><span>Subject Department:</span><select name="subj_dept[]" data-validation="required" required><option selected disabled hidden>Select Department</option><option value="Filipino">Filipino</option><option value="Math">Math</option><option value="MAPEH">MAPEH</option><option value="Science">Science</option><option value="AP">AP</option><option value="Math">Math</option><option value="English">English</option><option value="TLE">TLE</option><option value="Math">Math</option></select></div><div id="innerDiv"><span>Subject Name:</span><input type="text" name="subj_name[]" data-validation="length custom" data-validation-length="max45" data-validation-regexp="^[a-zA-Z0-9\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphaneumerics only" value="" data-validation="required" required placeholder="Subject Name" class="subject-name"></div></div>')});
+
+$('#remove-addSubj').click(function(){
+	$('.innerCont2:last').remove()
+});
 /****************************************** END ADMIN FUNCTIONALITY *************************************************/
 
 var student_table = $('#student-payment-history').DataTable({
@@ -1192,3 +898,4 @@ maxDate: new Date,
 minDate: "-2m",
 beforeShowDay: $.datepicker.noWeekends
 }).datepicker("setDate", new Date());
+
