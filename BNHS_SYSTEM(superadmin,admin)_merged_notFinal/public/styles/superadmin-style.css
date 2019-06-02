@@ -1,0 +1,264 @@
+/*fonts*/
+@font-face {
+  font-family: 'OpenSans-Regular';
+  font-style: normal;
+  font-weight: 400;
+  src: url('OpenSans-Regular.ttf'); 
+}
+@font-face {
+  font-family: 'OpenSans-Bold';
+  font-style: normal;
+  font-weight: 700;
+  src: url('OpenSans-Bold.ttf'); 
+}
+
+.ui-datepicker-calendar{display: none;}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+/*floats*/
+.fl {float:left;}
+.fr {float:right;}
+
+/* global */
+h1,h2,h3,h4,h5{ padding:0; margin:0; }
+.row {width: 95%; margin: 0 auto}
+.customButton{background: #0089DA; border: none; color: #fff;padding: 7px 12px;letter-spacing: 0.5px; cursor: pointer; font-family: 'Open Sans'; font-size: 13px;}
+span.prompt{font-weight: 700; text-decoration: underline;}
+i.fnt{padding-left: 9px;}
+td.action{display: flex;justify-content: center;}
+td.action > *{padding: 0px 5px;}
+/* #ui-datepicker-div{display: none !important;} */
+textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important; }
+.dataTables_wrapper th, td { white-space: nowrap; }
+.dataTables_wrapper thead tr th:first-of-type{background: #fff}
+.tleft{text-align: left}
+.tright{text-align: right;}
+.tcenter{text-align: center}
+.custPad{padding: 8px 8px 8px 45px !important;}
+.custPad2{padding: 0px 8px 0px 20px !important;}
+.longText{white-space: unset !important; text-align: justify;}
+.longTitle{white-space: unset !important; width: 250px}
+#noFilterTable{margin: 20px 0}
+#checkAl1, #checkAl, #checkItem{width: 100% !important}
+.buttonContainer button{margin-right: 20px;}
+
+span.selectAll{font-size: 11px; display: block}
+.selectAllCheck{vertical-align: middle;}
+
+#superadmin_home .contentpage .widget .feeTypeContent thead tr th:first-of-type,
+#superadmin_home .contentpage .widget #superadmin_feeType_request thead tr th:first-of-type,
+#superadmin_home .contentpage .widget #superadmin-table-section thead tr th:first-of-type{width: 60px !important; padding: 0px!important}
+
+#superadmin_home .contentpage .widget .subjectContent .cont2 .box1{display: flex; width: 430px !important; justify-content: space-between; align-items: center; margin-bottom: 15px}
+/* tooltip */
+.tooltip {position: relative;display: inline-block;}
+.tooltip .tooltiptext {visibility: hidden;width: 68px;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;bottom: 150%;left: 50%;margin-left: -39px;}
+.tooltip .tooltiptext::after {content: "";position: absolute;top: 100%;left: 50%;margin-left: -5px;border-width: 5px;border-style: solid;border-color: black transparent transparent transparent;}
+.tooltip:hover .tooltiptext {visibility: visible;}
+.dataTables_scrollBody{overflow-y: hidden;}
+/* .dataTables_wrapper tbody tr:first-of-type .action:last-of-type .tooltip:hover .tooltiptext {visibility: visible;}
+.dataTables_wrapper tbody tr:first-of-type .action:last-of-type .tooltip .tooltiptext {height: 16.8px; visibility: hidden;width: 68px;background-color: black;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;top: 150%;left: 50%;margin-left: -34px;}
+.dataTables_wrapper tbody tr:first-of-type .action:last-of-type .tooltip .tooltiptext::after {content: "";position: absolute;top: -10px;left: 50%;margin-left: -5px;border-width: 5px;border-style: solid;border-color: transparent transparent black transparent;} */
+
+/*clearings*/
+.clear{ clear:both;}
+.clearfix:after {content:"."; display:block; height:0; clear:both;visibility:hidden;font-size: 0;}
+.clearfix {display:block;}
+/**************************************************CONTENT PAGE**********************************************************************/
+
+.datepicker-schoolyear {width: 100px !important; text-align: center;}
+/* dialog */
+.ui-dialog{padding:0px !important; font-family: 'Open Sans' !important;}
+.ui-widget-overlay.custom-overlay{background-color: black;background-image: none;opacity: 0.8;z-index: 1040;}
+.ui-dialog .ui-dialog-title{color: #fff; font-weight: 400;}
+.ui-widget.ui-widget-content{width: 700px !important;border: none!important;}
+.ui-widget-content span{padding-top: unset !important;}
+.ui-widget-header{border: unset !important; background: #367FA9 !important; border-radius: unset !important}
+.ui-dialog .ui-dialog-titlebar,.ui-dialog .ui-dialog-content{padding: 15px 28px !important}
+.ui-dialog .ui-dialog-titlebar-close {right: 20px !important}
+
+
+/*widget template*/
+#superadmin_home .contentpage .widget {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 25px; margin-bottom: 40px}
+#superadmin_home .contentpage .widget .header {display: flex; justify-content: space-between;padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+#superadmin_home .contentpage .widget .header p{padding: 0; margin: 0}
+#superadmin_home .contentpage .widget .widgetContent{padding: 25px 23px 0 23px;}
+
+/*dashboard*/
+.eventBox #eventDataTable{width: 475px !important; margin: 0}
+.attachment{font-style: italic; color: #1a0dab; margin: 0}
+.eventBox{margin-top: 20px}
+.holidayBox{margin-top: 20px}
+.holidayBox #eventDataTable{margin: 0}
+h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
+#superadmin_home .contentpage .dashboardWidget table.dataTable thead .title{border-top: none !important;}
+#superadmin_home .contentpage .dashboardWidget table.dataTable tbody td{border: none !important; border-bottom: 1px solid #ddd !important; padding: 15px !important}
+#superadmin_home .contentpage .dashboardWidget table.dataTable thead th{border: none !important; border-bottom: 1px solid #ddd !important; padding: 15px !important; border-top: 1px solid #ddd !important;}
+#superadmin_home .contentpage .dashboardWidget table.dataTable{border:none;}
+#superadmin_home .contentpage .summary {display: flex; justify-content: space-between;}
+#superadmin_home .contentpage .summary .box{width: calc(80%/4);padding: 7px 22px; opacity: 0.9}
+#superadmin_home .contentpage .summary .box h4{font-size: 15px; color: #fff; text-align: left}
+#superadmin_home .contentpage .summary .box h4>span{text-decoration: underline; font-weight: 700; font-family: Arial}
+#superadmin_home .contentpage .summary .box1{background: #00C0EF;}
+#superadmin_home .contentpage .summary .box2{background: #00A65A;}
+#superadmin_home .contentpage .summary .box3{background: #F39C12;}
+#superadmin_home .contentpage .summary .box4{background: #DD4B39;}
+#superadmin_home .contentpage .summary .box .innercont{width: 100%; display: flex;justify-content: space-between;align-items: baseline; margin-top: 10px;}
+#superadmin_home .contentpage .summary .box .innercont>span{font-size: 27px; color: #fff}
+#superadmin_home .contentpage .summary .box .innercont>i{color: #fff; font-size: 50px;}
+
+/* dashboard widget/calendar */
+#superadmin_home .contentpage .dashboardWidget{display: flex;justify-content: space-between; margin-top: 40px; align-items: flex-start;}
+#superadmin_home .contentpage .dashboardWidget .contright {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px; width: 42%; order: 2}
+#superadmin_home .contentpage .calendarWidget .contright {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px; width: 100%; order: 2}
+#superadmin_home .contentpage .dashboardWidget .contright .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+#superadmin_home .contentpage .dashboardWidget .contright .header p{padding: 0; margin: 0}
+#superadmin_home .contentpage .dashboardWidget .contright .eventcontent{padding: 10px 20px;}
+#superadmin_home .contentpage .dashboardWidget .contleft{width: 56%; order: 1}
+#superadmin_home .contentpage .dashboardWidget .contleft .innercont2 {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px;}
+#superadmin_home .contentpage .dashboardWidget .contleft .innercont2 .header {padding: 10px 23px;text-align: left; font-size: 15px;color: #fff; background: #003366;}
+#superadmin_home .contentpage .dashboardWidget .contleft .innercont2 .header p{padding: 0; margin: 0}
+#superadmin_home .contentpage .dashboardWidget .contleft .innercont2 .eventcontent{padding: 10px 20px}
+#superadmin_home .contentpage .dashboardWidget .contleft .innercont2 .eventcontent>p{font-weight: 400; font-size: 14px; text-align: left; text-transform: uppercase; border-bottom: 1px solid #ddd; border-bottom-style: dashed;}
+
+/*statemen of accounts*/
+#superadmin_home .contentpage .widget .widgetContent .cont1{width: 345px;display: flex;justify-content: space-between;align-items: center;}
+#superadmin_home .contentpage .widget .widgetContent .cont1 p{font-size: 15px; padding: 0;margin: 0; letter-spacing: 1px;}
+#superadmin_home .contentpage .widget .widgetContent .cont1 span{font-family: Arial; font-weight: 700}
+
+/* payment status */
+#superadmin_home .contentpage .widget .balContent .cont1{display: unset}
+#superadmin_home .contentpage .widget .balContent > p{text-align: left}
+#superadmin_home .contentpage .widget .balContent .cont1 .box{display: flex; width: 420px; justify-content: space-between; align-items: center; margin-bottom: 15px}
+#superadmin_home .contentpage .widget .balContent .cont1 .box select{width: 215px; height: 33px;}
+
+
+/*classcontentBot*/
+#superadmin_home .contentpage .widget .classcontentBot .cont1 {width: 100%}
+#superadmin_home .contentpage .widget .classcontentBot .cont1 .innerCont span {font-weight: 700; font-size: 15px; letter-spacing: 1px}
+#superadmin_home .contentpage .widget .classcontentBot .cont1 .innerCont select{padding: 9px 0; width: 280px}
+#superadmin_home .contentpage .widget .classcontentBot .cont1 .innerCont{width: 480px; display: flex;justify-content: space-between;align-items: center;}
+#superadmin_home .contentpage .widget .classcontentBot .totalSummary p{font-size: 14px; font-weight: 700; letter-spacing: 1px; text-align: right; font-family: "Arial"}
+#superadmin_home .contentpage .widget .classcontentBot .totalSummary span{font-weight: 400; letter-spacing: unset;}
+
+/* transfer */
+#superadmin_home .contentpage .widget .widgetContent .cont1{width: 270px}
+#superadmin_home .contentpage .widget .transferContent .cont1 .box1{display: flex; width: 390px !important; justify-content: space-between; align-items: center; margin-bottom: 15px}
+
+/* faculty */
+.ui-widget-content{text-align: left; font-size: 15px;}
+.ui-widget-content span{font-weight: 700; padding-top: 17px;font-family: "Open Sans"}
+.ui-widget-content input,.ui-widget-content select{width: 100%; padding: 10px 15px; font-family: "Open Sans"; margin-top: 10px; margin-bottom: 20px}
+.ui-widget-content input{width: 95%;}
+.ui-widget-content textarea::placeholder{letter-spacing: 2px; padding: 10px 15px}
+.ui-widget-content input::placeholder{letter-spacing: 2px}
+.ui-widget-content button{float: right; letter-spacing: 0px; border-radius: 2px; font-family: 'Open Sans' !important;}
+#superadmin_home .contentpage .widget .widgetcontent .table-wrap{width: 100%; overflow: auto; margin-top: 20px;}
+#superadmin_home .contentpage .widget .widgetcontent table{width: 100% !important;text-align: center;border-spacing:0;margin:auto;border-collapse: separate;overflow:hidden;}
+#superadmin_home .contentpage .widget .widgetcontent tr:nth-child(even) {background-color: #f2f2f2}
+#superadmin_home .contentpage .widget .widgetcontent th{white-space:nowrap;font-size: 14px; border: 1px solid #ddd; font-family: Arial; font-weight: 700; padding: 9px 18px;}
+#superadmin_home .contentpage .widget .widgetcontent th>i{padding-left: 10px}
+#superadmin_home .contentpage .widget .widgetcontent td{white-space:nowrap;height: 40px;font-size: 14px; border: 1px solid #ddd; padding: 2px 8px;}
+#superadmin_home .contentpage .widget .widgetcontent td i { margin: 0 10px; }
+#superadmin_home .contentpage .widget .editContent{padding: 30px !important}
+/* parent */
+.ptaContent > [name="content"], .parentContent > [name="content"]{text-align: left;}
+.widgetParent{margin-bottom: 30px;}
+#superadmin_home .contentpage .widget .parentContent .customTable{width: 100%;border-spacing:0;margin:auto; border-collapse: separate; margin:auto;overflow:hidden;}
+#superadmin_home .contentpage .widget .parentContent .customTable tr:nth-child(even) {background-color: #f2f2f2}
+#superadmin_home .contentpage .widget .parentContent .customTable th{white-space:nowrap;font-size: 14px; border: 1px solid #ddd; font-family: Arial; font-weight: 700; padding: 9px 18px;}
+#superadmin_home .contentpage .widget .parentContent .customTable th>i{padding-left: 10px}
+#superadmin_home .contentpage .widget .parentContent .customTable td{white-space:nowrap;height: 36px;font-size: 14px; border: 1px solid #ddd;}
+
+
+/* event */
+input[type="checkbox"]{width: 11% !important;}
+span.attachment{font-weight: 400; font-style: italic; display: block}
+
+/* reports */
+#superadmin_home .contentpage .widget .payHistoryContent .cont1,#admin_home .contentpage .widget .enrolledContent .cont1{display: unset}
+#superadmin_home .contentpage .widget .payHistoryContent > p, #admin_home .contentpage .widget .enrolledContent > p{text-align: left}
+#superadmin_home .contentpage .widget .payHistoryContent .cont1 .box, #admin_home .contentpage .widget .enrolledContent .cont1 .box{display: flex; width: 420px; justify-content: space-between; align-items: center; margin-bottom: 15px}
+#superadmin_home .contentpage .widget .payHistoryContent .cont1 .box select, #admin_home .contentpage .widget .enrolledContent .cont1 .box select{width: 215px; height: 33px;}
+.ui-dialog-content{min-height: 62px !important}
+
+/* logs */
+#superadmin_home .contentpage .widget .logsContent .cont1{width: 170px;}
+.logLongText{white-space: unset !important; text-align: justify;}
+#superadmin_home .contentpage .widget .systemContent #ui-datepicker-div{display: block !important;} 
+/* system settings */
+#superadmin_home .contentpage .widget .systemContent .cont1{display: unset; text-align: left;}
+#superadmin_home .contentpage .widget .systemContent .cont1 .innerCont{margin-top: 20px; display: block;}
+/**************************************************END CONTENT PAGE**********************************************************************/
+
+/* footer */
+#footer{margin: 25px 0 25px 280px; }
+#footer p.copy{font-size: 15px;color: #575a60;}
+
+
+/*responsive*/
+@media only screen and (max-width: 1400px) {
+	#superadmin_home .contentpage .conttop .box {
+    width: calc(87%/4);
+    padding: 10px;
+  }
+}
+
