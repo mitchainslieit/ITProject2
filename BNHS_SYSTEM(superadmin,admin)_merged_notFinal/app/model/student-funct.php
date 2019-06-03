@@ -290,6 +290,27 @@ WHERE
 
 public function getChildGrade($id)
 {
+    public function showHistoryPayment(){
+        $sql=$this->conn->query("SELECT *,CONCAT(first_name,' ', middle_name,' ', last_name) AS Name from balance_archive join student on stud_archive=stud_id") or die ("failed!");
+        if($sql->rowCount()>0){
+            while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+                $data[]=$r;
+            }
+        }else{
+            return $sql;
+        }
+        return $data;
+    }
+    
+    public function getYears() {
+        $sql=$this->conn->prepare("SELECT prev_sy from balance_archive join student on stud_archive=stud_id");
+        $sql->execute();
+        $option = '';
+        while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+            $option .= '<option value="'.$row["prev_sy"].'" name="year">'.$row["prev_sy"].'</option>';
+        }
+        echo $option;
+    }
     /*******************Get subject name*******************/
     $query = $this->conn->prepare("SELECT 
         subj_name

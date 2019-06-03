@@ -1,13 +1,11 @@
 	<?php require 'app/model/Superadmin-funct.php'; $obj = new SAdminFunct(); ?>
 	<?php 
-	if(
-		isset($_POST['secaccept-button'])){
+	if(isset($_POST['secaccept-button'])){
 		extract($_POST);
 		$obj->secacceptRequest();
 	}
 
-	if(
-		isset($_POST['secreject-button'])){
+	if(isset($_POST['secreject-button'])){
 		extract($_POST);
 		$obj->secrejectRequest();
 	}
@@ -65,7 +63,6 @@
 								<thead>
 									<tr>
 										<th><span class="selectAll">Select All </span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form1"> </th>
-										<th class="tleft custPad">Requested by</th>
 										<th class="tleft custPad">Request Type</th>
 										<th class="tleft custPad">Request Description</th>
 									</tr>
@@ -77,17 +74,18 @@
 										$currentAdm = $obj->currentAdmin();
 										echo '
 										<tr>
-										<td>
-										<input type="checkbox" id="checkItem" name="check[]" value="'.$request_id.'"></td>
-										<td class="tleft custPad">'.$currentAdm.'</td>
-										<td class="tleft custPad">'.$request_type.'</td>
-										<td class="tleft custPad">'.$request_desc.'</td></tr>';
+											<td><input type="checkbox" id="checkItem" name="check[]" value="'.$request_id.'"></td>
+											<td class="tleft custPad">'.$request_type.'</td>
+											<td class="tleft custPad">'.$request_desc.'</td>
+										</tr>';
 									}
 									?>
 								</tbody>
 							</table>
-							<button name="secaccept-button" class="customButton" >Accept <i class="fas fa-check"></i></button>
-							<button name="secreject-button" class="customButton" >Reject <i class="fas fa-trash"></i></button>
+							<p class="tleft buttonContainer">
+								<button name="secaccept-button" class="customButton" >Accept <i class="fas fa-check"></i></button>
+								<button name="secreject-button" class="customButton" >Reject <i class="fas fa-trash"></i></button>
+							</p>
 						</form>
 					</div>
 				</div>

@@ -49,7 +49,7 @@
 						<div name="dialog" title="Create events" >
 							<form action="admin-events" method="POST" enctype="multipart/form-data" autocomplete="off">
 								<span>Event Title:</span>
-								<input type="text" name="title" value="" data-validation="length required" data-validation-length="max45" data-validation-error-msg="Enter less than 45 characters" placeholder="Event Title" >
+								<input type="text" name="title" value="" data-validation="length required required" data-validation-length="max45" data-validation-error-msg="Enter less than 45 characters" placeholder="Event Title" >
 								<span>Start Date:</span>
 								<input type="text" name="date_start" class="datepickerAdmin" readonly="readonly" data-validation="required" value="" placeholder="Date Start" required>
 								<span>End Date:</span>
@@ -194,7 +194,7 @@
 					</div>
 					<div class="cont2">
 						<form action="admin-events" method="POST" id="form2"></form>
-						<table id="admin-table-withScroll" class="display" width="100%">
+						<table class="admin-table-withScroll" class="display" width="100%">
 							<thead>
 								<tr>
 									<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl1" class="selectAllCheck" form="form2"> </th>

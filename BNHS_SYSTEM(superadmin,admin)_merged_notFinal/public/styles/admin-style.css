@@ -44,7 +44,7 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 #historyDataTable, 
 #admin-table-enrolled,
 #admin-table-section{width: 100% !important}
-#noFilterTable{margin: 20px 0}
+#noFilterTable, #curriculumTable, #admin-table-noFunct{margin: 20px 0}
 #admin_home .contentpage .widget .sectionContent thead tr th:first-of-type,
 #admin_home .contentpage .widget .feeTypeContent thead tr th:first-of-type,
 #admin_home .contentpage .widget .subjectContent thead tr th:first-of-type,
@@ -145,6 +145,7 @@ h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
 #admin_home .contentpage .widget .subjectContent .cont2 .box{display: flex; width: 430px !important; justify-content: space-between; align-items: center; margin-bottom: 15px}
 #admin_home .contentpage .widget .balContent .cont1 .box select{width: 215px; height: 33px;}
 
+#admin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box{display: flex; width: 130px !important; justify-content: space-between; align-items: center; margin-bottom: 15px}
 
 /*classcontentBot*/
 #admin_home .contentpage .widget .classcontentBot .cont1 {width: 100%}
@@ -182,6 +183,9 @@ h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
 
 /* student/parent */
 #admin_home .contentpage .widget .studentContent .cont1, #admin_home .contentpage .widget .parentContent .cont1  {width: 435px;}
+
+/* subject */
+.subjectContent .customButton{margin-top: 20px;}
 
 /* Transfer Request */
 #admin_home .contentpage .widget .transferContent .cont1{width: 245px}  

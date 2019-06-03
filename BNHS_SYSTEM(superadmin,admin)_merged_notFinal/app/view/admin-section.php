@@ -41,8 +41,6 @@
 							<button name="opener" class="customButton">Add Section <i class="fas fa-plus fnt"></i></button>
 							<div name="dialog" title="Add Section">
 								<form action="admin-section" method="POST" autocomplete="off">
-									<span>Section Name:</span>
-									<input type="text" name="s_name" value="" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Section Name" required>
 									<span>Grade Level</span>
 									<select name="gr_lvl" value="" required>
 										<option value="" selected disabled hidden>Select Grade Level</option>
@@ -51,6 +49,8 @@
 										<option value="9">9</option>
 										<option value="10">10</option>
 									</select>
+									<span>Section Name:</span>
+									<input type="text" name="s_name" value="" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Section Name" required>
 									<button name="submit-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
 								</form>
 							</div>
@@ -62,8 +62,8 @@
 								<thead>
 									<tr>
 										<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form1"> </th>
-										<th class="tleft custPad">Section Name</th>
 										<th class="tleft custPad">Grade Level</th>
+										<th class="tleft custPad">Section Name</th>
 <?php 
 										$queryCount=$this->conn->prepare("SELECT * FROM request join section_temp on request_id=sec_req WHERE request_status='Temporary'");
 										$queryCount->execute();
@@ -80,8 +80,8 @@ foreach ($obj->showSectionTable() as $value) {
 	echo '
 		<tr>
 			<td><input type="checkbox" id="checkItem" name="check[]" value="'.$sectionid.'" form="form1"></td>';
-			echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$s_name.'</span></td>' : ' <td class="tleft custPad">'.$s_name.'</td>';
 			echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$gr_lvl.'</span></td>' : ' <td class="tleft custPad">'.$gr_lvl.'</td>';
+			echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$s_name.'</span></td>' : ' <td class="tleft custPad">'.$s_name.'</td>';
 			if($rowQueryCount > 0){
 				if($request_status == "Temporary"){
 					echo '
@@ -115,8 +115,7 @@ foreach ($obj->showSectionTable() as $value) {
 					<div name="dialog" title="Update section data">
 						<form action="admin-section" method="POST" required autocomplete="off">
 							<input type="hidden" value="'.$sectionid.'" name="sectionid">
-							<span>Section Name</span>
-							<input type="text" name="s_name" value="'.$s_name.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Section Name"  required>
+							<span>Grade Level</span>
 							<select name="gr_lvl" required>
 							';
 							for ($c = 0; $c < sizeof($grade_level); $c++) {
@@ -124,6 +123,8 @@ foreach ($obj->showSectionTable() as $value) {
 							}
 							echo '
 							</select>
+							<span>Section Name</span>
+							<input type="text" name="s_name" value="'.$s_name.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Section Name"  required>
 							<button name="update-button" class="customButton" >Update <i class="fas fa-save fnt"></i></button>
 						</form>
 					</div>  

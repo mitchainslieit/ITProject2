@@ -72,21 +72,12 @@ class SAAjax {
 				<td class="tleft">'.$year_level.'</td>
 				<td class="tleft">'.$faculty_fullname.'</td>
 				<td class="tleft">'.$transferToSection	.'</td>
-				<td class="tleft action">
-					<form action="admin-transfer" method="POST" required autocomplete="off">
-						<input type="hidden" value="'.$stud_id.'" name="stud_id">
-						<button name="accept-button" class="customButton" >Accept <i class="fas fa-check"></i></button>
-					</form>
-					<form action="admin-transfer" method="POST" required autocomplete="off">
-						<input type="hidden" value="'.$stud_id.'" name="stud_id">
-						<button name="reject-button" class="customButton" >Reject <i class="fas fa-trash"></i></button>
-					</form>
-				</td>
 			</tr>';	
 			}
 		$data['response'] = $_SESSION['transferNotif'];
 		echo json_encode($data);
 	}
+	
 	private function getOppoSec() {
 		$sql = $this->conn->prepare("SELECT *,CONCAT(stud.first_name, ' ', stud.middle_name, ' ', stud.last_name) as stud_fullname, CONCAT(fac_fname, ' ', fac_midname, ' ', fac_lname) as faculty_fullname, sec.sec_name as 'currentSection', sec2.sec_name as 'transferToSection' from student stud join section sec on secc_id=sec.sec_id join section sec2 on stud.transfer_sec=sec2.sec_id join faculty on sec.fac_idv=fac_id where stud.sec_stat='Temporary'");	
 		$sql->execute();
@@ -98,6 +89,45 @@ class SAAjax {
 		}
 		return $sql;
 	}
+	
+	public function getCurriculumNotif(){
+		$sql = $this->conn->prepare("SELECT * from curriculum_temp join request on curr_request=request_id where request_status='Temporary'");
+		$sql->execute();
+		$result = $sql->fetchAll();
+		$_SESSION['curriculumNotif'] = $sql->rowCount();
+		$data = array();
+		$data['addthis'] = array();
+		foreach($result as $value){
+			extract($value);
+			$data['addthis'][] = '
+			<tr>
+				<td><input type="checkbox" id="checkItem" name="check[]" value="'.$request_id.'" form="form1"></td>
+				<td class="tleft">'.$c_desc.'</td>
+			</tr>';	
+			}
+		$data['response'] = $_SESSION['curriculumNotif'];
+		echo json_encode($data);
+	}
+	
+	public function getSectionNotif(){
+		$sql = $this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary'");
+		$sql->execute();
+		$result = $sql->fetchAll();
+		$_SESSION['sanotif_2'] = $sql->rowCount();
+		$data = array();
+		$data['addthis'] = array();
+		foreach($result as $value){
+			extract($value);
+			$data['addthis'][] = '
+			<tr>
+				<td><input type="checkbox" id="checkItem" name="check[]" value="'.$request_id.'"></td>
+				<td class="tleft custPad">'.$request_type.'</td>
+				<td class="tleft custPad">'.$request_desc.'</td>
+			</tr>';	
+			}
+		$data['response'] = $_SESSION['sanotif_2'];
+		echo json_encode($data);
+	}
 }
 
 /* OUTSIDE THE CLASS */
@@ -107,4 +137,7 @@ if (session_status() == PHP_SESSION_NONE) {
 $run = new SAAjax;
 if(isset($_GET['getNotif'])) $run->getNotif();
 if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getTransferNotif') $run->getTransferNotif();
+if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getCurriculumNotif') $run->getCurriculumNotif();
+if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getCurriculumNotifBot') $run->getCurriculumNotifBot();
+if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getSectionNotif') $run->getSectionNotif();
 ?>

@@ -112,7 +112,7 @@
  	 <td class="tleft custPad2">'.$payment_date.'</td>
  	 <input type="hidden" value="'.$bal_id.'" /> 
 	 <td align="right">'.number_format($pay_amount, 2).'</td>
-	 <td class="action tleft">
+	 <td class="action tleft">	
  		<div name="content">
 			 <button name="opener2">
 				<div class="tooltip">

@@ -81,14 +81,9 @@ class SAdminFunct{
 								)) or die ('failed');
 							}
 						}
-						$sql2=$this->conn->prepare("SELECT * FROM request from WHERE budget_id=?");
-						$sql2->bindParam(1, $id);
-						$sql2->execute();
-						$row=$sql2->fetch(PDO::FETCH_ASSOC);
-						$req_desc=$row['request_desc'];
-						$log_event="Add";
-						$log_desc=$req_desc;
-						$this->insertLogs($log_event, $log_desc);
+						$log_eventInsertType="Insert";
+						$log_descInsertType=$req_desc;
+						$this->insertLogs($log_eventInsertType, $log_descInsertType);
 						$this->alert('Success!', 'You have successfully accepted the request', "success", "superadmin-feetype");
 					}else {
 						$this->alert('Error!', "Failed to accept the request", "error", "superadmin-feetype");
@@ -96,7 +91,7 @@ class SAdminFunct{
 				}else if($req_type === 'Delete'){
 					$sql1=$this->conn->prepare("SELECT budget_name, total_amount FROM budget_info WHERE budget_id=:budget_id");
 					$sql1->execute(array(
-						':budget_id'=>$id
+						':budget_id'=>$del_id
 					));
 					$row=$sql1->fetch(PDO::FETCH_ASSOC);
 					$budget_name=$row['budget_name'];
@@ -172,10 +167,24 @@ class SAdminFunct{
 					if($update->execute(array(
 						':id' => $del_id
 					))){
-						$updatebudgetinfo = $this->conn->prepare("UPDATE budget_info SET total_amount =:totamt WHERE budget_name =:bdname ");
+						$queryGetTempName=$this->conn->prepare("SELECT name_temp FROM budget_info_temp WHERE bd_name =:bd_name");
+						$queryGetTempName->execute(array(
+							':bd_name' => $req_bdname
+						));
+						$rowQueryGetTempName = $queryGetTempName->fetch(PDO::FETCH_ASSOC);
+						$getTempName = $rowQueryGetTempName['name_temp'];
+						
+						$updatebudgetinfo = $this->conn->prepare("UPDATE budget_info SET total_amount =:totamt, budget_name=:budget_name WHERE budget_name =:bdname ");
 						$updatebudgetinfo->execute(array(
 							':totamt' => $req_totamt,
+							':budget_name' => $getTempName,
 							':bdname' => $req_bdname
+						));
+						
+						$updatebudgetinfo = $this->conn->prepare("UPDATE budget_info_temp SET bd_name=:bd_name WHERE name_temp =:name_temp ");
+						$updatebudgetinfo->execute(array(
+							':bd_name' => $getTempName,
+							':name_temp' => $getTempName
 						));
 
 						$query6=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee FROM budget_info");
@@ -220,15 +229,14 @@ class SAdminFunct{
 								)) or die ('failed');
 							}
 						}
-						$sql2=$this->conn->prepare("SELECT * FROM budget_info WHERE budget_id=?");
-						$sql2->bindParam(1, $id);
-						$sql2->execute();
-						$row=$sql2->fetch(PDO::FETCH_ASSOC);
-						$budget_name=$row['budget_name'];
-						$log_event="Update";
-						$log_desc= $req_desc;
-						$this->insertLogs($log_event, $log_desc);
-
+						$queryLogs=$this->conn->prepare("SELECT * FROM budget_info WHERE budget_id=?");
+						$queryLogs->bindParam(1, $id);
+						$queryLogs->execute();
+						$rowQueryLogs=$queryLogs->fetch(PDO::FETCH_ASSOC);
+						$budget_name=$rowQueryLogs['budget_name'];
+						$update_log_event="Update";
+						$update_log_desc= $req_desc;
+						$this->insertLogs($update_log_event, $update_log_desc);
 						$this->alert('Success!', 'You have successfully accepted the request', "success", "superadmin-feetype");
 					}else {
 						$this->alert('Error!', "Failed to accept the request", "error", "superadmin-feetype");
@@ -239,6 +247,7 @@ class SAdminFunct{
 			$this->alert("Error!", "Please select atleast one item", "error", "superadmin-feetype");
 		}
 	}
+	
 
 	public function rejectRequest(){
 		$checkbox = $_POST['check'];
@@ -275,9 +284,10 @@ class SAdminFunct{
 					$row=$rejectupdate->fetch(PDO::FETCH_ASSOC);
 					$totamt=$row['total_amount'];
 
-					$updatereject = $this->conn->prepare("UPDATE budget_info_temp SET tot_amt =:rejecttotamt WHERE bd_name =:bd_name ");
+					$updatereject = $this->conn->prepare("UPDATE budget_info_temp SET tot_amt =:rejecttotamt, name_temp=:name_temp WHERE bd_name =:bd_name ");
 					if($updatereject->execute(array(
 						':rejecttotamt' => $totamt,
+						':name_temp' => $req_bdname,
 						':bd_name' => $req_bdname
 					))){
 						$updatestat = $this->conn->prepare("UPDATE request SET request_status = 'Permanent' WHERE request_id =:id ");
@@ -319,8 +329,7 @@ class SAdminFunct{
 				$req_stat=$row1['request_status'];
 				$req_sname=$row1['s_name'];
 				$req_grlvl=$row1['gr_lvl'];
-				$req_facidv=$row1['fc_id'];
-				var_dump($req_sname);
+				
 				if($req_type == 'Insert'){
 					$insert = $this->conn->prepare("INSERT INTO section (sec_name, grade_lvl, fac_idv) VALUES (:sec_name, :grade_lvl, :fac_idv)");
 					if($insert->execute(array(
@@ -332,7 +341,7 @@ class SAdminFunct{
 						$updatestat->execute(array(
 							':id'=>$del_id
 						));
-						$log_event="Add";
+						$log_event="Insert";
 						$log_desc=$req_desc;
 						$this->insertLogs($log_event, $log_desc);
 						$this->alert('Success!', 'You have successfully accepted the request', "success", "superadmin-section");
@@ -340,39 +349,47 @@ class SAdminFunct{
 						$this->alert('Error!', "Failed to accept the request", "error", "superadmin-section");
 					}
 				}else if($req_type === 'Delete'){
+					$updatestat = $this->conn->prepare("DELETE FROM request WHERE request_id =:id ");
+					$updatestat->execute(array(
+						':id'=>$del_id
+					));
 					$sql2=$this->conn->prepare("DELETE FROM section WHERE sec_name=:sec_name");
 					if($sql2->execute(array(
 						':sec_name'=>$req_sname
 					))){
-						$updatestat = $this->conn->prepare("UPDATE request SET request_status = 'Permanent' WHERE request_id =:id ");
-						$updatestat->execute(array(
-							':id'=>$del_id
-						));
 						$log_event="Delete";
 						$log_desc= $req_desc;
 						$this->insertLogs($log_event, $log_desc);
-						$this->alert("Success!", "Fee Type $budget_name has been deleted.", "success", "superadmin-section");
+						$this->alert("Success!", "Successfully deleted the section", "success", "superadmin-section");
 					}else{	
 						$updatestat = $this->conn->prepare("UPDATE request SET request_status = 'Permanent' WHERE request_id =:id ");
 						$updatestat->execute(array(
 							':id'=>$del_id
 						));
-						$this->alert("Error!", "There is already a collected payment for this Fee Type!", "error", "superadmin-section");
+						$this->alert("Error!", "Failed to delete the section! Because are some students enrolled in this section", "error", "superadmin-section");
 					}
 				}else if($req_type === 'Update'){
 					$update = $this->conn->prepare("UPDATE request SET request_status = 'Permanent' WHERE request_id =:id ");
 					if($update->execute(array(
 						':id' => $del_id
 					))){
-						$selectforupdate = $this->conn->prepare("SELECT * FROM SECTION WHERE SEC_NAME =:sn");
-						$selectforupdate->execute(array(
-							':sn' => $req_sname
+						$queryGetTempName=$this->conn->prepare("SELECT name_temp FROM section_temp WHERE s_name =:s_name");
+						$queryGetTempName->execute(array(
+							':s_name' => $req_sname
 						));
-						$updatebudgetinfo = $this->conn->prepare("UPDATE section SET sec_name =:sec_name, grade_lvl=:grade_lvl WHERE sec_name =:sec_namecond ");
+						$rowQueryGetTempName = $queryGetTempName->fetch(PDO::FETCH_ASSOC);
+						$getTempName = $rowQueryGetTempName['name_temp'];
+						$updatebudgetinfo = $this->conn->prepare("UPDATE section SET sec_name=:sec_name, grade_lvl=:grade_lvl WHERE sec_name =:sec_name2 ");
 						$updatebudgetinfo->execute(array(
-							':sec_name' => $req_sname,
+							':sec_name' => $getTempName,
 							':grade_lvl' => $req_grlvl,
-							':sec_namecond' => $req_sname
+							':sec_name2' => $req_sname
+						));
+						$updatebudgetinfo = $this->conn->prepare("UPDATE section_temp SET s_name=:s_name, gr_lvl=:gr_lvl WHERE name_temp =:name_temp");
+						$updatebudgetinfo->execute(array(
+							':s_name' => $getTempName,
+							':gr_lvl' =>$req_grlvl,
+							':name_temp' => $getTempName
 						));
 						$log_event="Update";
 						$log_desc= $req_desc;
@@ -404,50 +421,51 @@ class SAdminFunct{
 				$req_sname=$row1['s_name'];
 				$req_grlvl=$row1['gr_lvl'];
 				$req_facidv=$row1['fc_id'];
-
 				if($req_type == 'Insert'){
 					$rejectinsert = $this->conn->prepare("DELETE from request where request_id=:id");
 					if($rejectinsert->execute(array(
 						':id' => $del_id,
 					))){
-						$this->alert('Success!', 'Successfully rejected the request', "success", "superadmin-feetype");
+						$this->alert('Success!', 'Successfully rejected the request', "success", "superadmin-section");
 					} else {
-						$this->alert('Erro 	r!', "Failed to reject the request", "error", "superadmin-feetype");
+						$this->alert('Error!', "Failed to reject the request", "error", "superadmin-section");
 					}
 				}else if ($req_type == 'Update'){
-					$rejectupdate = $this->conn->prepare("SELECT * from budget_info where budget_name=:budget_name");
+					$rejectupdate = $this->conn->prepare("SELECT * from section where sec_name=:sec_name");
 					$rejectupdate->execute(array(
-						':budget_name' => $req_bdname
+						':sec_name' => $req_sname
 					));
 					$row=$rejectupdate->fetch(PDO::FETCH_ASSOC);
-					$totamt=$row['total_amount'];
-
-					$updatereject = $this->conn->prepare("UPDATE budget_info_temp SET tot_amt =:rejecttotamt WHERE bd_name =:bd_name ");
+					$currentSec_name=$row['sec_name'];
+					$currentGrade_lvl=$row['grade_lvl'];
+					
+					$updatereject = $this->conn->prepare("UPDATE section_temp SET name_temp =:name_temp, gr_lvl=:gr_lvl WHERE s_name =:s_name ");
 					if($updatereject->execute(array(
-						':rejecttotamt' => $totamt,
-						':bd_name' => $req_bdname
+						':name_temp' => $currentSec_name,
+						':gr_lvl' => $currentGrade_lvl,
+						':s_name' => $req_sname
 					))){
 						$updatestat = $this->conn->prepare("UPDATE request SET request_status = 'Permanent' WHERE request_id =:id ");
 						$updatestat->execute(array(
 							':id' => $del_id
 						));
-						$this->alert('Success!', 'Successfully rejected the request', "success", "superadmin-feetype");
+						$this->alert('Success!', 'Successfully rejected the request', "success", "superadmin-section");
 					} else {
-						$this->alert('Error!', "Failed to reject the request", "error", "superadmin-feetype");
+						$this->alert('Error!', "Failed to reject the request", "error", "superadmin-section");
 					}
 				}else if ($req_type == 'Delete'){
 					$updateDel = $this->conn->prepare("UPDATE request SET request_status = 'Permanent' WHERE request_id =:id ");
 					if($updateDel->execute(array(
 						':id' => $del_id
 					))){
-						$this->alert('Success!', 'Successfully rejected the request', "success", "superadmin-feetype");
+						$this->alert('Success!', 'Successfully rejected the request', "success", "superadmin-section");
 					} else {
-						$this->alert('Error!', "Failed to reject the request", "error", "superadmin-feetype");
+						$this->alert('Error!', "Failed to reject the request", "error", "superadmin-section");
 					}
 				}
 			}
 		}else{
-			$this->alert("Error!", "Please select atleast one item", "error", "superadmin-feetype");
+			$this->alert("Error!", "Please select atleast one item", "error", "superadmin-section");
 		}
 	}
 
@@ -467,7 +485,6 @@ class SAdminFunct{
 				$req_sname=$row1['s_name'];
 				$req_grlvl=$row1['gr_lvl'];
 				$req_facidv=$row1['fc_id'];
-				var_dump($req_sname);
 				if($req_type == 'Insert'){
 					$insert = $this->conn->prepare("INSERT INTO section (sec_name, grade_lvl, fac_idv) VALUES (:sec_name, :grade_lvl, :fac_idv)");
 					if($insert->execute(array(
@@ -531,273 +548,6 @@ class SAdminFunct{
 		}
 	}
 
-	private function saSectionTable($row) {
-		$time_start = array('07:40:00', '08:40:00', '10:00:00', '11:00:00', '13:00:00', '14:00:00', '15:00:00');
-		$time_end = array('08:40:00', '09:40:00', '11:00:00', '12:00:00', '14:00:00', '15:00:00', '16:00:00');
-		$fac_id = $row['fac_idv'];
-		$getFacInfo = $this->conn->query("SELECT * FROM faculty WHERE fac_id = '".$fac_id."'");
-		$getSchedID = $this->conn->query("SELECT sched_id FROM schedule WHERE sched_yrlevel = '".$row['grade_lvl']."'");
-		$fac_info = $getFacInfo->fetch();
-		$sched_id = $getSchedID->fetch();
-		$getSchedInfo = function($time_start, $sec_id) {
-			$query = $this->conn->prepare("SELECT * FROM schedsubj_temp WHERE ssb_timestart = :time_start AND ss_swid = :sec_id");
-			$query->execute(array(
-				':time_start' => $time_start,
-				':sec_id' => $sec_id
-			));
-			$getSchedResult = $query->fetch();
-			$queryTeacher = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',LEFT(fac_midname, 1),'. ',fac_lname) as 'teacher', fac_id FROM faculty WHERE fac_id = :fw_id");
-			$querySubject = $this->conn->prepare("SELECT  CASE WHEN subj_name LIKE ('%Music%') OR subj_name LIKE ('%(PE)%') OR subj_name LIKE ('%Physical Education%') OR subj_name LIKE ('%Health%') OR subj_name LIKE ('%Arts%') THEN (CASE WHEN subj_level = '7' THEN 'MAPEH 1' WHEN subj_level = '8' THEN 'MAPEH 2' WHEN subj_level = '9' THEN 'MAPEH 3' WHEN subj_level = '10' THEN 'MAPEH 4' ELSE 'MAPEH' END) ELSE subj_name END AS subject FROM subject WHERE subj_id = :subj_id");
-			$queryTeacher->execute(array(
-				':fw_id' => $getSchedResult['ss_fwid']
-			));
-			$querySubject->execute(array(
-				':subj_id' => $getSchedResult['ss_idb']
-			));
-			$fetchTeacher = $queryTeacher->fetch();
-			$fetchSubject = $querySubject->fetch();
-			$info = array(
-				'sched_id' => (isset($getSchedResult['ss_ida']) ? $getSchedResult['ss_ida'] : '-1'),
-				'subj_id' => (isset($getSchedResult['ss_idb']) ? $getSchedResult['ss_idb'] : '-1'), 
-				'fac_id' => (isset($fetchTeacher['fac_id']) ? $fetchTeacher['fac_id'] : '-1'),
-				'teacher' => (isset($fetchTeacher['teacher']) ? $fetchTeacher['teacher'] : 'Unassigned'),
-				'subject' => (isset($fetchSubject['subject']) ? $fetchSubject['subject'] : 'Unassigned'),
-				'status' => ($query->rowCount() > 0 ? $getSchedResult['status_ss'] : 'Not Available')
-			);
-			return $info;
-		};
-		$schedInfo1 = $getSchedInfo($time_start[0], $row['sec_id']);
-		$schedInfo2 = $getSchedInfo($time_start[1], $row['sec_id']);
-		$schedInfo3 = $getSchedInfo($time_start[2], $row['sec_id']);
-		$schedInfo4 = $getSchedInfo($time_start[3], $row['sec_id']);
-		$schedInfo5 = $getSchedInfo($time_start[4], $row['sec_id']);
-		$schedInfo6 = $getSchedInfo($time_start[5], $row['sec_id']);
-		$schedInfo7 = $getSchedInfo($time_start[6], $row['sec_id']);
-		$remove = function($sched) {
-			$html = '<form action="superadmin-classes"  method="POST">
-			<input type="hidden" name="sec" value="'.$sched['sec_id'].'">
-			<input type="hidden" name="sched" value="'.$sched['sched_id'].'">
-			<input type="hidden" name="subj_id" value="'.$sched['subj_id'].'">
-			<input type="hidden" name="time_start" value="'.$sched['time_start'].'">
-			<input type="hidden" name="faculty_id" value="'.$sched['fac_id'].'">
-			<button type="remove-class-schedule" class="edit-status-remove" name="remove-this-schedule"><span class="tooltip remove" title="Remove this schedule"><i class="far fa-trash-alt"></i></span></button>
-			</form>';
-			return $html;
-		};
-		$createSchedData = function($sec_id, $sched_id, $subj_id, $time_start, $fac_id) {
-			return array(
-				'sec_id' => $sec_id,
-				'sched_id' => $sched_id,
-				'subj_id' => $subj_id,
-				'time_start' => $time_start,
-				'fac_id' => $fac_id
-			);
-		};
-		$createForm = function($details, $time_start) {
-			$getLvl = $this->conn->prepare("SELECT grade_lvl FROM section WHERE sec_id = :sec_id");
-			$getLvl->execute(array(
-				':sec_id' => $details['sec_id']
-			));
-			$resultLvl = $getLvl->fetch();
-			$grade = $resultLvl['grade_lvl'];
-			$getCur = $this->conn->query("SELECT current_curriculum as 'cur' FROM system_settings");
-			$resultCur = $getCur->fetch();
-			$cur = $resultCur['cur'];
-			$teacher = $this->conn->prepare("SELECT  *, CASE WHEN subj_name LIKE ('%Music%') OR subj_name LIKE ('%(PE)%') OR subj_name LIKE ('%Physical Education%') OR subj_name LIKE ('%Health%') OR subj_name LIKE ('%Arts%') THEN (CASE WHEN subj_level = '7' THEN 'MAPEH 1' WHEN subj_level = '8' THEN 'MAPEH 2' WHEN subj_level = '9' THEN 'MAPEH 3' WHEN subj_level = '10' THEN 'MAPEH 4' ELSE 'MAPEH' END) ELSE subj_name END AS subject FROM faculty JOIN subject ON fac_dept = subj_dept WHERE curriculum = :cur AND subj_level = :subj_level AND (fac_id NOT IN (SELECT ss_fwid FROM schedsubj_temp WHERE ssb_timestart = :time_start OR ss_swid = :sec_id) AND subj_id NOT IN (SELECT ss_idb FROM schedsubj_temp WHERE ss_swid = :sec_id)) GROUP BY fac_id");
-			$teacher->execute(array(
-				':cur' => $cur,
-				':subj_level' => $grade,
-				':time_start' => $time_start,
-				':sec_id' => $details['sec_id']
-			));
-			$allTeacher = $teacher->fetchAll();
-			$subject = $this->conn->prepare("SELECT  *, CASE WHEN subj_name LIKE ('%Music%') OR subj_name LIKE ('%(PE)%') OR subj_name LIKE ('%Physical Education%') OR subj_name LIKE ('%Health%') OR subj_name LIKE ('%Arts%') THEN (CASE WHEN subj_level = '7' THEN 'MAPEH 1' WHEN subj_level = '8' THEN 'MAPEH 2' WHEN subj_level = '9' THEN 'MAPEH 3' WHEN subj_level = '10' THEN 'MAPEH 4' ELSE 'MAPEH' END) ELSE subj_name END AS subject FROM faculty JOIN subject ON fac_dept = subj_dept WHERE curriculum = :cur AND subj_level = :subj_level AND (fac_id NOT IN (SELECT ss_fwid FROM schedsubj_temp WHERE ssb_timestart = :time_start OR ss_swid = :sec_id) AND subj_id NOT IN (SELECT ss_idb FROM schedsubj_temp WHERE ss_swid = :sec_id)) GROUP BY subj_dept");
-			$subject->execute(array(
-				':cur' => $cur,
-				':subj_level' => $grade,
-				':time_start' => $time_start,
-				':sec_id' => $details['sec_id']
-			));
-			$allSubject = $subject->fetchAll();
-			$checkExist = ( $details['fac_id'] === '-1' ? false : true);
-			$getSched_ID = $this->conn->prepare("SELECT sched_id FROM schedule WHERE sched_yrlevel = :grade");
-			$getSched_ID->execute(array(':grade' => $grade));
-			$resSched_ID = $getSched_ID->fetch();
-			$sched_id = $resSched_ID['sched_id'];
-			$teacher = '';
-			foreach($allTeacher as $row) {
-				if ($details['fac_id'] === $row['fac_id']) {
-					$teacher .= '<option value="'.$row['fac_id'].'" data-facdept="'.$row['fac_dept'].'" selected>'.$row['fac_fname'].' '.$row['fac_midname'][0].'. '.$row['fac_lname'].'</option>';
-				} else {
-					$teacher .= '<option value="'.$row['fac_id'].'" data-facdept="'.$row['fac_dept'].'">'.$row['fac_fname'].' '.$row['fac_midname'][0].'. '.$row['fac_lname'].'</option>';
-				}
-			}
-			$subject = '';
-			foreach($allSubject as $row) {
-				if ($cur === '1') {
-					if ($details['subj_id'] === $row['subj_id']) {
-						$subject .= '<option value="'.$row['subj_id'].'" data-subdept="'.$row['subj_dept'].'" selected>'.$row['subject'].'</option>';
-					} else {
-						$subject .= '<option value="'.$row['subj_id'].'" data-subdept="'.$row['subj_dept'].'">'.$row['subject'].'</option>';
-					}
-				} else {
-					if ($row['subj_dept'] === 'MAPEH') {
-						if ($details['subj_id'] === $row['subj_id']) {
-							$subject .= '<option value="-2" data-subdept="'.$row['subj_dept'].'" selected>'.$row['subject'].'</option>';
-						} else {
-							$subject .= '<option value="-2" data-subdept="'.$row['subj_dept'].'">'.$row['subject'].'</option>';
-						}
-					} else {
-						if ($details['subj_id'] === $row['subj_id']) {
-							$subject .= '<option value="'.$row['subj_id'].'" data-subdept="'.$row['subj_dept'].'" selected>'.$row['subject'].'</option>';
-						} else {
-							$subject .= '<option value="'.$row['subj_id'].'" data-subdept="'.$row['subj_dept'].'">'.$row['subject'].'</option>';
-						}
-					}
-				}
-			}
-			return '<form action="superadmin-classes" method="POST" class="classes-sched">
-			<input type="hidden" name="sec_id" '.'value="'.$details['sec_id'].'"'.'>
-			<input type="hidden" name="sched_a" '.'value="'.$sched_id.'"'.'>
-			<input type="hidden" name="subj_id" '.($checkExist === true ? 'value="'.$details['subj_id'].'"
-				' : '').'>
-			<input type="hidden" name="time_start" value="'.$time_start.'">
-			'.($checkExist === true ? '<input type="hidden" name="prev-teacher" value="'.$details['fac_id'].'">' : '').'
-			<label class="teacher">Teacher: </label>
-			<select name="teacher" class="editclass-teacher" required>
-			<option value="">Select a Teacher</option>'.$teacher.'
-			</select>
-			<br>
-			<label class="subject">Subject: </label>
-			<select name="subject" class="editclass-subjects" required>
-			<option value="">Select a Subject</option>'.$subject.'
-			</select>
-			<br>
-			<div class="forms-btn">
-			<button type="submit" name="submit-edit-class">Submit</button>
-			<button type="reset" class="reset">Reset</button>
-			</div>
-			</form>';
-		};
-		echo '
-		<div id="sec'.$row['sec_id'].'" class="classes-edit">
-		<div class="sec-info">
-		<div class ="cont fr">
-		<div class="box2">
-		<span>Adviser: '.$fac_info['fac_fname'].' '.$fac_info['fac_midname'][0].'. '.$fac_info['fac_lname'].'</span>
-		</div>
-		</div>
-		</div>
-		<div class="clear"></div>
-		<div class="table-wrap">
-		<table class="classes-sched">
-		<thead>
-		<tr>
-		<td width="10%">Schedule</td>
-		<td width="35%">Subject</td>
-		<td width="40%">Teacher</td>
-		<td width="10%">Actions</td>
-		</tr>
-		</thead>
-		<tbody>
-		<tr>
-		<td width="10%">'.date('h:i A', strtotime($time_start[0])).' - '.date('h:i A', strtotime($time_end[0])).' Daily</td>
-		<td width="35%">'.$schedInfo1['subject'].'</td>
-		<td width="40%">'.$schedInfo1['teacher'].'</td>
-		<td width="10%" class="buttons">No Actions</td>
-		</tr>
-		<tr>
-		<td width="10%">'.date('h:i A', strtotime($time_start[1])).' - '.date('h:i A', strtotime($time_end[1])).' Daily</td>
-		<td width="35%">'.$schedInfo2['subject'].'</td>
-		<td width="40%">'.$schedInfo2['teacher'].'</td>
-		<td width="10%" class="buttons">'.($schedInfo2['subject'] !== 'Unassigned' ? $remove($createSchedData($row['sec_id'], $schedInfo2['sched_id'], $schedInfo2['subj_id'], $time_start[1], $schedInfo2['fac_id'])) : '').' 
-		<div name="dialog" title="Edit Schedule">
-		<div class="container">
-		'.$createForm($createSchedData($row['sec_id'], $schedInfo2['sched_id'], $schedInfo2['subj_id'], $time_start[1], $schedInfo2['fac_id']), $time_start[1]).'
-		</div>
-		</div>
-		<button type="button" name="opener" class="edit-status" data-type="open-dialog"><span class="tooltip edit" title="Edit this schedule"><i class="far fa-edit"></i></span></button>
-		</td>
-		</tr>
-		<tr>
-		<td width="10%">'.date('h:i A', strtotime($time_start[2])).' - '.date('h:i A', strtotime($time_end[2])).' Daily</td>
-		<td width="35%">'.$schedInfo3['subject'].'</td>
-		<td width="40%">'.$schedInfo3['teacher'].'</td>
-		<td width="10%" class="buttons">'.($schedInfo3['subject'] !== 'Unassigned' ? $remove($createSchedData($row['sec_id'], $schedInfo3['sched_id'], $schedInfo3['subj_id'], $time_start[2], $schedInfo3['fac_id'])) : '').' 
-		<div name="dialog" title="Edit Schedule">
-		<div class="container">
-		'.$createForm($createSchedData($row['sec_id'], $schedInfo3['sched_id'], $schedInfo3['subj_id'], $time_start[2], $schedInfo3['fac_id']), $time_start[2]).'
-		</div>
-		</div>
-		<button type="button" name="opener" class="edit-status" data-type="open-dialog"><span class="tooltip edit" title="Edit this schedule"><i class="far fa-edit"></i></span></button>
-		</td>
-		</tr>
-		<tr>
-		<td width="10%">'.date('h:i A', strtotime($time_start[3])).' - '.date('h:i A', strtotime($time_end[3])).' Daily</td>
-		<td width="35%">'.$schedInfo4['subject'].'</td>
-		<td width="40%">'.$schedInfo4['teacher'].'</td>
-		<td width="10%" class="buttons">'.($schedInfo4['subject'] !== 'Unassigned' ? $remove($createSchedData($row['sec_id'], $schedInfo4['sched_id'], $schedInfo4['subj_id'], $time_start[3], $schedInfo4['fac_id'])) : '').' 
-		<div name="dialog" title="Edit Schedule">
-		<div class="container">
-		'.$createForm($createSchedData($row['sec_id'], $schedInfo4['sched_id'], $schedInfo4['subj_id'], $time_start[3], $schedInfo4['fac_id']), $time_start[3]).'
-		</div>
-		</div>
-		<button type="button" name="opener" class="edit-status" data-type="open-dialog"><span class="tooltip edit" title="Edit this schedule"><i class="far fa-edit"></i></span></button>
-		</td>
-		</tr>
-		<tr>
-		<td width="10%">'.date('h:i A', strtotime($time_start[4])).' - '.date('h:i A', strtotime($time_end[4])).' Daily</td>
-		<td width="35%">'.$schedInfo5['subject'].'</td>
-		<td width="40%">'.$schedInfo5['teacher'].'</td>
-		<td width="10%" class="buttons">'.($schedInfo5['subject'] !== 'Unassigned' ? $remove($createSchedData($row['sec_id'], $schedInfo5['sched_id'], $schedInfo5['subj_id'], $time_start[4], $schedInfo5['fac_id'])) : '').' 
-		<div name="dialog" title="Edit Schedule">
-		<div class="container">
-		'.$createForm($createSchedData($row['sec_id'], $schedInfo5['sched_id'], $schedInfo5['subj_id'], $time_start[4], $schedInfo5['fac_id']), $time_start[4]).'
-		</div>
-		</div>
-		<button type="button" name="opener" class="edit-status" data-type="open-dialog"><span class="tooltip edit" title="Edit this schedule"><i class="far fa-edit"></i></span></button>
-		</td>
-		</tr>
-		<tr>
-		<td width="10%">'.date('h:i A', strtotime($time_start[5])).' - '.date('h:i A', strtotime($time_end[5])).' Daily</td>
-		<td width="35%">'.$schedInfo6['subject'].'</td>
-		<td width="40%">'.$schedInfo6['teacher'].'</td>
-		<td width="10%" class="buttons">'.($schedInfo6['subject'] !== 'Unassigned' ? $remove($createSchedData($row['sec_id'], $schedInfo6['sched_id'], $schedInfo6['subj_id'], $time_start[5], $schedInfo6['fac_id'])) : '').' 
-		<div name="dialog" title="Edit Schedule">
-		<div class="container">
-		'.$createForm($createSchedData($row['sec_id'], $schedInfo6['sched_id'], $schedInfo6['subj_id'], $time_start[5], $schedInfo6['fac_id']), $time_start[5]).'
-		</div>
-		</div>
-		<button type="button" name="opener" class="edit-status" data-type="open-dialog"><span class="tooltip edit" title="Edit this schedule"><i class="far fa-edit"></i></span></button>
-		</td>
-		</tr>
-		<tr>
-		<td width="10%">'.date('h:i A', strtotime($time_start[6])).' - '.date('h:i A', strtotime($time_end[6])).' Daily</td>
-		<td width="35%">'.$schedInfo7['subject'].'</td>
-		<td width="40%">'.$schedInfo7['teacher'].'</td>
-		<td width="10%" class="buttons">'.($schedInfo7['subject'] !== 'Unassigned' ? $remove($createSchedData($row['sec_id'], $schedInfo7['sched_id'], $schedInfo7['subj_id'], $time_start[6], $schedInfo7['fac_id'])) : '').' 
-		<div name="dialog" title="Edit Schedule">
-		<div class="container">
-		'.$createForm($createSchedData($row['sec_id'], $schedInfo7['sched_id'], $schedInfo7['subj_id'], $time_start[6], $schedInfo7['fac_id']), $time_start[6]).'
-		</div>
-		</div>
-		<button type="button" name="opener" class="edit-status" data-type="open-dialog"><span class="tooltip edit" title="Edit this schedule"><i class="far fa-edit"></i></span></button>
-		</td>
-		</tr>
-		</tbody>
-		</table>
-		</div>
-		</div>
-		';
-	}
-
-	public function sashowTabledSections() {
-		$sql = $this->conn->query("SELECT * FROM section") or die("query failed!");
-		$result = $sql->fetchAll();
-		foreach($result as $row) {
-			$this->saSectionTable($row);
-		}
-	}
 
 	/**************** End of Accept/Reject ****************/
 
@@ -901,7 +651,10 @@ class SAdminFunct{
 
 	public function insertLogs($log_event, $log_desc){
 		try {
-			$admin_id=$_SESSION['accid'];
+			$sql2=$this->conn->prepare("SELECT admin_id from admin join accounts on acc_admid=acc_id WHERE acc_status='Active' LIMIT 1");
+			$sql2->execute();
+			$rowSql2=$sql2->fetch(PDO::FETCH_ASSOC);
+			$admin_id=$rowSql2['admin_id'];
 			$sql3=$this->conn->prepare("INSERT INTO logs SET log_event=:log_event, log_desc=:log_desc, user_id=:user_id");
 			$sql3->execute(array(
 				':log_event' => $log_event, 
@@ -1237,8 +990,128 @@ class SAdminFunct{
 		}
 		return $data;
 	}
-	/********* END STUDENT PAYMENT STATUS **********/
+	
+	public function showHistoryPayment(){
+		$sql=$this->conn->query("SELECT *,CONCAT(first_name,' ', middle_name,' ', last_name) AS Name from balance_archive join student on stud_archive=stud_id") or die ("failed!");
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+		}else{
+			return $sql;
+		}
+		return $data;
+	}
+	
+	public function showHistoryFeetype(){
+		$sql=$this->conn->query("SELECT * from payment_collected") or die ("failed!");
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+		}else{
+			return $sql;
+		}
+		return $data;
+	}
+	
+	public function getYears() {
+		$sql=$this->conn->prepare("SELECT prev_sy from balance_archive join student on stud_archive=stud_id");
+		$sql->execute();
+		$option = '';
+		while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			$option .= '<option value="'.$row["prev_sy"].'" name="year">'.$row["prev_sy"].'</option>';
+		}
+		echo $option;
+	}
+	/********* END STUDENT PAYMENT STATUS *********/
+	
 	/********* CURRICULUM SECTION *****************/
+	public function acceptCurriculumRequest(){
+		$checkbox = $_POST['check'];
+		if($checkbox !== null){
+			for($i=0;$i<count($checkbox);$i++){
+				$del_id = $checkbox[$i]; 
+				$queryUpdateReqStatus=$this->conn->prepare("UPDATE request SET request_status='Permanent' WHERE request_id=:request_id");
+				$queryUpdateReqStatus->execute(array(
+					':request_id' => $del_id
+				));
+				
+				$queryGetDetailsTemp=$this->conn->prepare("SELECT * FROM curriculum_temp WHERE curr_request=:curr_request");
+				$queryGetDetailsTemp->execute(array(
+					':curr_request' => $del_id
+				));
+				$rowQueryGetDetailsTemp=$queryGetDetailsTemp->fetch(PDO::FETCH_ASSOC);
+				$c_descTemp=$rowQueryGetDetailsTemp['c_desc'];
+				$curriculum_idTemp=$rowQueryGetDetailsTemp['cc_id'];
+				
+				$queryInsertIntoCur=$this->conn->prepare("INSERT INTO curriculum SET curr_desc=:curr_desc");
+				if($queryInsertIntoCur->execute(array(
+					':curr_desc' => $c_descTemp
+				))){
+					$queryGetSubjectTemp=$this->conn->prepare("SELECT * FROM subject_temp WHERE curriculum_idx=:curriculum_idx");
+					$queryGetSubjectTemp->execute(array(
+						':curriculum_idx' => $curriculum_idTemp
+					));
+					$result = $queryGetSubjectTemp->fetchAll();
+					
+					$queryGetDetails=$this->conn->prepare("SELECT curr_id FROM curriculum order by 1 DESC LIMIT 1");
+					$queryGetDetails->execute();
+					$rowQueryGetDetails=$queryGetDetails->fetch(PDO::FETCH_ASSOC);
+					$curriculum_id=$rowQueryGetDetails['curr_id'];	
+					foreach($result as $row){
+						$queryInsertIntoSubject=$this->conn->prepare("INSERT INTO subject SET subj_level=:subj_level, subj_dept=:subj_dept, subj_name=:subj_name, curriculum=:curriculum");
+						$queryInsertIntoSubject->execute(array(
+							':subj_level' => $row['s_level'],
+							':subj_dept' => $row['s_dept'],
+							':subj_name' => $row['s_name'],
+							':curriculum' => $curriculum_id
+						));
+					}
+
+					$log_event="Insert";
+					$log_desc="Successfully added the Curriculum: ".$c_descTemp;
+					$this->insertLogs($log_event, $log_desc);
+					$this->alert('Success!', 'You have successfully accepted the request', "success", "superadmin-curriculum");
+				}else{
+					$this->alert('Error!', 'The selected curriculum is existing already', "error", "superadmin-curriculum");
+				}
+			}
+		}else{
+			$this->alert("Error!", "Please select atleast one item", "error", "superadmin-curriculum");
+		}
+	}
+	
+	public function rejectCurriculumRequest(){
+		$checkbox = $_POST['check'];
+		if($checkbox !== null){
+			for($i=0;$i<count($checkbox);$i++){
+				$del_id = $checkbox[$i]; 
+				$queryGetDetailsTemp=$this->conn->prepare("SELECT * FROM curriculum_temp WHERE curr_request=:curr_request");
+				$queryGetDetailsTemp->execute(array(
+					':curr_request' => $del_id
+				));
+				$rowQueryGetDetailsTemp=$queryGetDetailsTemp->fetch(PDO::FETCH_ASSOC);
+				$curriculum_idTemp=$rowQueryGetDetailsTemp['cc_id'];
+				
+				$queryUpdateReqStatus=$this->conn->prepare("DELETE FROM request WHERE request_id=:request_id");
+				$queryUpdateReqStatus->execute(array(
+					':request_id' => $del_id
+				));
+				
+				$queryToDel=$this->conn->prepare("DELETE FROM curriculum_temp WHERE cc_id=:cc_id");
+				if($queryToDel->execute(array(
+					':cc_id' => $curriculum_idTemp
+				))){
+					$this->alert('Success!', 'Successfully rejected the adding of a new curriculum', "success", "superadmin-curriculum");
+				}else {
+					$this->alert('Error!', "Failed to reject the adding of a new curriculum", "error", "superadmin-curriculum");
+				}
+			}
+		}else{
+			$this->alert("Error!", "Please select atleast one item", "error", "superadmin-curriculum");
+		}
+	}
 	
 	public function getCurriculum() {
 		$sql=$this->conn->prepare("SELECT * from curriculum");
@@ -1251,6 +1124,43 @@ class SAdminFunct{
 		}
 		return $sql;
 		
+	}
+	
+	public function getCurriculumTemp() {	
+		$sql=$this->conn->prepare("SELECT * from curriculum_temp join request on curr_request=request_id where request_status='Temporary'");
+		$sql->execute();
+		if($sql->rowCount() > 0){
+			while($row=$sql->fetch(PDO::FETCH_ASSOC)){
+				$data[] = $row;
+			}
+			return $data;
+		}
+		return $sql;
+		
+	}
+	
+	public function showCurriculumRequest(){
+		$queryCurriculumRequest=$this->conn->prepare("SELECT * from subject_temp join curriculum_temp on curriculum_idx=cc_id join request on curr_request=request_id WHERE request_status='Temporary'");
+		$queryCurriculumRequest->execute();
+		if($queryCurriculumRequest->rowCount()>0){
+			while($row=$queryCurriculumRequest->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$row;
+			}
+			return $data;
+		}
+		return $queryCurriculumRequest;
+	}
+	
+	public function showCurriculumRequestDistinct(){
+		$queryCurriculumRequest=$this->conn->prepare("SELECT DISTINCT(c_desc) as 'c_desc',curriculum_idx,request_id from subject_temp join curriculum_temp on curriculum_idx=cc_id join request on curr_request=request_id WHERE request_status='Temporary'");
+		$queryCurriculumRequest->execute();
+		if($queryCurriculumRequest->rowCount()>0){
+			while($row=$queryCurriculumRequest->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$row;
+			}
+			return $data;
+		}
+		return $queryCurriculumRequest;
 	}
 	/**************** END CURRICULUM SECTION *****/
 
@@ -1347,22 +1257,18 @@ class SAdminFunct{
 		$sql->execute();
 		$row=$sql->fetch(PDO::FETCH_ASSOC);
 		$gLevel=$row['countGLevel'];
-		var_dump($gLevel);
 		$sql2=$this->conn->prepare("SELECT COUNT(grade_lvl) as countGLevel from section where grade_lvl='8'");
 		$sql2->execute();
 		$row2=$sql2->fetch(PDO::FETCH_ASSOC);
 		$gLevel2=$row2['countGLevel'];
-		var_dump($gLevel2);
 		$sql3=$this->conn->prepare("SELECT COUNT(grade_lvl) as countGLevel from section where grade_lvl='9'");
 		$sql3->execute();
 		$row3=$sql3->fetch(PDO::FETCH_ASSOC);
 		$gLevel3=$row3['countGLevel'];
-		var_dump($gLevel3);
 		$sql4=$this->conn->prepare("SELECT COUNT(grade_lvl) as countGLevel from section where grade_lvl='10'");
 		$sql4->execute();
 		$row4=$sql4->fetch(PDO::FETCH_ASSOC);
 		$gLevel4=$row4['countGLevel'];
-		var_dump($gLevel4);
 		if($gLevel == '2'){
 			echo "
 			<option value='8'>8</option>
@@ -1574,106 +1480,106 @@ class SAdminFunct{
 		};
 		echo '
 		<div id="sec'.$row['sec_id'].'" class="classes-edit">
-		<div class="sec-info">
-		<div class ="cont fr">
-		<div class="box2">
-		<span>Adviser: '.$fac_info['fac_fname'].' '.$fac_info['fac_midname'][0].'. '.$fac_info['fac_lname'].'</span>
-		</div>
-		</div>
-		</div>
-		<div class="clear"></div>
-		<div class="table-wrap">
-		<table id="classes-sched">
-		<tr>
-		<th>TIME</th>
-		<th>MONDAY</th>
-		<th>TUESDAY</th>
-		<th>WEDNESDAY</th>
-		<th>THURSDAY</th>
-		<th>FRIDAY</th>
-		</tr>
-		<tr>
-		<td>7:40 - 8:40</td>
-		<td colspan="5" class="row-subj">
-		<div class="sched-info">
-		<p class="info">'.($sched_1['exist'] === true ? $sched_1['subj'].' - '.$sched_1['name'] : 'No data yet').'</p>
-		<div name="dialog" title="Select a subject and teacher for ">
-		<div class="container">
-		<form action="faculty-editclass" method="POST" class="classes-sched">
-		<input type="hidden" name="sec_id" '.($sched_1['exist'] === true ? 'value="'.$sched_1['sec_id'].'"
-			' : 'value="'.$row['sec_id'].'"').'>
-		<input type="hidden" name="sched_a" '.($sched_1['exist'] === true ? 'value="'.$sched_1['sched_id'].'"
-			' : 'value="'.$sched_id['sched_id'].'"').'>
-		<input type="hidden" name="subj_id" '.($sched_1['exist'] === true ? 'value="'.$sched_1['subj_id'].'"
-			' : '').'>
-		<input type="hidden" name="time_start" value="'.$time_start[0].'">
-		'.($sched_1['exist'] === true ? '<input type="hidden" name="prev-teacher" value="'.$sched_1['fac_id'].'">' : '').'
-		<label class="teacher">Teacher: </label>
-		<br>
-		</form>
-		</div>
-		</div>
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td>8:40 - 9:40</td>
-		<td colspan="5" class="row-subj">
-		<div class="sched-info">
-		<p class="info">'.($sched_2['exist'] === true ? $sched_2['subj'].' - '.$sched_2['name']: 'No data yet').'</p>
-		</div>
-		</td>
-		</tr>
-		<tr>									
-		<td>9:40 - 10:00</td>
-		<td colspan="5">RECESS</td>
-		</tr>
-		<tr>
-		<td>10:00 - 11:00</td>
-		<td colspan="5" class="row-subj">
-		<div class="sched-info">
-		<p class="info">'.($sched_3['exist'] === true ? $sched_3['subj'].' - '.$sched_3['name']: 'No data yet').'</p>
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td>11:00 - 12:00</td>
-		<td colspan="5" class="row-subj">
-		<div class="sched-info">
-		<p class="info">'.($sched_4['exist'] === true ? $sched_4['subj'].' - '.$sched_4['name']: 'No data yet').'</p>
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td>12:00 - 1:00</td>
-		<td colspan="5">LUNCH</td>
-		</tr>
-		<tr>
-		<td>1:00 - 2:00</td>
-		<td colspan="5" class="row-subj">
-		<div class="sched-info">
-		<p class="info">'.($sched_5['exist'] === true ? $sched_5['subj'].' - '.$sched_5['name']: 'No data yet').'</p>
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td>2:00 - 3:00</td>
-		<td colspan="5" class="row-subj">
-		<div class="sched-info">
-		<p class="info">'.($sched_6['exist'] === true ? $sched_6['subj'].' - '.$sched_6['name']: 'No data yet').'</p>
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td>3:00 - 4:00</td>
-		<td colspan="5" class="row-subj">
-		<div class="sched-info">
-		<p class="info">'.($sched_7['exist'] === true ? $sched_7['subj'].' - '.$sched_7['name']: 'No data yet').'</p>
-		</div>
-		</td>
-		</tr>
-		</table>
-		</div>
+			<div class="sec-info">
+				<div class ="cont fr">
+					<div class="box2">
+						<span>Adviser: '.$fac_info['fac_fname'].' '.$fac_info['fac_midname'][0].'. '.$fac_info['fac_lname'].'</span>
+					</div>
+				</div>
+			</div>
+			<div class="clear"></div>
+			<div class="table-wrap">
+				<table id="classes-sched">
+					<tr>
+						<th>TIME</th>
+						<th>MONDAY</th>
+						<th>TUESDAY</th>
+						<th>WEDNESDAY</th>
+						<th>THURSDAY</th>
+						<th>FRIDAY</th>
+					</tr>
+					<tr>
+						<td>7:40 - 8:40</td>
+						<td colspan="5" class="row-subj">
+							<div class="sched-info">
+								<p class="info">'.($sched_1['exist'] === true ? $sched_1['subj'].' - '.$sched_1['name'] : 'No data yet').'</p>
+								<div name="dialog" title="Select a subject and teacher for ">
+									<div class="container">
+										<form action="faculty-editclass" method="POST" class="classes-sched">
+											<input type="hidden" name="sec_id" '.($sched_1['exist'] === true ? 'value="'.$sched_1['sec_id'].'"
+											' : 'value="'.$row['sec_id'].'"').'>
+											<input type="hidden" name="sched_a" '.($sched_1['exist'] === true ? 'value="'.$sched_1['sched_id'].'"
+											' : 'value="'.$sched_id['sched_id'].'"').'>
+											<input type="hidden" name="subj_id" '.($sched_1['exist'] === true ? 'value="'.$sched_1['subj_id'].'"
+											' : '').'>
+											<input type="hidden" name="time_start" value="'.$time_start[0].'">
+											'.($sched_1['exist'] === true ? '<input type="hidden" name="prev-teacher" value="'.$sched_1['fac_id'].'">' : '').'
+											<label class="teacher">Teacher: </label>
+											<br>
+										</form>
+									</div>
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>8:40 - 9:40</td>
+						<td colspan="5" class="row-subj">
+							<div class="sched-info">
+								<p class="info">'.($sched_2['exist'] === true ? $sched_2['subj'].' - '.$sched_2['name']: 'No data yet').'</p>
+							</div>
+						</td>
+					</tr>
+					<tr>									
+						<td>9:40 - 10:00</td>
+						<td colspan="5">RECESS</td>
+					</tr>
+					<tr>
+						<td>10:00 - 11:00</td>
+						<td colspan="5" class="row-subj">
+							<div class="sched-info">
+								<p class="info">'.($sched_3['exist'] === true ? $sched_3['subj'].' - '.$sched_3['name']: 'No data yet').'</p>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>11:00 - 12:00</td>
+						<td colspan="5" class="row-subj">
+							<div class="sched-info">
+								<p class="info">'.($sched_4['exist'] === true ? $sched_4['subj'].' - '.$sched_4['name']: 'No data yet').'</p>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>12:00 - 1:00</td>
+						<td colspan="5">LUNCH</td>
+					</tr>
+					<tr>
+						<td>1:00 - 2:00</td>
+						<td colspan="5" class="row-subj">
+							<div class="sched-info">
+								<p class="info">'.($sched_5['exist'] === true ? $sched_5['subj'].' - '.$sched_5['name']: 'No data yet').'</p>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>2:00 - 3:00</td>
+						<td colspan="5" class="row-subj">
+							<div class="sched-info">
+								<p class="info">'.($sched_6['exist'] === true ? $sched_6['subj'].' - '.$sched_6['name']: 'No data yet').'</p>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>3:00 - 4:00</td>
+						<td colspan="5" class="row-subj">
+							<div class="sched-info">
+								<p class="info">'.($sched_7['exist'] === true ? $sched_7['subj'].' - '.$sched_7['name']: 'No data yet').'</p>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
 		</div>';
 	}
 	public function showSections() {
@@ -1997,6 +1903,320 @@ class SAdminFunct{
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
+	
+		/*accept/reject*/
+		private function saSectionTable($row) {
+		$time_start = array('07:40:00', '08:40:00', '10:00:00', '11:00:00', '13:00:00', '14:00:00', '15:00:00');
+        $time_end = array('08:40:00', '09:40:00', '11:00:00', '12:00:00', '14:00:00', '15:00:00', '16:00:00');
+		$fac_id = $row['fac_idv'];
+		$getFacInfo = $this->conn->query("SELECT * FROM faculty WHERE fac_id = '".$fac_id."'");
+		$getSchedID = $this->conn->query("SELECT sched_id FROM schedule WHERE sched_yrlevel = '".$row['grade_lvl']."'");
+		$fac_info = $getFacInfo->fetch();
+		$sched_id = $getSchedID->fetch();
+		$getSchedInfo = function($time_start, $sec_id) {
+			$query = $this->conn->prepare("SELECT * FROM schedsubj_temp WHERE ssb_timestart = :time_start AND ss_swid = :sec_id");
+			$query->execute(array(
+				':time_start' => $time_start,
+				':sec_id' => $sec_id
+			));
+			$getSchedResult = $query->fetch();
+			$queryTeacher = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',LEFT(fac_midname, 1),'. ',fac_lname) as 'teacher', fac_id FROM faculty WHERE fac_id = :fw_id");
+			$querySubject = $this->conn->prepare("SELECT  CASE WHEN subj_name LIKE ('%Music%') OR subj_name LIKE ('%(PE)%') OR subj_name LIKE ('%Physical Education%') OR subj_name LIKE ('%Health%') OR subj_name LIKE ('%Arts%') THEN (CASE WHEN subj_level = '7' THEN 'MAPEH 1' WHEN subj_level = '8' THEN 'MAPEH 2' WHEN subj_level = '9' THEN 'MAPEH 3' WHEN subj_level = '10' THEN 'MAPEH 4' ELSE 'MAPEH' END) ELSE subj_name END AS subject FROM subject WHERE subj_id = :subj_id");
+			$queryTeacher->execute(array(
+				':fw_id' => $getSchedResult['ss_fwid']
+			));
+			$querySubject->execute(array(
+				':subj_id' => $getSchedResult['ss_idb']
+			));
+			$fetchTeacher = $queryTeacher->fetch();
+			$fetchSubject = $querySubject->fetch();
+			$info = array(
+				'sched_id' => (isset($getSchedResult['ss_ida']) ? $getSchedResult['ss_ida'] : '-1'),
+				'subj_id' => (isset($getSchedResult['ss_idb']) ? $getSchedResult['ss_idb'] : '-1'), 
+				'fac_id' => (isset($fetchTeacher['fac_id']) ? $fetchTeacher['fac_id'] : '-1'),
+				'teacher' => (isset($fetchTeacher['teacher']) ? $fetchTeacher['teacher'] : 'Unassigned'),
+				'subject' => (isset($fetchSubject['subject']) ? $fetchSubject['subject'] : 'Unassigned'),
+				'status' => ($query->rowCount() > 0 ? $getSchedResult['status_ss'] : 'Not Available')
+			);
+			return $info;
+		};
+		$schedInfo1 = $getSchedInfo($time_start[0], $row['sec_id']);
+		$schedInfo2 = $getSchedInfo($time_start[1], $row['sec_id']);
+		$schedInfo3 = $getSchedInfo($time_start[2], $row['sec_id']);
+		$schedInfo4 = $getSchedInfo($time_start[3], $row['sec_id']);
+		$schedInfo5 = $getSchedInfo($time_start[4], $row['sec_id']);
+		$schedInfo6 = $getSchedInfo($time_start[5], $row['sec_id']);
+		$schedInfo7 = $getSchedInfo($time_start[6], $row['sec_id']);
+		$remove = function($sched) {
+			$html = '<form action="superadmin-classes"  method="POST">
+			<input type="hidden" name="sec" value="'.$sched['sec_id'].'">
+			<input type="hidden" name="sched" value="'.$sched['sched_id'].'">
+			<input type="hidden" name="subj_id" value="'.$sched['subj_id'].'">
+			<input type="hidden" name="time_start" value="'.$sched['time_start'].'">
+			<input type="hidden" name="faculty_id" value="'.$sched['fac_id'].'">
+			<button type="remove-class-schedule" class="edit-status-remove" name="remove-this-schedule"><span class="tooltip remove" title="Remove this schedule"><i class="far fa-trash-alt"></i></span></button>
+			</form>';
+			return $html;
+		};
+		$createSchedData = function($sec_id, $sched_id, $subj_id, $time_start, $fac_id) {
+			return array(
+				'sec_id' => $sec_id,
+				'sched_id' => $sched_id,
+				'subj_id' => $subj_id,
+				'time_start' => $time_start,
+				'fac_id' => $fac_id
+			);
+		};
+		$createForm = function($details, $time_start) {
+			$getLvl = $this->conn->prepare("SELECT grade_lvl FROM section WHERE sec_id = :sec_id");
+			$getLvl->execute(array(
+				':sec_id' => $details['sec_id']
+			));
+			$resultLvl = $getLvl->fetch();
+			$grade = $resultLvl['grade_lvl'];
+			$getCur = $this->conn->query("SELECT current_curriculum as 'cur' FROM system_settings");
+			$resultCur = $getCur->fetch();
+			$cur = $resultCur['cur'];
+			$teacher = $this->conn->prepare("SELECT  *, CASE WHEN subj_name LIKE ('%Music%') OR subj_name LIKE ('%(PE)%') OR subj_name LIKE ('%Physical Education%') OR subj_name LIKE ('%Health%') OR subj_name LIKE ('%Arts%') THEN (CASE WHEN subj_level = '7' THEN 'MAPEH 1' WHEN subj_level = '8' THEN 'MAPEH 2' WHEN subj_level = '9' THEN 'MAPEH 3' WHEN subj_level = '10' THEN 'MAPEH 4' ELSE 'MAPEH' END) ELSE subj_name END AS subject FROM faculty JOIN subject ON fac_dept = subj_dept WHERE curriculum = :cur AND subj_level = :subj_level AND (fac_id NOT IN (SELECT ss_fwid FROM schedsubj_temp WHERE ssb_timestart = :time_start OR ss_swid = :sec_id) AND subj_id NOT IN (SELECT ss_idb FROM schedsubj_temp WHERE ss_swid = :sec_id)) GROUP BY fac_id");
+			$teacher->execute(array(
+				':cur' => $cur,
+				':subj_level' => $grade,
+				':time_start' => $time_start,
+				':sec_id' => $details['sec_id']
+			));
+			$allTeacher = $teacher->fetchAll();
+			$subject = $this->conn->prepare("SELECT  *, CASE WHEN subj_name LIKE ('%Music%') OR subj_name LIKE ('%(PE)%') OR subj_name LIKE ('%Physical Education%') OR subj_name LIKE ('%Health%') OR subj_name LIKE ('%Arts%') THEN (CASE WHEN subj_level = '7' THEN 'MAPEH 1' WHEN subj_level = '8' THEN 'MAPEH 2' WHEN subj_level = '9' THEN 'MAPEH 3' WHEN subj_level = '10' THEN 'MAPEH 4' ELSE 'MAPEH' END) ELSE subj_name END AS subject FROM faculty JOIN subject ON fac_dept = subj_dept WHERE curriculum = :cur AND subj_level = :subj_level AND (fac_id NOT IN (SELECT ss_fwid FROM schedsubj_temp WHERE ssb_timestart = :time_start OR ss_swid = :sec_id) AND subj_id NOT IN (SELECT ss_idb FROM schedsubj_temp WHERE ss_swid = :sec_id)) GROUP BY subj_dept");
+			$subject->execute(array(
+				':cur' => $cur,
+				':subj_level' => $grade,
+				':time_start' => $time_start,
+				':sec_id' => $details['sec_id']
+			));
+			$allSubject = $subject->fetchAll();
+			$checkExist = ( $details['fac_id'] === '-1' ? false : true);
+			$getSched_ID = $this->conn->prepare("SELECT sched_id FROM schedule WHERE sched_yrlevel = :grade");
+			$getSched_ID->execute(array(':grade' => $grade));
+			$resSched_ID = $getSched_ID->fetch();
+			$sched_id = $resSched_ID['sched_id'];
+			$teacher = '';
+			foreach($allTeacher as $row) {
+				if ($details['fac_id'] === $row['fac_id']) {
+					$teacher .= '<option value="'.$row['fac_id'].'" data-facdept="'.$row['fac_dept'].'" selected>'.$row['fac_fname'].' '.$row['fac_midname'][0].'. '.$row['fac_lname'].'</option>';
+				} else {
+					$teacher .= '<option value="'.$row['fac_id'].'" data-facdept="'.$row['fac_dept'].'">'.$row['fac_fname'].' '.$row['fac_midname'][0].'. '.$row['fac_lname'].'</option>';
+				}
+			}
+			$subject = '';
+			foreach($allSubject as $row) {
+				if ($cur === '1') {
+					if ($details['subj_id'] === $row['subj_id']) {
+						$subject .= '<option value="'.$row['subj_id'].'" data-subdept="'.$row['subj_dept'].'" selected>'.$row['subject'].'</option>';
+					} else {
+						$subject .= '<option value="'.$row['subj_id'].'" data-subdept="'.$row['subj_dept'].'">'.$row['subject'].'</option>';
+					}
+				} else {
+					if ($row['subj_dept'] === 'MAPEH') {
+						if ($details['subj_id'] === $row['subj_id']) {
+							$subject .= '<option value="-2" data-subdept="'.$row['subj_dept'].'" selected>'.$row['subject'].'</option>';
+						} else {
+							$subject .= '<option value="-2" data-subdept="'.$row['subj_dept'].'">'.$row['subject'].'</option>';
+						}
+					} else {
+						if ($details['subj_id'] === $row['subj_id']) {
+							$subject .= '<option value="'.$row['subj_id'].'" data-subdept="'.$row['subj_dept'].'" selected>'.$row['subject'].'</option>';
+						} else {
+							$subject .= '<option value="'.$row['subj_id'].'" data-subdept="'.$row['subj_dept'].'">'.$row['subject'].'</option>';
+						}
+					}
+				}
+			}
+			return '<form action="superadmin-classes" method="POST" class="classes-sched">
+					<input type="hidden" name="sec_id" '.'value="'.$details['sec_id'].'"'.'>
+					<input type="hidden" name="sched_a" '.'value="'.$sched_id.'"'.'>
+					<input type="hidden" name="subj_id" '.($checkExist === true ? 'value="'.$details['subj_id'].'"
+					' : '').'>
+					<input type="hidden" name="time_start" value="'.$time_start.'">
+					'.($checkExist === true ? '<input type="hidden" name="prev-teacher" value="'.$details['fac_id'].'">' : '').'
+					<label class="teacher">Teacher: </label>
+					<select name="teacher" class="editclass-teacher" required>
+						<option value="">Select a Teacher</option>'.$teacher.'
+					</select>
+					<br>
+					<label class="subject">Subject: </label>
+					<select name="subject" class="editclass-subjects" required>
+						<option value="">Select a Subject</option>'.$subject.'
+					</select>
+					<br>
+					<div class="forms-btn">
+						<button type="submit" name="submit-edit-class">Submit</button>
+						<button type="reset" class="reset">Reset</button>
+					</div>
+				</form>';
+		};
+		echo '
+		<div id="sec'.$row['sec_id'].'" class="classes-edit">
+			<div class="sec-info">
+				<div class ="cont fr">
+					<div class="box2">
+						<span>Adviser: '.$fac_info['fac_fname'].' '.$fac_info['fac_midname'][0].'. '.$fac_info['fac_lname'].'</span>
+					</div>
+				</div>
+			</div>
+			<div class="clear"></div>
+			<div class="table-wrap">
+				<table class="classes-sched">
+					<thead>
+						<tr>
+							<th width="10%">Schedule</th>
+							<th width="35%">Subject</th>
+							<th width="40%">Teacher</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td width="10%">'.date('h:i A', strtotime($time_start[0])).' - '.date('h:i A', strtotime($time_end[0])).' Daily</td>
+							<td width="35%">'.$schedInfo1['subject'].'</td>
+							<td width="40%">'.$schedInfo1['teacher'].'</td>
+						</tr>
+						<tr>
+							<td width="10%">'.date('h:i A', strtotime($time_start[1])).' - '.date('h:i A', strtotime($time_end[1])).' Daily</td>
+							<td width="35%">'.$schedInfo2['subject'].'</td>
+							<td width="40%">'.$schedInfo2['teacher'].'</td>
+						</tr>
+						<tr>
+							<td width="10%">'.date('h:i A', strtotime($time_start[2])).' - '.date('h:i A', strtotime($time_end[2])).' Daily</td>
+							<td width="35%">'.$schedInfo3['subject'].'</td>
+							<td width="40%">'.$schedInfo3['teacher'].'</td>
+						</tr>
+						<tr>
+							<td width="10%">'.date('h:i A', strtotime($time_start[3])).' - '.date('h:i A', strtotime($time_end[3])).' Daily</td>
+							<td width="35%">'.$schedInfo4['subject'].'</td>
+							<td width="40%">'.$schedInfo4['teacher'].'</td>
+						</tr>
+						<tr>
+							<td width="10%">'.date('h:i A', strtotime($time_start[4])).' - '.date('h:i A', strtotime($time_end[4])).' Daily</td>
+							<td width="35%">'.$schedInfo5['subject'].'</td>
+							<td width="40%">'.$schedInfo5['teacher'].'</td>
+						</tr>
+						<tr>
+							<td width="10%">'.date('h:i A', strtotime($time_start[5])).' - '.date('h:i A', strtotime($time_end[5])).' Daily</td>
+							<td width="35%">'.$schedInfo6['subject'].'</td>
+							<td width="40%">'.$schedInfo6['teacher'].'</td>
+						</tr>
+						<tr>
+							<td width="10%">'.date('h:i A', strtotime($time_start[6])).' - '.date('h:i A', strtotime($time_end[6])).' Daily</td>
+							<td width="35%">'.$schedInfo7['subject'].'</td>
+							<td width="40%">'.$schedInfo7['teacher'].'</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		';
+	}
+
+	public function sashowTabledSections() {
+		$checkIfStillOnEdit = $this->conn->query("SELECT * FROM schedsubj_temp WHERE ssb_timestart <> '07:40:00' AND status_ss = 'Temporary'");
+		$checkIfPermanent = $this->conn->query("SELECT * FROM schedsubj_temp WHERE ssb_timestart <> '07:40:00' AND status_ss = 'Permanent'");
+		$checkExist = $this->conn->query("SELECT * FROM schedsubj_temp WHERE ssb_timestart <> '07:40:00'");
+		$rejection = $this->conn->query("SELECT * FROM schedsubj_temp WHERE ss_remarks IS NOT NULL");
+		if ($rejection->rowCount() > 0) {
+			echo '<div id="ScheduleEditting">
+				<h2>You\'ve rejected the temporary schedule.</h2>
+			</div>';
+		} else if ($checkIfPermanent->rowCount() > 0) {
+			echo '<div id="ScheduleEditting">
+				<h2>There are no request yet.</h2>
+			</div>';
+		} else if ($checkIfStillOnEdit->rowCount() > 0) {
+			echo '<div id="ScheduleEditting">
+				<h2>The schedule is being editted.</h2>
+			</div>';
+		} else if ($checkExist->rowCount() === 0) {
+			echo '<div id="ScheduleEditting">
+				<h2>There are no changes yet.</h2>
+			</div>';	
+		} else {
+			echo '<div class ="cont fl">
+				<span>SECTION : </span>
+				<select name="sec_id" id="getCurrentLevel">
+					'.$this->showSectionsClassesAccept().'
+				</select>
+				</div>';
+			$sql = $this->conn->query("SELECT * FROM section") or die("query failed!");
+			$result = $sql->fetchAll();
+			foreach($result as $row) {
+				$this->saSectionTable($row);
+			}
+			echo '<div class="remarks">';
+			echo '<p class="note">If you will reject the schedule requested kindly add some comments.</p>';
+			echo '<form action="superadmin-classes" method="POST">
+				<label>Comments: <input type="text" name="remarks"></label>
+				<button type="submit" name="accept-schedule">Accept</button>
+				<button type="submit" name="reject-schedule">Reject</button>
+			</form>';
+			echo '</div>';
+		}
+	}
+
+
+	public function showSectionsClassesAccept() {
+		$html = '';	
+		$getSec = $this->conn->query("SELECT *, CONCAT('Grade ',grade_lvl,' - ',sec_name) as 'section_name' FROM section ORDER BY grade_lvl, sec_name");
+		foreach($getSec->fetchAll() as $row) {
+			$html .= '<option value="sec'.$row['sec_id'].'">'.$row['section_name'].'</option>';
+		}
+		return $html;
+	}
+
+	public function acceptNewSchedule() {
+		$deleteCurrentSchedSubj = $this->conn->query("DELETE FROM schedsubj WHERE time_start <> '07:40:00'");
+		$deleteAllfacsec = $this->conn->query("DELETE FROM facsec");
+		$temp = $this->conn->query("SELECT * FROM schedsubj_temp WHERE ssb_timestart <> '07:40:00'");
+		foreach($temp->fetchAll() as $row) {
+			$insertNew = $this->conn->prepare("INSERT INTO schedsubj (schedsubja_id, schedsubjb_id, day, time_start, time_end, fw_id, sw_id, assigned_facid) VALUES (:a, :b, :day, :tstart, :tend, :fw, :sw, :assign)");
+			$insertNew->execute(array(
+				':a' => $row['ss_ida'],
+				':b' => $row['ss_idb'],
+				':day' => $row['ssb_day'],
+				':tstart' => $row['ssb_timestart'],
+				':tend' => $row['ssb_timeend'],
+				':fw' => $row['ss_fwid'],
+				':sw' => $row['ss_swid'],
+				':assign' => $row['fac_assigned']
+			));
+		}
+		$all = $this->conn->query("SELECT * FROM schedsubj");
+		foreach($all as $row) {
+			$insertFacSec = $this->conn->prepare("INSERT INTO facsec (fac_idy, sec_idy) VALUES (:f, :s)");
+			$insertFacSec->execute(array(
+				':f' => $row['fw_id'],
+				':s' => $row['sw_id']
+			));
+		}
+		$updatToPerm = $this->conn->query("UPDATE schedsubj_temp SET status_ss = 'Permanent' WHERE ssb_timestart <> '07:40:00'");
+		$log_event="Update";
+		$log_desc="Replace the schedule from the temporary schedule";
+		$this->insertLogs($log_event, $log_desc);
+		$this->alert("Success!", "The schedule of the teachers and student has been replaced", "success", "superadmin-classes");					
+	}
+
+	public function rejectNewSchedule($post) {
+		if(empty($post['remarks']) === true) {
+			$this->alert("Error!", "You can't leave the comments blank", "error", "superadmin-classes");
+		} else {
+			$query = $this->conn->prepare("UPDATE schedsubj_temp SET ss_remarks = :rem, status_ss = 'Temporary' WHERE ssb_timestart <> '07:40:00'");
+			$query->execute(array(
+				':rem' => $post['remarks']
+			));
+			$log_event="Update";
+			$log_desc="Rejected the current temporary schedule requested";
+			$this->insertLogs($log_event, $log_desc);
+			$this->alert("Success!", "You've rejected the temporary schedule", "success", "superadmin-classes");					
+		}
+	}
+
+		/*end accept/reject*/
 	/**************** END CLASS *********************/
 	/****************ADMIN ACCOUNT ****************/
 	public function insertAdminAccount($adm_fname, $adm_midname, $adm_lname) {
@@ -3242,7 +3462,7 @@ class SAdminFunct{
 	/**************** LOGS ********************/
 	
 	public function showAdminLogs(){
-		$sql=$this->conn->query("SELECT CONCAT(adm_fname,' ',adm_midname,' ',adm_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate 
+		$sql=$this->conn->query("SELECT CONCAT(adm_fname,' ',adm_midname,' ',adm_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e, %Y - %H:%i:%S') AS logdate 
 			FROM logs 
 			JOIN accounts on acc_id = user_id 
 			JOIN admin on acc_admid = acc_id") or die ("failed!");

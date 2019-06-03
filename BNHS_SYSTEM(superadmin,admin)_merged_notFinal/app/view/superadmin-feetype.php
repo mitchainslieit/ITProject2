@@ -64,9 +64,9 @@
 									<thead>
 										<tr>
 											<th><span class="selectAll">Select All </span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form1"> </th>
-											<th class="tleft custPad">Requested by</th>
-											<th class="tleft custPad">Request Type</th>
-											<th class="tleft custPad">Request Description</th>
+											<th class="tleft">Requested by</th>
+											<th class="tleft">Request Type</th>
+											<th class="tleft">Request Description</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -78,9 +78,9 @@
 											<tr>
 											<td>
 											<input type="checkbox" id="checkItem" name="check[]" value="'.$request_id.'"></td>
-											<td class="tleft custPad">'.$currentAdm.'</td>
-											<td class="tleft custPad">'.$request_type.'</td>
-											<td class="tleft custPad">'.$request_desc.'</td></tr>';
+											<td class="tleft custPad2">'.$currentAdm.'</td>
+											<td class="tleft custPad2">'.$request_type.'</td>
+											<td class="tleft custPad2">'.$request_desc.'</td></tr>';
 										}
 										?>
 									</tbody>

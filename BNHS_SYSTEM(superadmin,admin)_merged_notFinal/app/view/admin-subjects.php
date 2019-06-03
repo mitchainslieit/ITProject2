@@ -1,4 +1,13 @@
 	<?php require 'app/model/admin-funct.php'; $obj = new AdminFunct(); ?>
+	<?php
+		$this->conn = new Connection;
+		$this->conn = $this->conn->connect();
+		
+		if(isset($_POST['reject-button-all'])){
+			extract($_POST);
+			$obj->rejectCurriculumRequest();
+		}
+	?>
 	<div class="contentpage" id="contentpage">
 		<div class="row">
 			<div class="widget">	
@@ -10,6 +19,65 @@
 					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
 				</div>
 				<div class="widgetContent subjectContent">
+					<div class="cont3">
+						<form action="admin-subjects" method="POST" id="form1"></form>
+<?php
+						$queryCount=$this->conn->prepare("SELECT * FROM request join curriculum_temp on request_id=curr_request WHERE request_status='Temporary'");
+						$queryCount->execute();
+						$rowQueryCount=$queryCount->rowCount();
+						if($rowQueryCount>0){
+							echo'
+							<table id="admin-table-noFunct" class="display" style="width: 50%;">
+								<thead>
+									<tr>
+										<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form1"> </th>
+										<th class="tleft">Curriculum Name</th>';
+											echo $rowQueryCount > 0 ? '<th>Request</th>' : '';
+									echo'
+									</tr>
+								</thead>
+								<tbody>';
+	foreach($obj->showCurriculumRequestDistinct() as $value){
+	extract($value);
+	echo '
+		<tr>
+			<td><input type="checkbox" id="checkItem" name="check[]" value="'.$request_id.'" form="form1"></td>
+			';
+			echo $request_status == "Temporary" ? '<td class="tleft"><span class="temporary">'.$c_desc.'</span></td>' : ' <td class="tleft">'.$c_desc.'</td>';
+			if($rowQueryCount > 0){
+			 	if($request_status == "Temporary"){
+			 		echo '
+			 		<td>For Approval to 
+			 		';
+			 			if($request_type == 'Insert'){
+			 				echo 'Add';
+			 			}else if($request_type == 'Update'){
+			 				echo 'Update';
+			 			}else if($request_type == 'Delete'){
+			 				echo 'Delete';
+			 			}else{
+			 				echo '';
+			 			}
+			 		echo'
+			 		</td>
+			 		';
+			 	}else{
+			 		echo '<td> </td>';
+			 	}
+		 	}
+			echo'
+		</tr>	';
+	}						
+								echo'
+								</tbody>
+							</table>
+							<p class="tleft buttonContainer"><button type="submit" form="form1" name="reject-button-all" class="customButton">Cancel <i class="fas fa-trash-alt"></i></button></p>
+							';
+}else{
+	echo '';
+}						
+	?>
+					</div>
 					<div class="cont1">
 						<div name="content">
 							<a href="admin-curriculum" class="customButton">Add curriculum <i class="fas fa-plus fnt"></i></a>
@@ -23,13 +91,12 @@
 								<?php 
 								foreach ($obj->getCurriculum() as $row) {
 									extract($row);
-									echo '<option value="'.$cc_id.'">'.$c_desc.'</option>';
+									echo '<option value="'.$curr_id.'">'.$curr_desc.'</option>';
 								}
 
 							?>	
 						</select>
 						</div>
-					<br>
 						<form action="admin-subjects" method="POST" id="form1"></form>
 							<table id="admin-table-curriculum" class="display">
 								<thead>
@@ -50,7 +117,6 @@
 			<td class="tleft custPad">'.$subj_level.'</td>
 			<td class="tleft custPad">'.$subj_dept.'</td>
 			<td class="tleft custPad">'.$subj_name.'</td>
-			
 			<td>'.$curriculum.'</td>
 		</tr>
 		';
@@ -58,7 +124,7 @@
 	?>
 								</tbody>
 							</table>
-							<p class="tleft"><button type="submit" form="form1" name="delete-all-button" class="customButton">Delete <i class="fas fa-trash-alt"></i></button></p>
+							<!-- <p class="tleft"><button type="submit" form="form1" name="delete-all-button" class="customButton">Delete <i class="fas fa-trash-alt"></i></button></p> -->
 					</div>
 				</div>
 			</div>

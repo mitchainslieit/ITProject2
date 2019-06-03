@@ -10,16 +10,25 @@ case 'superadmin' :
 	echo '<ul class="sidebar-submenu" id="soa-submenu">';
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-feetype").'><a href="'.URL.'superadmin-feetype"><i class="fas fa-money-check fnt"></i>Fee Type</a><span class="notification_sa_1">'.$_SESSION['sanotif_1'].'</span></li>';
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-balstatus").'><a href="'.URL.'superadmin-balstatus"><i class="fas fa-sync fnt"></i>Student Payment Status</a></li>';
+	echo '<li '.$this->helpers->isActiveMenu("superadmin-previous_paymenthistory").'><a href="'.URL.'superadmin-previous_paymenthistory"><i class="fas fa-history fnt"></i>History of Payments</a></li>';
+	echo '<li '.$this->helpers->isActiveMenu("superadmin-previous_feetypehistory").'><a href="'.URL.'superadmin-previous_feetypehistory"><i class="fas fa-archive fnt"></i>History of Fee Type</a></li>';
 	echo '</ul>';
 	echo '</li>';
-	echo '<li '.$this->helpers->isActiveMenu("superadmin-curriculum").'><a href="'.URL.'superadmin-curriculum"><i class="fas fa-book-reader fnt"></i>Curriculum</a></li>';
+	echo '<li '.$this->helpers->isActiveMenu("superadmin-curriculum").'><a href="'.URL.'superadmin-curriculum"><i class="fas fa-book-reader fnt"></i>Curriculum </a><span class="notificationCurriculum">'.$_SESSION['curriculumNotif'].'</span></li>';
 	echo '<li>';
-	echo '<li '.$this->helpers->isActiveMenu("superadmin-section").'><a href="'.URL.'superadmin-section"><i class="fas fa-book-open fnt"></i>Section</a></li>';
+	echo '<li '.$this->helpers->isActiveMenu("superadmin-section").'><a href="'.URL.'superadmin-section"><i class="fas fa-book-open fnt"></i>Section</a><span class="notification_sa_2">'.$_SESSION['sanotif_2'].'</span></li>';
+	
 	echo '<li>';
-	echo '<li '.$this->helpers->isActiveMenu("superadmin-classes").'><a href="'.URL.'superadmin-classes"><i class="fas fa-plus fnt"></i>Class</a></li>';
-	echo '<li>';
+	echo '<a href="'.' '.'" target="class-submenu" class="submenu-title"><span><i class="fas fa-chalkboard-teacher fnt"></i>Class <i class="fa fa-angle-left pull-right"></i><span></a>';
+	echo '<ul class="sidebar-submenu" id="class-submenu">';
+	echo '<li '.$this->helpers->isActiveMenu("superadmin-classes").'><a href="'.URL.'superadmin-classes"><i class="fas fa-book-open fnt"></i>Class List</a></li>';
+	echo '<li '.$this->helpers->isActiveMenu("superadmin-classschedule").'><a href="'.URL.'superadmin-classschedule"><i class="fas fa-clipboard-list fnt"></i>Class Schedule</a></li>';
+	echo '<li '.$this->helpers->isActiveMenu("superadmin-classedit").'><a href="'.URL.'superadmin-classedit"><i class="far fa-clipboard fnt"></i>Schedule Request</a></li>';
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-transfer").'><a href="'.URL.'superadmin-transfer"><i class="fas fa-bell fnt"></i>Accept Request</a><span class="notificationTransfer">'.$_SESSION['transferNotif'].'</span></li>';
-		echo '<li>';
+	echo '</ul>';
+	echo '</li>';
+	
+	echo '<li>';
 	echo '<a href="'.' '.'" target="user-submenu" class="submenu-title"><span><i class="fas fa-user-plus fnt"></i>Users <i class="fa fa-angle-left pull-right"></i><span></a>';
 	echo '<ul class="sidebar-submenu" id="user-submenu">';
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-faculty").'><a href="'.URL.'superadmin-faculty"><i class="fas fa-chalkboard-teacher fnt"></i>Faculty</a></li>';
@@ -28,11 +37,12 @@ case 'superadmin' :
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-admin").'><a href="'.URL.'superadmin-admin"><i class="fas fa-users fnt"></i>Admin</a></li>';
 	echo '</ul>';
 	echo '</li>';
+	
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-events").'><a href="'.URL.'superadmin-events"><i class="far fa-calendar-alt fnt"></i>Events</a></li>';
 	echo '<li>';
 	echo '<a href="'.' '.'" target="reports-submenu" class="submenu-title"><span><i class="fab fa-blogger-b fnt"></i>Reports<i class="fa fa-angle-left pull-right"></i></span></a>';
 	echo '<ul class="sidebar-submenu" id="reports-submenu">';
-	echo '<li '.$this->helpers->isActiveMenu("superadmin-paymenthistory").'><a href="'.URL.'superadmin-paymenthistory"><i class="fas fa-history fnt"></i>Payment History</a></li>';
+	echo '<li '.$this->helpers->isActiveMenu("superadmin-paymenthistory").'><a href="'.URL.'superadmin-paymenthistory"><i class="fas fa-history fnt"></i>Transaction History</a></li>';
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-enrolledstudents").'><a href="'.URL.'superadmin-enrolledstudents"><i class="fas fa-check-square fnt"></i>Enrolled Students</a></li>';
 	echo '</ul>';
 	echo '<li>';
@@ -128,6 +138,8 @@ case 'admin':
 		echo '<ul class="sidebar-submenu" id="soa-submenu">';
 		echo '<li '.$this->helpers->isActiveMenu("admin-feetype").'><a href="'.URL.'admin-feetype"><i class="fas fa-money-check fnt"></i>Fee Type</a></li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-balstatus").'><a href="'.URL.'admin-balstatus"><i class="fas fa-sync fnt"></i>Student Payment Status</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-previous_paymenthistory").'><a href="'.URL.'admin-previous_paymenthistory"><i class="fas fa-history fnt"></i>History of Payments</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-previous_feetypehistory").'><a href="'.URL.'admin-previous_feetypehistory"><i class="fas fa-archive fnt"></i>History of Fee Type</a></li>';
 		echo '</ul>';
 		echo '</li>';	
 		echo '<li '.$this->helpers->isActiveMenu("admin-subjects").'><a href="'.URL.'admin-subjects"><i class="fas fa-book-reader fnt"></i>Curriculum</a></li>';
@@ -149,7 +161,7 @@ case 'admin':
 		echo '<li>';
 		echo '<a href="'.' '.'" target="reports-submenu" class="submenu-title"><span><i class="fab fa-blogger-b fnt"></i>Reports<i class="fa fa-angle-left pull-right"></i></span></a>';
 		echo '<ul class="sidebar-submenu" id="reports-submenu">';
-		echo '<li '.$this->helpers->isActiveMenu("admin-paymenthistory").'><a href="'.URL.'admin-paymenthistory"><i class="fas fa-history fnt"></i>Payment History</a></li>';
+		echo '<li '.$this->helpers->isActiveMenu("admin-paymenthistory").'><a href="'.URL.'admin-paymenthistory"><i class="fas fa-history fnt"></i>Transaction History</a></li>';
 		echo '<li '.$this->helpers->isActiveMenu("admin-enrolledstudents").'><a href="'.URL.'admin-enrolledstudents"><i class="fas fa-check-square fnt"></i>Enrolled Students</a></li>';
 		echo '</ul>';
 		echo '<li>';

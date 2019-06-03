@@ -35,6 +35,8 @@ class Signin {
 							case 'Superadmin': 
 							$this->needsForSuperadmin();
 							$this->getTransferRequests();
+							$this->getCurriculumRequests();
+							$this->getSectionRequest();
 							echo '<meta http-equiv="refresh" content="0"; url=superadmin-dashboard">';
 							break;
 							case 'Admin': 
@@ -96,7 +98,19 @@ class Signin {
 		$query->execute();
 		$_SESSION['transferNotif'] = $query->rowCount();	
 	}
-
+	
+	private function getCurriculumRequests(){
+		$query=$this->conn->prepare("SELECT * from curriculum_temp join request on curr_request=request_id where request_status='Temporary'");
+		$query->execute();
+		$_SESSION['curriculumNotif'] = $query->rowCount();	
+	}
+	
+	private function getSectionRequest() {
+		$sql = $this->conn->query("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary'");
+		$sql->execute();
+		$_SESSION['sanotif_2'] = $sql->rowCount();
+	}
+	
 	private function errorMessage($message) {	
 		echo "<div class='modal-container'>
 		<div class='modal-box'>

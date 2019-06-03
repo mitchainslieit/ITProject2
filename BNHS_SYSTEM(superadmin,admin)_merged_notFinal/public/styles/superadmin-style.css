@@ -96,7 +96,7 @@ textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important
 .custPad2{padding: 0px 8px 0px 20px !important;}
 .longText{white-space: unset !important; text-align: justify;}
 .longTitle{white-space: unset !important; width: 250px}
-#noFilterTable{margin: 20px 0}
+#noFilterTable, #superadmin-table-noFunct{margin: 20px 0 !important;}
 #checkAl1, #checkAl, #checkItem{width: 100% !important}
 .buttonContainer button{margin-right: 20px;}
 
@@ -105,9 +105,22 @@ span.selectAll{font-size: 11px; display: block}
 
 #superadmin_home .contentpage .widget .feeTypeContent thead tr th:first-of-type,
 #superadmin_home .contentpage .widget #superadmin_feeType_request thead tr th:first-of-type,
-#superadmin_home .contentpage .widget #superadmin-table-section thead tr th:first-of-type{width: 60px !important; padding: 0px!important}
+#superadmin_home .contentpage .widget #superadmin-table-section thead tr th:first-of-type,
+#superadmin_home .contentpage .widget #superadmin-table-noFunct thead tr th:first-of-type{width: 60px !important; padding: 0px!important}
 
-#superadmin_home .contentpage .widget .subjectContent .cont2 .box1{display: flex; width: 430px !important; justify-content: space-between; align-items: center; margin-bottom: 15px}
+#superadmin_home .contentpage .widget .subjectContent .cont2 .box1,
+#superadmin_home .contentpage .widget .curriculumContent .cont2 .box1{display: flex; width: 430px !important; justify-content: space-between; align-items: center; margin-bottom: 15px}
+
+#superadmin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box{display: flex; width: 130px !important; justify-content: space-between; align-items: center; margin-bottom: 15px}
+#superadmin_home .contentpage .widget .curriculumContent .cont2 .cont1{display: flex; width: 350px !important; justify-content: space-between; align-items: center; margin: 20px 20px 15px 0px}
+/* accept/reject shedule */
+.superadmin-classes-page #getCurrentLevel { padding: 8px 6px; border-radius: 8px; }
+.superadmin-classes-page .classes-edit table { border-collapse: collapse; margin-top: 20px; }
+.superadmin-classes-page .classes-edit table th { font-weight: bold; color: #3f3f3f; font-size: 14px; text-align: center; padding: 10px 18px !important; }
+.superadmin-classes-page .classes-edit table th, .superadmin-classes-page .classes-edit table td { border: 1px solid #ddd; padding: 8px 12px; }
+.superadmin-classes-page .classes-edit table tbody tr:nth-of-type(odd) { background: #d1d1d1; }
+.superadmin-classes-page #ScheduleEditting { height: 435px; display: flex; justify-content: center; align-items: center; }
+
 /* tooltip */
 .tooltip {position: relative;display: inline-block;}
 .tooltip .tooltiptext {visibility: hidden;width: 68px;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;bottom: 150%;left: 50%;margin-left: -39px;}
@@ -202,6 +215,8 @@ h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
 /* transfer */
 #superadmin_home .contentpage .widget .widgetContent .cont1{width: 270px}
 #superadmin_home .contentpage .widget .transferContent .cont1 .box1{display: flex; width: 390px !important; justify-content: space-between; align-items: center; margin-bottom: 15px}
+
+/* curriculum */
 
 /* faculty */
 .ui-widget-content{text-align: left; font-size: 15px;}

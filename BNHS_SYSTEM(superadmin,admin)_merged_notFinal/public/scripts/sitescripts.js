@@ -519,7 +519,7 @@
  /****************************************** END OF FRONT-END FUNCTIONALITIES USING JQUERY ******************************************/
 
 /****************************************** ADMIN FUNCTIONALITY ****************************************************/
-var adminTable8 = $('#admin-table-request').DataTable({
+/*var adminTable8 = $('#admin-table-request').DataTable({
 	"initComplete": function (settings, json) {  
 		$("#admin-table-request").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
 	}
@@ -553,7 +553,7 @@ setInterval(function() {
 		});
 	}
 }, 2000);
-
+*/
 $('[name=opener2]').each(function () {
 	var panel = $(this).siblings('[name=dialog2]');
 	$(this).click(function () {
@@ -885,8 +885,83 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 	adminTable.column(6).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
 });
 
+var adminTablePaymentHistory = $('#admin-table-paymentHistory').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-paymentHistory").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	"columnDefs" : [{
+		"targets" : [8],
+		"visible" : false
+	}],
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: ':visible'
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: ':visible'
+		},
+		pageSize: 'Folio',
+		orientation: 'landscape'
+	}
+	],
+	fixedColumns:   {
+		leftColumns: 1
+	}
+});
+
+$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
+	var val1 = $(this).val();
+	adminTablePaymentHistory.column(8).search(val1 ? "^" + val1 + "$"  : '', true, false).draw();
+});
+
+$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus2', function(e) {
+	var val2 = $(this).val();
+	adminTablePaymentHistory.column(7).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+});
+
+$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus3', function(e) {
+	var val2 = $(this).val();
+	adminTablePaymentHistory.column(4).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+});
+
+
+var adminTableFeetypeHistory = $('#admin-table-feetypeHistory').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#admin-table-feetypeHistory").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: ':visible'
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: ':visible'
+		},
+		pageSize: 'Folio'
+	}
+	],
+	fixedColumns:   {
+		leftColumns: 1
+	}
+});
+
+$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
+	var val1 = $(this).val();
+	adminTableFeetypeHistory.column(3).search(val1 ? "^" + val1 + "$"  : '', true, false).draw();
+});
+
 var adminTable3 = $('#admin-table-enrolled').DataTable({
-	"scrollX": true,
 	dom: "lBfrtip",
 	"columnDefs" : [{
 		"targets" : [8],
@@ -919,7 +994,6 @@ var adminTable4 = $('#admin-table-payhist').DataTable({
 	"initComplete": function (settings, json) {  
 		$("#admin-table-payhist").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
 	},
-	"scrollX": true,
 	dom: "lBfrtip",
 	"columnDefs" : [{
 		"targets" : [8],
@@ -940,7 +1014,7 @@ var adminTable4 = $('#admin-table-payhist').DataTable({
 		orientation: 'landscape',
 		pageSize: 'Folio'
 	}
-	],
+	]
 	 
 });
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_payhist', function() {
@@ -1083,7 +1157,7 @@ $('#curriculumTable tbody').on( 'click', 'tr', function () {
 $('#addRow').on( 'click', function () {
 	CurriculumTable.row.add( [
 		'<select name="subj_level[]" data-validation="required"><option selected disabled hidden>Select Subject Level</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select>' ,
-		'<select name="subj_dept[]" data-validation="required" required><option selected disabled hidden>Select Department</option><option value="Filipino">Filipino</option><option value="Math">Math</option><option value="MAPEH">MAPEH</option><option value="Science">Science</option><option value="AP">AP</option><option value="Math">Math</option><option value="English">English</option><option value="TLE">TLE</option><option value="Math">Math</option></select>',
+		'<select name="subj_dept[]" data-validation="required" required><option selected disabled hidden>Subject Department</option><option value="Filipino">Filipino</option><option value="Math">Math</option><option value="MAPEH">MAPEH</option><option value="Science">Science</option><option value="AP">AP</option><option value="Math">Math</option><option value="English">English</option><option value="TLE">TLE</option><option value="Math">Math</option></select>',
 		'<input type="text" name="subj_name[]" data-validation="length custom" data-validation-length="max45" data-validation-regexp="^[a-zA-Z0-9\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphaneumerics only" value="" data-validation="required" required placeholder="Subject Name" class="subject-name">'
 		] ).draw( false );
 	
@@ -1139,7 +1213,28 @@ $( '.sidebar-menu li' ).has('li.active-menu').addClass('active');
  
  /****************************************** SUPERADMIN FUNCTIONALITY ****************************************************/
 
-var sanotif_1 = $('.superadmin-request-table').DataTable();
+var sanotif_1 = $('#superadmin_feeType_request').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#superadmin_feeType_request").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: [1,2]
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: [1,2]
+		},
+		pageSize: 'Folio'
+	}
+	],
+});
+
 if ($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_1').length) {
  setInterval(function() {
  	var data = 'getNotif';
@@ -1154,6 +1249,7 @@ if ($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificatio
  					var new_no = data["response"];
  					if ((current_no != new_no) && $('body').is('[class*="superadmin-"]')) {
  						var new_data = data["addthis"];
+ 						console.log(data);
  						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_1').empty();
  						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_1').append(new_no);
  						sanotif_1.clear().draw();
@@ -1180,7 +1276,7 @@ var superadminTableTransfer = $('#superadmin-table-transfer').DataTable({
 		$("#superadmin-table-transfer").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
 	}
 });
-
+if ($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationTransfer').length) {
 setInterval(function() {
 	var data = new Array('getTransferNotif', parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationTransfer').text()));
 	if ($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationTransfer').length) {
@@ -1209,6 +1305,41 @@ setInterval(function() {
 		});
 	}
 }, 2000);	
+}
+
+var superadminTableCurriculum = $('#superadmin-table-curriculum').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#superadmin-table-curriculum").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: ':visible'
+		},
+		orientation: 'landscape'
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: ':visible'
+		},
+		orientation: 'landscape',
+		pageSize: 'Folio'
+	}
+	],
+	"columnDefs": [{
+		"targets": [3],
+		"visible": false,
+	}],
+	"lengthMenu": [[10, 25, -1], [10, 25, "All"]]
+});
+
+$( '#super_unique' ).on('change', function() {
+	var val = $(this).val();
+	superadminTableCurriculum.column(3).search(val ? val : '', true, false).draw();
+});
 
  $( ".datepicker-schoolyear" ).datepicker({
  	changeMonth: true,
@@ -1293,27 +1424,6 @@ var superadmingTableAnnouncement = $('#superadmin-table-announcement').DataTable
 	]
 });
 
- $superadmin_feeType_request = $('#superadmin_feeType_request').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#superadmin_feeType_request").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	},
-	dom: "lBfrtip",
-	buttons: [
-	{
-		extend: 'excelHtml5',
-		exportOptions: {
-			columns: [1,2]
-		}
-	},
-	{
-		extend: 'pdfHtml5',
-		exportOptions: {
-			columns: [1,2]
-		},
-		pageSize: 'Folio'
-	}
-	],
-});
  
  var superadminTableBalStatus = $('#superadmin-table-balstatus').DataTable({
 	"initComplete": function (settings, json) {  
@@ -1344,15 +1454,46 @@ var superadmingTableAnnouncement = $('#superadmin-table-announcement').DataTable
 	}
 });
  
- 
+
+
  $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
 	var val1 = $(this).val();
 	superadminTableBalStatus.column(7).search(val1 ? "^" + val1 + "$"  : '', true, false).draw();
 });
  
- var superadminTableCurriculum = $('#superadmin-table-curriculum').DataTable({
+ var superadminTableFeetypeHistory = $('#superadmin-table-feetypeHistory').DataTable({
 	"initComplete": function (settings, json) {  
-		$("#superadmin-table-curriculum").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+		$("#superadmin-table-feetypeHistory").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: ':visible'
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: ':visible'
+		},
+		pageSize: 'Folio'
+	}
+	],
+	fixedColumns:   {
+		leftColumns: 1
+	}
+});
+
+$( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
+	var val1 = $(this).val();
+	superadminTableFeetypeHistory.column(3).search(val1 ? "^" + val1 + "$"  : '', true, false).draw();
+});
+ 
+var superadminTableCurriculum2 = $('#superadmin-table-curriculum2').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#superadmin-table-curriculum2").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
 	},
 	dom: "lBfrtip",
 	buttons: [
@@ -1373,18 +1514,64 @@ var superadmingTableAnnouncement = $('#superadmin-table-announcement').DataTable
 	}
 	],
 	"columnDefs": [{
-		"targets": [3],
+		"targets": [0],
 		"visible": false,
 	}],
 	"lengthMenu": [[10, 25, -1], [10, 25, "All"]]
 });
 
-$( '#super_unique' ).on('change', function() {
+$( '#super_unique2' ).on('change', function() {
 	var val = $(this).val();
-	superadminTableCurriculum.column(3).search(val ? val : '', true, false).draw();
+	superadminTableCurriculum2.column(0).search(val ? val : '', true, false).draw();
 });
- 
- $superadminTableSection = $('#superadmin-table-section').DataTable({
+superadminTableCurriculum2.column(0).search($('#super_unique2').val() ? $('#super_unique2').val() : '', true, false).draw();
+
+
+
+var superadminTableNoFunct=$( "#superadmin-table-noFunct, #admin-table-noFunct" ).DataTable({
+	"initComplete": function (settings, json) {  
+		$("#superadmin-table-noFunct, #admin-table-noFunct").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	"paging":   false,
+  	"ordering": false,
+  	"info": false,
+	buttons: false,
+	"searching":false,
+	stateSave: true
+});
+
+setInterval(function() {
+	var data = new Array('getCurriculumNotif', parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationCurriculum').text()));
+	if ($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationCurriculum').length) {
+		$.ajax({
+			type: 'get',
+			url: 'app/model/superadmin-exts/superadmin-ajax.php',
+			data: {data:data},
+			success: function(result) {
+				try {
+					var data = JSON.parse(result);
+					var current_no = parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationCurriculum').text());
+					var new_no = data["response"];
+					if ((current_no != new_no) && $('body').is('[class*="superadmin-"]')) {
+						var new_data = data["addthis"];
+						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationCurriculum').empty();
+						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationCurriculum').append(new_no);
+						superadminTableNoFunct.clear().draw();
+						for (i = 0; i < new_data.length; i++) {
+							superadminTableNoFunct.row.add($(new_data[i])).draw();
+						}
+					}
+				} catch (e) {
+					
+				}
+			}
+		});
+	}
+}, 2000);	
+
+
+
+ var superadminTableSection = $('#superadmin-table-section').DataTable({
 	"initComplete": function (settings, json) {  
 		$("#superadmin-table-section").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
 	},
@@ -1405,7 +1592,38 @@ $( '#super_unique' ).on('change', function() {
 	}
 	],
 });
- 
+
+if ($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_2').length) {
+setInterval(function() {
+	var data = new Array('getSectionNotif', parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_2').text()));
+	if ($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_2').length) {
+		$.ajax({
+			type: 'get',
+			url: 'app/model/superadmin-exts/superadmin-ajax.php',
+			data: {data:data},
+			success: function(result) {
+				try {
+					var data = JSON.parse(result);
+					var current_no = parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_2').text());
+					var new_no = data["response"];
+					if ((current_no != new_no) && $('body').is('[class*="superadmin-"]')) {
+						var new_data = data["addthis"];
+						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_2').empty();
+						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_2').append(new_no);
+						superadminTableSection.clear().draw();
+						for (i = 0; i < new_data.length; i++) {
+							superadminTableSection.row.add($(new_data[i])).draw();
+						}
+					}
+				} catch (e) {
+					
+				}
+			}
+		});
+	}
+}, 2000);	
+}
+
 $superadminTableClasses = $('#superadmin-table-classes').DataTable({
 	"initComplete": function (settings, json) {  
 		$("#superadmin-table-classes").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
@@ -1428,17 +1646,17 @@ $superadminTableClasses = $('#superadmin-table-classes').DataTable({
 	],
 });
 
-var secCurrentSuperAdmin = $('.superadmin-classes-page #getCurrentLevel').val();
+var secCurrentSuperAdmin = $('.superadmin-classschedule-page #getCurrentLevel').val();
 getCurrentSection1SuperAdmin(secCurrentSuperAdmin);
 
-$('.superadmin-classes-page #getCurrentLevel').on('change', function() {
+$('.superadmin-classschedule-page #getCurrentLevel').on('change', function() {
 	var val = $(this).val();
 	getCurrentSection1SuperAdmin(val);
 });
 
 function getCurrentSection1SuperAdmin(value) {
-	var showThis = '.superadmin-classes-page .table-scroll #'+value;
-	var hideThis = '.superadmin-classes-page .table-scroll .classes-edit:not(#'+value+')';
+	var showThis = '.superadmin-classschedule-page .table-scroll #'+value;
+	var hideThis = '.superadmin-classschedule-page .table-scroll .classes-edit:not(#'+value+')';
 	$(hideThis).each(function() {
 		$(this).hide();
 	});
@@ -1449,7 +1667,6 @@ var superadminTablePayhist = $('#superadmin-table-payhist').DataTable({
 	"initComplete": function (settings, json) {  
 		$("#superadmin-table-payhist").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
 	},
-	"scrollX": true,
 	dom: "lBfrtip",
 	"columnDefs" : [{
 		"targets" : [8],
@@ -1470,8 +1687,7 @@ var superadminTablePayhist = $('#superadmin-table-payhist').DataTable({
 		orientation: 'landscape',
 		pageSize: 'Folio'
 	}
-	],
-	 
+	]
 });
 
 
@@ -1507,7 +1723,7 @@ var superadminTableEnrolled = $('#superadmin-table-enrolled').DataTable({
 	],
 });
 
-$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_enrolled', function() {
+$( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_enrolled', function() {
 	var val3 = $(this).val();
 	superadminTableEnrolled.column(8).search(val3 ? "^" + val3 + "$"  : '', true, false).draw();
 });
@@ -1535,7 +1751,7 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 	],
 	"order": [[ 3, "desc" ]]
 });
-$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.log_events', function() {
+$( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.log_events', function() {
 	var val5 = $(this).val();
 	superadminTableLogs.column(2).search(val5 ? val5 : '', true, false).draw();
 });
@@ -1584,6 +1800,72 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.log
  	});
  	$(showThis).show();
  }
+
+var superadminTablePaymentHistory = $('#superadmin-table-paymentHistory').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#superadmin-table-paymentHistory").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	"columnDefs" : [{
+		"targets" : [8],
+		"visible" : false
+	}],
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: ':visible'
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: ':visible'
+		},
+		pageSize: 'Folio',
+		orientation: 'landscape'
+	}
+	],
+	fixedColumns:   {
+		leftColumns: 1
+	}
+});
+
+$( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
+	var val1 = $(this).val();
+	adminTablePaymentHistory.column(8).search(val1 ? "^" + val1 + "$"  : '', true, false).draw();
+});
+
+$( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus2', function(e) {
+	var val2 = $(this).val();
+	adminTablePaymentHistory.column(7).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+});
+
+$( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus3', function(e) {
+	var val2 = $(this).val();
+	adminTablePaymentHistory.column(4).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+});
+
+if ($('body').is('[class*="superadmin-"]')) {
+	$('.superadmin-classes-page').on('change', '#getCurrentLevel', function() {
+		var current = $(this).val();
+		$('.superadmin-classes-page .classes-edit').each(function() {
+			var this_id = $(this).attr('id');
+			$(this).hide();
+			if(current === this_id) {
+				$(this).show();
+			}
+		});
+	});
+	$('.superadmin-classes-page .classes-edit').each(function() {
+		var current = $('.superadmin-classes-page #getCurrentLevel').val();
+		var this_id = $(this).attr('id');
+		$(this).hide();
+		if(current === this_id) {
+			$(this).show();
+		}
+	});
+}
 
  /****************************************** END SUPERADMIN FUNCTIONALITY *************************************************/
 

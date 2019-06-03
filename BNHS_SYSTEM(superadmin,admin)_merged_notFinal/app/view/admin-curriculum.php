@@ -20,7 +20,7 @@
 						<input type="text" form="form1" name="curr_name" id="curr_name" data-validation="length custom" data-validation-length="max45" data-validation-regexp="^[a-zA-Z0-9\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphanumerics only" value="" data-validation="required"  placeholder="Curriculum Name" />
 					</div>
 					<div class="cont2">
-						<button id="addRow" class="customButton">Add row</button>
+						<button id="addRow" class="customButton">Add subject</button>
 						<button id="removeRow" class="customButton">Select row to remove</button>
 					</div>
 					<form action="admin-curriculum" method="POST" autocomplete="off" id="form1">

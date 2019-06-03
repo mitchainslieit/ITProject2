@@ -72,7 +72,6 @@
 					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
 				</div>	
 				<div class="widgetContent payHistoryContent">
-					<p>Miscellaneous Fee: &#x20B1; <?php $obj->getMiscFee(); ?></p>
 					<div class="cont1">
 						<div class="box box1">
 							<p>Grade Level and Section:</p>

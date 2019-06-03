@@ -1,5 +1,20 @@
 	<?php require 'app/model/Superadmin-funct.php'; $obj = new SAdminFunct(); ?>
-	
+	<?php 
+		if(isset($_POST['classaccept-button'])){
+			extract($_POST);
+			$obj->classsacceptRequest();
+		}
+		if(isset($_POST['classreject-button'])){
+			extract($_POST);
+			$obj->updateClass($sec_id, $fac_idv);
+		}
+		if(isset($_POST['accept-schedule'])) {
+			$obj->acceptNewSchedule();
+		}
+		if(isset($_POST['reject-schedule'])) {
+			$obj->rejectNewSchedule($_POST);
+		}
+	?>
 	<div class="contentpage" id="contentpage">
 		<div class="row">
 			<div class="widget">	
@@ -11,10 +26,8 @@
 					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
 				</div>
 				<div class="widgetContent">
-					<div class="cont1">
-					</div>
 					<div class="cont2">
-						<table id="superadmin-table-all" class="display">
+						<table class="superadmin-table" class="display">
 							<thead>
 								<tr>
 									<th class="tleft">Employee ID</th>
@@ -41,25 +54,6 @@ echo '
 ?>
 							</tbody>
 						</table>
-					</div>
-				</div>
-			</div>
-			<div class="widget">	
-				<div class="header">	
-					<p>	<i class="fa fa-user fnt"></i><span>Adviser Class Schedule</span></p>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
-				</div>	
-				<div class="editContent widgetcontent">
-					<div class="cont2">
-						<div class="table-scroll">
-							<div class ="cont fl">
-								<span>SECTION: </span>
-								<select name="sectionid" id="getCurrentLevel">
-									<?php $obj->showSections(); ?>
-								</select>
-							</div>
-							<?php $obj->showTabledSections(); ?>
-						</div>
 					</div>
 				</div>
 			</div>
