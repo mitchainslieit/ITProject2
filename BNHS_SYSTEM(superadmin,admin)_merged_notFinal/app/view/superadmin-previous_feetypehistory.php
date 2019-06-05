@@ -18,8 +18,7 @@
 					<div class="cont1">
 						<div class="box box2">
 							<p>Year:</p>
-							<select name="year" id="year" class="year_level_balstatus1">
-								<option value="">All</option>
+							<select name="year" id="yearSuperadminTable" class="year_level_balstatus1">
 								<?php $obj->getYears(); ?>
 							</select>
 						</div>
@@ -49,6 +48,18 @@ echo '
 }
 ?>		
 							</tbody>
+							<tfoot>
+								<?php foreach ($obj->showHistoryPaymentCollected() as $value) {
+									extract($value);
+									echo'
+									<tr>
+										<td class="tleft"><b>TOTAL AMOUNT COLLECTED: </b>'. number_format($totalAmtCollected, 2) .'</td>
+										<td class="tleft"><b>Year: </b>'.$bd_prevsy.'</td>
+									</tr>
+									';
+								}
+								?>
+							</tfoot>
 						</table>
 					</div>
 				</div>

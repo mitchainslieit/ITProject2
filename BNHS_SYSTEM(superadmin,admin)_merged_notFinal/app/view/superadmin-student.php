@@ -59,7 +59,7 @@
 	<td class="tleft">'.$stud_address.'</td>
 	<td class="tleft">'.$stud_bday.'</td>
 	<td class="tleft">'.$mother_name.'</td>
-	<th class="tleft">'.$father_name.'</th>
+	<td class="tleft">'.$father_name.'</td>
 	<td class="tleft">'.$nationality.'</td>
 	<td class="tleft">'.$ethnicity.'</td>
 	<td class="tleft">'.$blood_type.'</td>

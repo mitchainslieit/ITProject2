@@ -931,6 +931,7 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 });
 
 
+
 var adminTableFeetypeHistory = $('#admin-table-feetypeHistory').DataTable({
 	"initComplete": function (settings, json) {  
 		$("#admin-table-feetypeHistory").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
@@ -960,6 +961,13 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 	var val1 = $(this).val();
 	adminTableFeetypeHistory.column(3).search(val1 ? "^" + val1 + "$"  : '', true, false).draw();
 });
+
+$( '#yearAdminTable' ).on('change', function() {
+	var val = $(this).val();
+	adminTableFeetypeHistory.column(3).search(val ? val : '', true, false).draw();
+});
+adminTableFeetypeHistory.column(3).search($('#yearAdminTable').val() ? $('#yearAdminTable').val() : '', true, false).draw();
+
 
 var adminTable3 = $('#admin-table-enrolled').DataTable({
 	dom: "lBfrtip",
@@ -1490,7 +1498,14 @@ $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', 
 	var val1 = $(this).val();
 	superadminTableFeetypeHistory.column(3).search(val1 ? "^" + val1 + "$"  : '', true, false).draw();
 });
- 
+
+$( '#yearSuperadminTable' ).on('change', function() {
+	var val = $(this).val();
+	superadminTableFeetypeHistory.column(3).search(val ? val : '', true, false).draw();
+});
+superadminTableFeetypeHistory.column(3).search($('#yearSuperadminTable').val() ? $('#yearSuperadminTable').val() : '', true, false).draw();
+
+
 var superadminTableCurriculum2 = $('#superadmin-table-curriculum2').DataTable({
 	"initComplete": function (settings, json) {  
 		$("#superadmin-table-curriculum2").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
@@ -1833,18 +1848,24 @@ var superadminTablePaymentHistory = $('#superadmin-table-paymentHistory').DataTa
 
 $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
 	var val1 = $(this).val();
-	adminTablePaymentHistory.column(8).search(val1 ? "^" + val1 + "$"  : '', true, false).draw();
+	superadminTablePaymentHistory.column(8).search(val1 ? "^" + val1 + "$"  : '', true, false).draw();
 });
 
 $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus2', function(e) {
 	var val2 = $(this).val();
-	adminTablePaymentHistory.column(7).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+	superadminTablePaymentHistory.column(7).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
 });
 
 $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus3', function(e) {
 	var val2 = $(this).val();
-	adminTablePaymentHistory.column(4).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+	superadminTablePaymentHistory.column(4).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
 });
+
+$( '#yearSuperadminTable' ).on('change', function() {
+	var val = $(this).val();
+	superadminTablePaymentHistory.column(4).search(val ? val : '', true, false).draw();
+});
+superadminTablePaymentHistory.column(4).search($('#yearSuperadminTable').val() ? $('#yearSuperadminTable').val() : '', true, false).draw();
 
 if ($('body').is('[class*="superadmin-"]')) {
 	$('.superadmin-classes-page').on('change', '#getCurrentLevel', function() {

@@ -1,4 +1,4 @@
-	<?php require 'app/model/admin-funct.php'; $obj = new AdminFunct;?>
+		<?php require 'app/model/admin-funct.php'; $obj = new AdminFunct;?>
 	<?php 
 		if(isset($_POST['insert-holiday-button'])){
 			extract($_POST);

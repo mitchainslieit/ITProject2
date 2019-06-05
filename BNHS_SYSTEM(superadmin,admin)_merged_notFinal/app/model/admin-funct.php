@@ -521,6 +521,19 @@ class AdminFunct{
 		return $data;
 	}
 	
+	public function showHistoryPaymentCollected(){
+		$sql=$this->conn->prepare("SELECT bd_prevsy, SUM(bd_accamount) as totalAmtCollected FROM payment_collected GROUP BY bd_prevsy;");
+		$sql->execute();
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+		}else{
+			return $sql;
+		}
+		return $data;
+	}
+	
 	public function showHistoryFeetype(){
 		$sql=$this->conn->query("SELECT * from payment_collected") or die ("failed!");
 		if($sql->rowCount()>0){
@@ -534,7 +547,7 @@ class AdminFunct{
 	}
 	
 	public function getYears() {
-		$sql=$this->conn->prepare("SELECT prev_sy from balance_archive join student on stud_archive=stud_id");
+		$sql=$this->conn->prepare("SELECT prev_sy from balance_archive join student on stud_archive=stud_id group by prev_sy");
 		$sql->execute();
 		$option = '';
 		while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
