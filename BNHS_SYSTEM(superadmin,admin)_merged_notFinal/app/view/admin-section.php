@@ -65,10 +65,10 @@
 										<th class="tleft custPad">Grade Level</th>
 										<th class="tleft custPad">Section Name</th>
 <?php 
-										$queryCount=$this->conn->prepare("SELECT * FROM request join section_temp on request_id=sec_req WHERE request_status='Temporary'");
+										$queryCount=$this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary' and (r.request_type='Insert' or r.request_type='Delete' or r.request_type='Update')");
 										$queryCount->execute();
 										$rowQueryCount=$queryCount->rowCount();
-										echo $rowQueryCount > 0 ? '<th>Request</th>' : '';
+										echo $rowQueryCount > 0 ? '<th class="tleft custPad">Request</th>' : '';
 										echo '
 										<th>Action</th>
 									</tr>
@@ -79,31 +79,31 @@ foreach ($obj->showSectionTable() as $value) {
 	$grade_level = ['7', '8', '9', '10'];
 	echo '
 		<tr>
-			<td><input type="checkbox" id="checkItem" name="check[]" value="'.$sectionid.'" form="form1"></td>';
-			echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$gr_lvl.'</span></td>' : ' <td class="tleft custPad">'.$gr_lvl.'</td>';
-			echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$s_name.'</span></td>' : ' <td class="tleft custPad">'.$s_name.'</td>';
-			if($rowQueryCount > 0){
-				if($request_status == "Temporary"){
-					echo '
-					<td>For Approval to 
-					';
-					if($request_type == 'Insert'){
-						echo 'Add';
-					}else if($request_type == 'Update'){
-						echo 'Update';
-					}else if($request_type == 'Delete'){
-						echo 'Delete';
-					}else{
-						echo '';
-					}
-					echo'
-					</td>
-					';
-				}else{
-					echo '<td> </td>';
-				}
+			<td><input type="checkbox" id="checkItem" name="check[]" value="'.$sectionid.'" form="form1"></td>
+			<td class="tleft custPad">'.$gr_lvl.'</td>
+			<td class="tleft custPad">';
+			if($request_status=='Temporary'){
+				echo '<span class="temporary">'.$s_name.'</span>';
+			}else{
+				echo $s_name;
 			}
 			echo'
+			</td>
+			';
+			if($request_type == "Update" && $request_status=='Temporary'){
+				echo '<td class="tleft custPad">For approval to '.$request_type.'</td>';
+			}else{
+				echo'';
+			}if($request_type == "Insert" && $request_status=='Temporary'){
+				echo '<td class="tleft custPad">For approval to '.$request_type.'</td>';
+			}else{
+				echo '';
+			} if($request_type == "Delete" && $request_status=='Temporary'){
+				echo '<td class="tleft custPad">For approval to '.$request_type.'</td>';
+			}else{
+				echo '';
+			}
+			echo'</td>
 			<td class="action">
 				<div name="content">
 					<button name="opener">

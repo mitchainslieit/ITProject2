@@ -21,13 +21,14 @@ case 'superadmin' :
 	echo '<li>';
 	echo '<a href="'.' '.'" target="class-submenu" class="submenu-title"><span><i class="fas fa-chalkboard-teacher fnt"></i>Class <i class="fa fa-angle-left pull-right"></i><span></a>';
 	echo '<ul class="sidebar-submenu" id="class-submenu">';
-	echo '<li '.$this->helpers->isActiveMenu("superadmin-classes").'><a href="'.URL.'superadmin-classes"><i class="fas fa-book-open fnt"></i>Class List</a></li>';
+	echo '<li '.$this->helpers->isActiveMenu("superadmin-classes").'><a href="'.URL.'superadmin-classes"><i class="fas fa-book-open fnt"></i>Class List</a><span class="classNotification">'.$_SESSION['classNotif'].'</span></li>';
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-classschedule").'><a href="'.URL.'superadmin-classschedule"><i class="fas fa-clipboard-list fnt"></i>Class Schedule</a></li>';
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-classedit").'><a href="'.URL.'superadmin-classedit"><i class="far fa-clipboard fnt"></i>Schedule Request</a></li>';
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-transfer").'><a href="'.URL.'superadmin-transfer"><i class="fas fa-bell fnt"></i>Accept Request</a><span class="notificationTransfer">'.$_SESSION['transferNotif'].'</span></li>';
 	echo '</ul>';
 	echo '</li>';
-	
+	echo '<li '.$this->helpers->isActiveMenu("superadmin-grades").'><a href="'.URL.'superadmin-grades"><i class="fas fa-list fnt"></i>Grades</a></li>';
+	echo '<li>';
 	echo '<li>';
 	echo '<a href="'.' '.'" target="user-submenu" class="submenu-title"><span><i class="fas fa-user-plus fnt"></i>Users <i class="fa fa-angle-left pull-right"></i><span></a>';
 	echo '<ul class="sidebar-submenu" id="user-submenu">';

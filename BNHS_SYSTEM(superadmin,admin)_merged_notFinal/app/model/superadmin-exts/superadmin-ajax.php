@@ -110,7 +110,7 @@ class SAAjax {
 	}
 	
 	public function getSectionNotif(){
-		$sql = $this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary'");
+		$sql = $this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary' and (r.request_type='Insert' or r.request_type='Update' or r.request_type= 'Delete')");
 		$sql->execute();
 		$result = $sql->fetchAll();
 		$_SESSION['sanotif_2'] = $sql->rowCount();
@@ -128,6 +128,52 @@ class SAAjax {
 		$data['response'] = $_SESSION['sanotif_2'];
 		echo json_encode($data);
 	}
+	public function getClassNotif(){
+		$sql = $this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary' and (r.request_type='Adviser_Insert' or r.request_type='Adviser_Update')");
+		$sql->execute();
+		$result = $sql->fetchAll();
+		$_SESSION['classNotif'] = $sql->rowCount();
+		$data = array();
+		$data['addthis'] = array();
+		foreach($result as $value){
+			extract($value);
+			$data['addthis'][] = '
+			<tr>
+				<td><input type="checkbox" id="checkItem" name="check[]" value="'.$request_id.'"></td>
+				<td class="tleft custPad">'.$request_type.'</td>
+				<td class="tleft custPad">'.$request_desc.'</td>
+			</tr>';
+			}
+		$data['response'] = $_SESSION['classNotif'];
+		echo json_encode($data);
+	}
+	public function updateSecPriv() {
+		$updateNo = $this->conn->query("UPDATE faculty SET sec_privilege = 'No'");
+		$updateYes = $this->conn->prepare("UPDATE faculty SET sec_privilege = 'Yes' WHERE fac_id = :fac");
+		$updateYes->execute(array(
+			':fac' => $_POST['data'][1]
+		));
+	}
+
+	public function toggle_edit_class() {
+		if($_POST['data'][1] === 'yes'){
+			$updateYes = $this->conn->query("UPDATE system_settings SET edit_class = 'Yes' WHERE sy_status = 'Current'");
+			echo 'You have successfully enabled operation to transfer student.';
+		} else {
+			$updateNo = $this->conn->query("UPDATE system_settings SET edit_class = 'No' WHERE sy_status = 'Current'");
+			echo 'You have successfully disabled operation to transfer student.';
+		}
+	}
+
+	public function toggle_transfer_student() {
+		if($_POST['data'][1] === 'yes'){
+			$updateYes = $this->conn->query("UPDATE system_settings SET student_transfer = 'Yes' WHERE sy_status = 'Current'");
+			echo 'You have successfully enabled operation to transfer student.';
+		} else {
+			$updateNo = $this->conn->query("UPDATE system_settings SET student_transfer = 'No' WHERE sy_status = 'Current'");
+			echo 'You have successfully disabled operation to transfer student.';
+		}
+	}
 }
 
 /* OUTSIDE THE CLASS */
@@ -140,4 +186,9 @@ if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getTransferNotif') $run->get
 if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getCurriculumNotif') $run->getCurriculumNotif();
 if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getCurriculumNotifBot') $run->getCurriculumNotifBot();
 if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getSectionNotif') $run->getSectionNotif();
+if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getClassNotif') $run->getClassNotif();
+if(isset($_POST['data'][0]) && $_POST['data'][0] === 'update-sec-priv') $run->updateSecPriv();
+/*if(isset($_POST['data'][0]) && $_POST['data'][0] === 'update-curriculum') $run->updateCurriculum_();
+*/if(isset($_POST['data'][0]) && $_POST['data'][0] === 'toggle-edit-class') $run->toggle_edit_class();
+if(isset($_POST['data'][0]) && $_POST['data'][0] === 'toggle-transfer-student') $run->toggle_transfer_student();
 ?>

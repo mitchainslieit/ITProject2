@@ -787,19 +787,31 @@ class AdminFunct{
 		$checkbox = $_POST['check'];
 		if($checkbox !== null){
 			for($i=0;$i<count($checkbox);$i++){
-				$del_id = $checkbox[$i]; 	
-				$querySearch=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
-				if($querySearch->execute(array(
-					':sectionid' => $del_id
-				))){
-					$rowQuerySearch=$querySearch->fetch(PDO::FETCH_ASSOC);
-					$req_id=$rowQuerySearch['sec_req'];
-					$sec_name=$rowQuerySearch['s_name'];
-					$request_desc='Delete Section '.$sec_name;
-					$this->deleteRequest($req_id, $request_desc);
-					$this->alert("Success!", "The selected item/s has been successfully deleted", "success", "admin-section");
+				$del_id = $checkbox[$i]; 
+				$queryTableReq=$this->conn->prepare("SELECT * FROM request join section_temp on request_id=sec_req WHERE sectionid=:sectionid");
+				$queryTableReq->execute(array(
+					':sectionid' => $id
+				));
+				$rowQueryTableReq=$queryTableReq->fetch(PDO::FETCH_ASSOC);
+				$queryType=$rowQueryTableReq['request_type'];
+				$queryStat=$rowQueryTableReq['request_status'];
+				
+				if(($queryType == 'Insert' || $queryType == 'Update' || $queryType == 'Delete') && $queryStat == 'Permanent'){	
+					$querySearch=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
+					if($querySearch->execute(array(
+						':sectionid' => $del_id
+					))){
+						$rowQuerySearch=$querySearch->fetch(PDO::FETCH_ASSOC);
+						$req_id=$rowQuerySearch['sec_req'];
+						$sec_name=$rowQuerySearch['s_name'];
+						$request_desc='Delete Section '.$sec_name;
+						$this->deleteRequest($req_id, $request_desc);
+						$this->alert("Success!", "The selected item/s has been successfully deleted", "success", "admin-section");
+					}else{
+						$this->alert("Error!", "You are not allowed to delete the selected item/s, because there might be some student/s that has enrolled in this section", "error", "admin-section");
+					}
 				}else{
-					$this->alert("Error!", "You are not allowed to delete the selected item/s, because there might be some student/s that has enrolled in this section", "error", "admin-section");
+					$this->alert("Error!", "There is a pending request under this section. Wait for the superadmin to approve the previous request", "error", "admin-section");
 				}
 				
 				/*$sql = $this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
@@ -826,7 +838,7 @@ class AdminFunct{
 	}
 	
 	public function showSectionTable(){
-		$sql = $this->conn->prepare("SELECT * FROM request join section_temp on request_id=sec_req") or die ("failed!");
+		$sql = $this->conn->prepare("SELECT *, request_type FROM request join section_temp on request_id=sec_req") or die ("failed!");
 		$sql->execute();
 		if($sql->rowCount()>0){
 			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
@@ -911,55 +923,82 @@ class AdminFunct{
 		}
 	}
 	public function updateSection($id, $sec_name, $grade_lvl){
-		$sql1=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
-		$sql1->execute(array(
+		$queryTableReq=$this->conn->prepare("SELECT * FROM request join section_temp on request_id=sec_req WHERE sectionid=:sectionid");
+		$queryTableReq->execute(array(
 			':sectionid' => $id
-		)); 
-		$row1=$sql1->fetch(PDO::FETCH_ASSOC);
-		$secToUpdate=$row1['s_name'];
-		$req_id=$row1['sec_req'];
-		$request_desc='Update Section Grade '.$grade_lvl. ' - '.$sec_name;
-		$this->updateRequest($req_id, $request_desc);
+		));
+		$rowQueryTableReq=$queryTableReq->fetch(PDO::FETCH_ASSOC);
+		$queryType=$rowQueryTableReq['request_type'];
+		$queryStat=$rowQueryTableReq['request_status'];
 		
-		$sql2=$this->conn->prepare("UPDATE section_temp 
-			SET  name_temp=:name_temp, 
-			gr_lvl=:gr_lvl
-			WHERE sectionid=:sectionid");	
-		if($sql2->execute(array(
-			':name_temp'=> $sec_name, 
-			':gr_lvl'=> $grade_lvl,
-			':sectionid' => $id
-		))){
-			/*$sql3=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
-			$sql3->execute(array(
+		if(($queryType == 'Insert' || $queryType == 'Update' || $queryType == 'Delete') && $queryStat == 'Permanent'){
+			$sql1=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
+			$sql1->execute(array(
 				':sectionid' => $id
 			)); 
-			$row3=$sql3->fetch(PDO::FETCH_ASSOC);
-			$sec_name=$row3['s_name'];
-			$log_event="Update";
-			$log_desc="Updated the Section ".$secToUpdate." to ".$sec_name;
-			$this->insertLogs($log_event, $log_desc);*/
-			$this->alert("Success!", "Section has been successfully updated", "success", "admin-section");
+			$row1=$sql1->fetch(PDO::FETCH_ASSOC);
+			$secToUpdate=$row1['s_name'];
+			$req_id=$row1['sec_req'];
+			$request_desc='Update Section Grade '.$grade_lvl. ' - '.$sec_name;
+			$this->updateRequest($req_id, $request_desc);
+			
+			$sql2=$this->conn->prepare("UPDATE section_temp 
+				SET  name_temp=:name_temp, 
+				gr_lvl=:gr_lvl
+				WHERE sectionid=:sectionid");	
+			if($sql2->execute(array(
+				':name_temp'=> $sec_name, 
+				':gr_lvl'=> $grade_lvl,
+				':sectionid' => $id
+			))){
+				/*$sql3=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
+				$sql3->execute(array(
+					':sectionid' => $id
+				)); 
+				$row3=$sql3->fetch(PDO::FETCH_ASSOC);
+				$sec_name=$row3['s_name'];
+				$log_event="Update";
+				$log_desc="Updated the Section ".$secToUpdate." to ".$sec_name;
+				$this->insertLogs($log_event, $log_desc);*/
+				$this->alert("Success!", "Section has been successfully updated", "success", "admin-section");
+			}else{
+				$this->alert("Error!", "Failed to update section", "error", "admin-section");
+			}
 		}else{
-			$this->alert("Error!", "Failed to update section", "error", "admin-section");
+			$this->alert("Error!", "There is a pending request under this section. Wait for the superadmin to approve the previous request", "error", "admin-section");
 		}
+			
 		
 	}	
 	public function deleteSection($id){
 		try {
-			$querySearch=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
-			if($querySearch->execute(array(
+			$queryTableReq=$this->conn->prepare("SELECT * FROM request join section_temp on request_id=sec_req WHERE sectionid=:sectionid");
+			$queryTableReq->execute(array(
 				':sectionid' => $id
-			))){
-				$rowQuerySearch=$querySearch->fetch(PDO::FETCH_ASSOC);
-				$req_id=$rowQuerySearch['sec_req'];
-				$sec_name=$rowQuerySearch['s_name'];
-				$request_desc='Delete Section '.$sec_name;
-				
-				$this->deleteRequest($req_id, $request_desc);
+			));
+			$rowQueryTableReq=$queryTableReq->fetch(PDO::FETCH_ASSOC);
+			$queryType=$rowQueryTableReq['request_type'];
+			$queryStat=$rowQueryTableReq['request_status'];
+			
+			if(($queryType == 'Insert' || $queryType == 'Update' || $queryType == 'Delete') && $queryStat == 'Permanent'){
+				$querySearch=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
+				if($querySearch->execute(array(
+					':sectionid' => $id
+				))){
+					$rowQuerySearch=$querySearch->fetch(PDO::FETCH_ASSOC);
+					$req_id=$rowQuerySearch['sec_req'];
+					$sec_name=$rowQuerySearch['s_name'];
+					$request_desc='Delete Section '.$sec_name;
+					$this->deleteRequest($req_id, $request_desc);
+					$this->alert("Success!", "The request has been sent", "success", "admin-section");
+					
+				}else{
+					$this->alert("Error!", "Failed to delete section!", "error", "admin-section");
+				}
 			}else{
-				$this->alert("Error!", "Failed to delete section!", "error", "admin-section");
+				$this->alert("Error!", "There is a pending request under this section. Wait for the superadmin to approve the previous request", "error", "admin-section");
 			}
+			
 			/*$sql = $this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
 			$sql->execute(array(
 				':sec_id' => $id
@@ -1219,11 +1258,11 @@ class AdminFunct{
 			);
 			return $data;
 		} else {
-			$sql = $this->conn->query("SELECT sec_id FROM section WHERE sec_id = '".$sec_id."'");
+			$sql = $this->conn->query("SELECT sec_id, grade_lvl FROM section WHERE sec_id = '".$sec_id."'");
 			$sec_info = $sql->fetch();
 			$data = array(
 				'sec_id' => $sec_id,
-				'subj_level' => $sec_info['gr_lvl'],
+				'subj_level' => $sec_info['grade_lvl'],
 				'sched_id' => $sched_id,
 				'time_start' => $time_start,
 				'exist' => false
@@ -1374,7 +1413,7 @@ class AdminFunct{
 	/**************** CLASS **********************/
 	
 	public function showClasses(){
-		$sql=$this->conn->prepare("SELECT *,fac_no, CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS fullname, s_name, gr_lvl, fac_id, sectionid FROM faculty JOIN section_temp ON fac_id=fc_id join request on request_id=sec_req WHERE fac_adviser='Yes'");
+		$sql=$this->conn->prepare("SELECT *,fac_no, CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS fullname, s_name, gr_lvl, fac_id, sectionid FROM faculty JOIN section_temp ON fac_id=fc_id join request on sec_req=request_id WHERE fac_adviser='Yes' ");
 		$sql->execute();
 		if($sql->rowCount()>0){
 			while($r=$sql->fetch(PDO::FETCH_ASSOC)){
@@ -1385,12 +1424,20 @@ class AdminFunct{
 		return $sql;
 	}
 	public function section() {
-		$sql = $this->conn->prepare("SELECT sectionid, s_name, gr_lvl FROM section_temp WHERE fac_idv IS NULL");
+		$sql = $this->conn->prepare("SELECT sec_id, sec_name, grade_lvl FROM section WHERE fac_idv IS NULL");
+		$sql->execute();
+		while ($row = $sql->fetch()) {
+			echo "<option value='" . $row['sec_id'] . "'>".$row['grade_lvl']." - " . $row['sec_name'] . "</option>";
+		}
+	}
+	public function sectionTemp() {
+		$sql = $this->conn->prepare("SELECT sectionid, s_name, gr_lvl FROM section_temp WHERE fc_id IS NULL");
 		$sql->execute();
 		while ($row = $sql->fetch()) {
 			echo "<option value='" . $row['sectionid'] . "'>".$row['gr_lvl']." - " . $row['s_name'] . "</option>";
 		}
 	}
+	
 	public function facultylist(){
 		$sql = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty WHERE fac_adviser='Yes' and fac_id NOT IN (SELECT fc_id FROM section_temp JOIN faculty ON fac_id=fc_id) ");
 		$sql->execute();
@@ -1418,38 +1465,76 @@ class AdminFunct{
 	}
 	public function addClass($sec_id, $fac_idv){	
 		try {
-			$querySearch = $this->conn->prepare("SELECT * FROM section where sec_id=:sec_id");
-			$querySearch->execute(array(
-				':sec_id' => $sec_id
+			
+			$queryGetReqID=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
+			$queryGetReqID->execute(array(
+				':sectionid' =>$sec_id
 			));
-			$rowQuerySearch = $querySearch->fetch(PDO::FETCH_ASSOC);
-			$request_id = $rowQuerySearch['sec_request'];
-			$sql=$this->conn->prepare("UPDATE Section 
-			SET  fac_idv=:fac_idv
-			WHERE sec_id=:sec_id");
-			if($sql->execute(array(
-				':fac_idv'=> $fac_idv,
-				':sec_id' => $sec_id
-			))){
-				$sql2=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name, fac_id, sec_id FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
+			$rowQueryGetReqID=$queryGetReqID->fetch(PDO::FETCH_ASSOC);
+			$requestID=$rowQueryGetReqID['sec_req'];
+			
+			$queryTableReq=$this->conn->prepare("SELECT * FROM request WHERE request_id=:request_id");
+			$queryTableReq->execute(array(
+				':request_id' => $requestID
+			));
+			$rowQueryTableReq=$queryTableReq->fetch(PDO::FETCH_ASSOC);
+			$queryType=$rowQueryTableReq['request_type'];
+			$queryStat=$rowQueryTableReq['request_status'];
+			
+			if(($queryType == 'Insert' || $queryType == 'Update' || $queryType == 'Delete') && $queryStat == 'Permanent'){
+				$sql=$this->conn->prepare("UPDATE section_temp
+				SET fc_id=:fc_id
+				WHERE sectionid=:sectionid");
+				if($sql->execute(array(
+					':fc_id'=> $fac_idv,
+					':sectionid' => $sec_id
+				))){
+					$sql7=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, s_name, gr_lvl FROM section_temp JOIN faculty on fac_id=fc_id WHERE fc_id=?");
+					$sql7->bindParam(1, $fac_idv);				
+					$sql7->execute(); 
+					$row7=$sql7->fetch(PDO::FETCH_ASSOC);
+					$sec_adviser=$row7['facultyname'];
+					$sec_name =$row7['s_name'];
+					$grade_lvl=$row7['gr_lvl'];
+					$log_event="Insert";
+					
+					$request_desc="Add ".$sec_adviser." as an adviser in Grade ".$grade_lvl." - ".$sec_name;
+					
+					$queryAdviserInsert=$this->conn->prepare("UPDATE request SET request_type=:request_type, request_desc=:request_desc, request_status='Temporary' WHERE request_id=:request_id");
+					$queryAdviserInsert->execute(array(
+						':request_type' => 'Adviser_Insert',
+						':request_desc' => $request_desc,
+						':request_id' => $requestID
+					));
+					$this->alert("Success!", "The request has been sent! Class: $sec_name, Teacher-in-charge: $sec_adviser", "success", "admin-classes");
+				}else{
+					$this->alert("Error!", "Failed to add class!", "error", "admin-classes");
+				}	
+			}else{
+				$this->alert("Error!", "You are not allowed to assign an adivser in this class because this section is not yet been approved by the superadmin", "error", "admin-classes");
+			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+				/*$sql2=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, s_name, fac_id, sectionid FROM section_temp JOIN faculty on fc_id=fac_id WHERE fc_id=?");
 				$sql2->bindParam(1, $fac_idv);
 				$sql2->execute();
 				$row1 = $sql2->fetch();
 				$facultyName = $row1['facultyname'];
-				$sec_name = $row1['sec_name'];
-				$section_id = $row1['sec_id'];
+				$sec_name = $row1['s_name'];
+				$section_id = $row1['sectionid'];
 				$faculty_id = $row1['fac_id'];
 				
-				$sql3=$this->conn->prepare("SELECT * FROM section JOIN schedule ON sched_yrlevel=grade_lvl WHERE fac_idv=:fac_idv");
+				$sql3=$this->conn->prepare("SELECT * FROM section_temp JOIN schedule ON sched_yrlevel=gr_lvl WHERE fc_id=:fc_id");
 				$sql3->execute(array(
-					':fac_idv' => $fac_idv,
+					':fc_id' => $fac_idv,
 				));
 				$row2=$sql3->fetch();
 				$schedsubja_id = $row2['sched_id'];
 				
-				$sql4=$this->conn->prepare("SELECT * FROM section JOIN faculty ON fac_idv=fac_id JOIN subject ON fac_dept=subj_dept WHERE grade_lvl=subj_level and fac_idv=:fac_idv");
+				$sql4=$this->conn->prepare("SELECT * FROM section_temp JOIN faculty ON fac_id=fc_id JOIN subject ON fac_dept=subj_dept WHERE gr_lvl=subj_level and fc_id=:fc_id");
 				$sql4->execute(array(
-					':fac_idv' => $fac_idv,
+					':fc_id' => $fac_idv,
 				));
 				$row3=$sql4->fetch();
 				$schedsubjb_id = $row3['subj_id'];
@@ -1469,74 +1554,98 @@ class AdminFunct{
 					':ss_swid' => $section_id,
 					':ss_timestamp' => $created,
 					':status_ss' => 'Temporary'
-				));
+				));*/
+				
 				/*include to superadmin*/
 				/*$sql5=$this->conn->prepare("INSERT INTO facsec SET fac_idy=:fac_idy, sec_idy=:sec_idy");
 				$sql5->execute(array(
 					':fac_idy' => $faculty_id,
 					':sec_idy' => $section_id
 				));*/
-				
-				$sql7=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name, grade_lvl FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
-				$sql7->bindParam(1, $fac_idv);				
-				$sql7->execute(); 
-				$row7=$sql7->fetch(PDO::FETCH_ASSOC);
-				$sec_adviser=$row7['facultyname'];
-				$sec_name =$row7['sec_name'];
-				$grade_lvl=$row7['grade_lvl'];
-				$log_event="Insert";
-				
-				$request_desc="Add ".$sec_adviser." as an adviser in Grade ".$grade_lvl." - ".$sec_name;
-				$this->updateRequest($request_id, $request_desc);
-				$this->alert("Success!", "A new class has been created! Class: $sec_name, Teacher-in-charge: $facultyName", "success", "admin-classes");
 			
+	}	
+	public function updateClass($sec_id, $fac_idv){
+		try {
+			$queryGetReqID=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
+			$queryGetReqID->execute(array(
+				':sectionid' =>$sec_id
+			));
+			$rowQueryGetReqID=$queryGetReqID->fetch(PDO::FETCH_ASSOC);
+			$requestID=$rowQueryGetReqID['sec_req'];
+			
+			$getPrevID=$this->conn->prepare("SELECT * FROM section_temp JOIN faculty on fac_id=fc_id WHERE sectionid=?");
+			$getPrevID->bindParam(1, $sec_id);
+			$getPrevID->execute();
+			$rowgetPrevID = $getPrevID->fetch();
+			$prevSecID = $rowgetPrevID['sectionid'];
+			$prevFacID = $rowgetPrevID['fc_id'];
+			
+			$queryTableReq=$this->conn->prepare("SELECT * FROM request WHERE request_id=:request_id");
+			$queryTableReq->execute(array(
+				':request_id' => $requestID
+			));
+			$rowQueryTableReq=$queryTableReq->fetch(PDO::FETCH_ASSOC);
+			$queryType=$rowQueryTableReq['request_type'];
+			$queryStat=$rowQueryTableReq['request_status'];
+			
+			$queryTableReq=$this->conn->prepare("SELECT * FROM request WHERE request_id=:request_id");
+			$queryTableReq->execute(array(
+				':request_id' => $requestID
+			));
+			$rowQueryTableReq=$queryTableReq->fetch(PDO::FETCH_ASSOC);
+			$queryStat=$rowQueryTableReq['request_status'];
+			if($queryStat == 'Permanent'){
+				$sql=$this->conn->prepare("UPDATE section_temp 
+				SET  fc_id=:fc_id
+				WHERE sectionid=:sectionid");
+				if($sql->execute(array(
+					':fc_id'=> $fac_idv,
+					':sectionid' => $sec_id
+				))){
+					$sql7=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, s_name, gr_lvl FROM section_temp JOIN faculty on fac_id=fc_id WHERE fc_id=?");
+					$sql7->bindParam(1, $fac_idv);				
+					$sql7->execute(); 
+					$row7=$sql7->fetch(PDO::FETCH_ASSOC);
+					$sec_adviser=$row7['facultyname'];
+					$sec_name =$row7['s_name'];
+					$grade_lvl=$row7['gr_lvl'];
+					
+					$request_desc="Update ".$sec_adviser." as an adviser in Grade ".$grade_lvl." - ".$sec_name;
+					
+					$queryAdviserUpdate=$this->conn->prepare("UPDATE request SET request_type=:request_type, request_desc=:request_desc, request_status='Temporary' WHERE request_id=:request_id");
+					$queryAdviserUpdate->execute(array(
+						':request_type' => 'Adviser_Update',
+						':request_desc' => $request_desc,
+						':request_id' => $requestID
+					));
+					
+					$this->alert("Success!", "The request of class update has been sent!", "success", "admin-classes");
+				}else{
+					$this->alert("Error!", "Failed to update class!", "error", "admin-classes");
+				}
 			}else{
-				$this->alert("Error!", "Failed to add class!", "error", "admin-classes");
+				$this->alert("Error!", "There is a pending request under this section. Wait for the superadmin to approve the previous request.", "error", "admin-classes");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
 		}
-	}	
-	public function updateClass($sec_id, $fac_idv){
-		try {
-			$querySearch = $this->conn->prepare("SELECT * FROM section where sec_id=:sec_id");
-			$querySearch->execute(array(
-				':sec_id' => $sec_id
-			));
-			$rowQuerySearch = $querySearch->fetch(PDO::FETCH_ASSOC);
-			$request_id = $rowQuerySearch['sec_request'];
-			
-			$getPrevID=$this->conn->prepare("SELECT * FROM section JOIN faculty on fac_id=fac_idv WHERE sec_id=?");
-			$getPrevID->bindParam(1, $sec_id);
-			$getPrevID->execute();
-			$rowgetPrevID = $getPrevID->fetch();
-			$prevSecID = $rowgetPrevID['sec_id'];
-			$prevFacID = $rowgetPrevID['fac_id'];
-			
-			$sql=$this->conn->prepare("UPDATE Section 
-			SET  fac_idv=:fac_idv
-			WHERE sec_id=:sec_id");
-			if($sql->execute(array(
-				':fac_idv'=> $fac_idv,
-				':sec_id' => $sec_id
-			))){
-				$sql2=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name, fac_id, sec_id FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
+				/*$sql2=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, s_name, fac_id, sectionid FROM section_temp JOIN faculty on fac_id=fc_id WHERE fc_id=?");
 				$sql2->bindParam(1, $fac_idv);
 				$sql2->execute();
 				$row1 = $sql2->fetch();
 				$facultyName = $row1['facultyname'];
-				$sec_name = $row1['sec_name'];
-				$section_id = $row1['sec_id'];
+				$sec_name = $row1['s_name'];
+				$section_id = $row1['sectionid'];
 				$faculty_id = $row1['fac_id'];
-				$sql3=$this->conn->prepare("SELECT * FROM section JOIN schedule ON sched_yrlevel=grade_lvl WHERE fac_idv=:fac_idv");
+				$sql3=$this->conn->prepare("SELECT * FROM section_temp JOIN schedule ON sched_yrlevel=gr_lvl WHERE fc_id=:fc_id");
 				$sql3->execute(array(
-					':fac_idv' => $fac_idv,
+					':fc_id' => $fac_idv,
 				));
 				$row2=$sql3->fetch();
 				$schedsubja_id = $row2['sched_id'];
-				$sql4=$this->conn->prepare("SELECT * FROM section JOIN faculty ON fac_idv=fac_id JOIN subject ON fac_dept=subj_dept WHERE grade_lvl=subj_level and fac_idv=:fac_idv");
+				$sql4=$this->conn->prepare("SELECT * FROM section_temp JOIN faculty ON fc_id=fac_id JOIN subject ON fac_dept=subj_dept WHERE gr_lvl=subj_level and fc_id=:fc_id");
 				$sql4->execute(array(
-					':fac_idv' => $fac_idv,
+					':fc_id' => $fac_idv,
 				));
 				$row3=$sql4->fetch();
 				$schedsubjb_id = $row3['subj_id'];
@@ -1557,7 +1666,7 @@ class AdminFunct{
 						':ss_swid' => $prevSecID
 					)) or die("FAILED");
 					
-					$sql6=$this->conn->prepare("INSERT INTO schedsubj_temp SET ss_ida=:ss_ida, ss_idb=:ss_idb, ssb_day=:ssb_day,ssb_timestart=:ssb_timestart, ssb_timeend=:ssb_timeend, ss_fwid=:ss_fwid, ss_swid=:ss_swid");
+					$sql6=$this->conn->prepare("INSERT INTO schedsubj_temp SET ss_ida=:ss_ida, ss_idb=:ss_idb, ssb_day=:ssb_day,ssb_timestart=:ssb_timestart, ssb_timeend=:ssb_timeend, ss_fwid=:ss_fwid, ss_swid=:ss_swid, status_ss='Temporary'");
 					$sql6->execute(array(
 						':ss_ida' => $schedsubja_id,
 						':ss_idb' => $schedsubjb_id,
@@ -1566,7 +1675,8 @@ class AdminFunct{
 						':ssb_timeend' =>$time_end,
 						':ss_fwid' => $fac_idv,
 						':ss_swid' => $sec_id	
-					));
+					));*/
+					
 /*					$delete_allfacsec = $this->conn->query("DELETE FROM facsec");
 					$getFWSW = $this->conn->query("SELECT fw_id, sw_id FROM schedsubj");
 					$result = $getFWSW->fetchAll();
@@ -1577,8 +1687,8 @@ class AdminFunct{
 							':sw_id' => $row['sw_id']
 						));
 					}*/
-				}else{
-					$sql7=$this->conn->prepare("INSERT INTO schedsubj_temp SET ss_ida=:ss_ida, ss_idb=:ss_idb, ssb_day=:ssb_day,ssb_timestart=:ssb_timestart, ssb_timeend=:ssb_timeend, ss_fwid=:ss_fwid, ss_swid=:ss_swid");
+				/*}else{
+					$sql7=$this->conn->prepare("INSERT INTO schedsubj_temp SET ss_ida=:ss_ida, ss_idb=:ss_idb, ssb_day=:ssb_day,ssb_timestart=:ssb_timestart, ssb_timeend=:ssb_timeend, ss_fwid=:ss_fwid, ss_swid=:ss_swid, status_ss='Temporary'");
 					$sql7->execute(array(
 						':ss_ida' => $schedsubja_id,
 						':ss_idb' => $schedsubjb_id,
@@ -1590,23 +1700,15 @@ class AdminFunct{
 					));
 				
 				}
-				$sql8=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, sec_name, grade_lvl FROM section JOIN faculty on fac_id=fac_idv WHERE fac_idv=?");
+				$sql8=$this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, s_name, gr_lvl FROM section_temp JOIN faculty on fac_id=fc_id WHERE fc_id=?");
 				$sql8->bindParam(1, $fac_idv);				
 				$sql8->execute(); 
 				$row8=$sql8->fetch(PDO::FETCH_ASSOC);
 				$sec_adviser=$row8['facultyname'];
-				$sec_name =$row8['sec_name'];
-				$grade_lvl=$row8['grade_lvl'];
+				$sec_name =$row8['s_name'];
+				$grade_lvl=$row8['gr_lvl'];
+				$request_desc="Update Adviser: ".$sec_adviser." as an adviser in Grade ".$grade_lvl." - ".$sec_name;*/
 				
-				$request_desc="Update Adviser: ".$sec_adviser." as an adviser in Grade ".$grade_lvl." - ".$sec_name;
-				$this->updateRequest($request_id, $request_desc);
-				$this->alert("Success!", "Class has been updated", "success", "admin-classes");
-			}else{
-				$this->alert("Error!", "Failed to update class!", "error", "admin-classes");
-			}
-		} catch (PDOException $exception) {
-			die('ERROR: ' . $exception->getMessage());
-		}
 	}
 	/**************** END CLASS *********************/
 	

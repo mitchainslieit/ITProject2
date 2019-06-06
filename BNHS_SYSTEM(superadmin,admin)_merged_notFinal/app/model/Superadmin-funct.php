@@ -565,7 +565,7 @@ class SAdminFunct{
 	}
 
 	public function secRequest() {
-		$sql = $this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary'") or die ("failed!");
+		$sql = $this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary' and (r.request_type='Insert' or r.request_type='Update' or r.request_type= 'Delete')") or die ("failed!");
 		$sql->execute();
 		if($sql->rowCount()>0){
 			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
@@ -608,6 +608,26 @@ class SAdminFunct{
 
 	/*********** General **************/
 
+	/*public function schoolYear($sy_start, $sy_end){
+		$sql=$this->conn->prepare("INSERT INTO system_settings SET sy_start=:sy_start, sy_end=:sy_end");
+		if($sql->execute(array(
+			':sy_start' => $sy_start .'-00',
+			':sy_end' => $sy_end .'-00'
+		))){
+			$query1=$this->conn->prepare("SELECT * FROM system_settings");
+			$query1->execute();
+			while($row1=$query1->fetch(PDO::FETCH_ASSOC)){
+				$sy_start=$row1['sy_start'];
+				$sy_end=$row1['sy_end'];
+			}
+			$log_event="Insert";
+			$log_desc="Added start date: ".$sy_start.", and end date: ".$sy_end. " for system settings";
+			$this->insertLogs($log_event, $log_desc);
+			$this->alert("Success!", "Successfully created the start/end date for the school year", "success", "superadmin-system-settings");
+		}else{
+			$this->alert("Error!", "Failed to created the start/end date for the school year", "error", "superadmin-system-settings");
+		}
+	}*/
 	public function schoolYear($sy_start, $sy_end){
 		$sql=$this->conn->prepare("INSERT INTO system_settings SET sy_start=:sy_start, sy_end=:sy_end");
 		if($sql->execute(array(
@@ -628,7 +648,7 @@ class SAdminFunct{
 			$this->alert("Error!", "Failed to created the start/end date for the school year", "error", "superadmin-system-settings");
 		}
 	}
-
+	
 	public function initialization(){
 		try {
 			$sql=$this->conn->prepare("INSERT INTO logs SET log_event=:log_event, log_desc=:log_desc, user_id=:user_id");
@@ -1747,7 +1767,62 @@ class SAdminFunct{
 	/**************** END TRANSFER STUDENT *******/
 
 	/**************** CLASS **********************/
-
+	public function advAcceptRequest(){
+		$checkbox = $_POST['check'];
+		if($checkbox !== null){ 
+			for($i=0;$i<count($checkbox);$i++){
+				$del_id = $checkbox[$i]; 
+				$query1 = $this->conn->prepare("SELECT *
+					FROM
+					request r join section_temp st on st.sec_req = r.request_id
+					WHERE
+					(request_type = 'Adviser_Insert'
+					OR request_type = 'Adviser_Update') and request_status = 'Temporary'");
+				$query1->execute();
+				$row1=$query1->fetch(PDO::FETCH_ASSOC);
+				$req_id=$row1['request_id'];
+				$req_type=$row1['request_type'];
+				$req_desc=$row1['request_desc'];
+				$req_stat=$row1['request_status'];
+				$req_sname=$row1['s_name'];
+				$req_grlvl=$row1['gr_lvl'];
+				$req_facidv=$row1['fc_id'];
+				if($req_type == 'Adviser_Insert' or $req_type == 'Adviser_Update'){
+					$insert = $this->conn->prepare("UPDATE section SET sec_name =:sec_name, grade_lvl=:grade_lvl, fac_idv=:fac_idv where sec_name=:sec_name");
+					if($insert->execute(array(
+						':sec_name'=>$req_sname,
+						':grade_lvl'=>$req_grlvl,
+						':fac_idv'=>$req_facidv,
+						':sec_name'=>$req_sname
+					))){
+						$updateADVReqStatus = $this->conn->prepare("UPDATE request SET request_status = 'Permanent' where request_id=:request_id");
+						$updateADVReqStatus->execute(array(':request_id'=>$req_id));
+						$log_event="Update";
+						$log_desc=$req_desc;
+						$this->insertLogs($log_event, $log_desc);
+						$this->alert('Success!', 'You have successfully accepted the request', "success", "superadmin-classes");
+					}else {
+						$this->alert('Error!', "Failed to accept the request", "error", "superadmin-classes");
+					}
+				}
+			}
+		}else{
+			$this->alert("Error!", "Please select atleast one item", "error", "superadmin-classes");
+		}
+	}
+	
+	public function classRequest() {
+		$sql = $this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary' and (r.request_type='Adviser_Insert' or r.request_type='Adviser_Update')") or die ("failed!");
+		$sql->execute();
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+			return $data;
+		}
+		return $sql;
+	}
+	
 	public function section() {
 		$sql = $this->conn->prepare("SELECT sec_id, sec_name, grade_lvl FROM Section");
 		$sql->execute();
@@ -2380,6 +2455,76 @@ class SAdminFunct{
 		}
 	}
 	/**************** END CLASS *********************/
+	
+	/**************** GRADES ************************/
+	public function getAllSubjects() {
+		$sql=$this->conn->prepare("SELECT * from system_settings ss join curriculum c on ss.current_curriculum = c.curr_id join subject s on s.curriculum = c.curr_id where ss.sy_status = 'Current'");
+		$sql->execute();
+		$option = '';
+		while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			$option .= '<option value="'.$row['subj_name'].'" data-subjectlvl="'.$row['subj_level'].'">'.$row["subj_name"].'</option>';
+		}
+		echo $option;
+	}
+	
+	public function getAllSY() {
+		$sql=$this->conn->prepare("SELECT gg_sy from grades_grading GROUP BY 1");
+		$sql->execute();
+		$option = '';
+		while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			$option .= '<option value="'.$row['gg_sy'].'" data-subjectlvl="'.$row['gg_sy'].'">'.$row["gg_sy"].'</option>';
+		}
+		echo $option;
+	}
+	public function getGradeAndSection_grades(){
+		$sql=$this->conn->prepare("SELECT sec_id, grade_lvl, sec_name, CONCAT('Grade ', grade_lvl, ' - ', sec_name) AS gradesec 
+			FROM section ORDER BY grade_lvl");
+		$sql->execute();
+		$option = '';
+		while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			$option .= '<option value="'.$row['sec_name'].'" data-section="'.$row['sec_name'].'">'.$row["gradesec"].'</option>';
+		}
+		echo $option;
+	}
+	public function showStudentGrades(){
+		$sql = $this->conn->prepare("SELECT 
+			CONCAT(first_name,
+			' ',
+			SUBSTRING(middle_name, 1, 1),
+			'. ',
+			last_name) AS 'stud_name',
+			subject_name,
+			stud_lrno,
+			CONCAT('Grade ', gr_level, ' - ', gr_sec) AS 'student_sec',
+			gg_sy,
+			CONCAT(fac_fname,
+			' ',
+			SUBSTRING(fac_midname, 1, 1),
+			'. ',
+			fac_lname) AS 'teacher',
+			gg_first,
+			gg_second,
+			gg_third,
+			gg_fourth,
+			((gg_first + gg_second + gg_third + gg_fourth) / 4) AS 'gg_final'
+			FROM
+			student
+			JOIN
+			section ON secc_id = sec_id
+			JOIN
+			grades_grading ON stud_id = std_id
+			JOIN
+			faculty ON gg_fid = fac_id") or die ("failed!");
+		$sql->execute();
+		if($sql->rowCount()>0){
+			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+			return $data;
+		}
+		return $sql;
+	}
+	/****************END GRADES ****************/
 
 	/****************FACULTY ACCOUNT ****************/
 	public function priv(){
@@ -3540,6 +3685,123 @@ class SAdminFunct{
 			));
 		}
 	}
+	public function getCurrentQtrForOption() {
+		$query = $this->conn->query("SELECT * FROM system_settings WHERE sy_status = 'Current'");
+		$result = $query->fetch();
+		return $result['active_grading'];
+	}
+	public function selectCurriculum(){
+		$query = $this->conn->query("SELECT * FROM system_settings WHERE sy_status = 'Current'");
+		$query->execute();
+		$result = $query->fetch();
+		$sql=$this->conn->prepare("SELECT * from curriculum");
+		$sql->execute();
+		echo '<label class="curriculum"><span>Select Curriculum:</span></label><br>
+		<select name="curriculum" class="edit-curriculum" required>';
+		foreach ($sql->fetchAll() as $row) {
+			if ($row['curr_id'] == $result['current_curriculum']) {
+				echo '<option value="'.$row['curr_id'].'" selected>'.$row["curr_desc"].'</option>';
+			} else {
+				echo '<option value="'.$row['curr_id'].'">'.$row["curr_desc"].'</option>';
+			}
+		}
+		echo '</select>';
+	}
+	
+	public function checkCurrentSystemEditStatus() {
+		$query = $this->conn->query("SELECT * FROM system_settings WHERE sy_status = 'Current'");
+		$result = $query->fetch();
+		if ($result['edit_class'] === 'Yes') {
+			echo '<div class="switch-field" id="toggle-switch-system-settings">
+			<input type="radio" id="radio-one-switch-one" name="switch-one" value="yes" checked/>
+			<label for="radio-one-switch-one">Yes</label>
+			<input type="radio" id="radio-two-switch-one" name="switch-one" value="no"/>
+			<label for="radio-two-switch-one">No</label>
+			</div>';
+			echo '<div class="innerCont">';
+			$this->getAllFacWithEditPriv();			
+			echo '</div>';
+		} else {
+			echo '<div class="switch-field" id="toggle-switch-system-settings">
+			<input type="radio" id="radio-one-switch-one" name="switch-one" value="yes"/>
+			<label for="radio-one-switch-one">Yes</label>
+			<input type="radio" id="radio-two-switch-one" name="switch-one" value="no" checked/>
+			<label for="radio-two-switch-one">No</label>
+			</div>';
+			echo '<div class="innerCont">';
+			$this->getAllFacWithEditPriv_No();			
+			echo '</div>';
+		}
+	}
+	
+	public function getAllFacWithEditPriv() {
+		$sql=$this->conn->prepare("SELECT 
+			CONCAT(fac_fname, ' ', fac_lname) AS 'facname', fac_id, sec_privilege
+			FROM
+			faculty fac
+			JOIN
+			accounts ON fac.acc_idz = accounts.acc_id
+			WHERE
+			acc_status = 'Active'");
+		$sql->execute();
+		echo '&nbsp;&nbsp;&nbsp;<label class="teacher">Assign a faculty to edit class schedule: </label>&nbsp;
+		<select name="teacher" class="editclass-teacher" disabled>';
+		$option = '';
+		while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			if ($row['sec_privilege'] === 'Yes') {
+				$option .= '<option value="'.$row['fac_id'].'" selected>'.$row["facname"].'</option>';
+			} else {
+				$option .= '<option value="'.$row['fac_id'].'">'.$row["facname"].'</option>';
+			}
+		}
+		echo $option;
+		echo '</select>';		
+	}
+
+	public function getAllFacWithEditPriv_No() {
+		$sql=$this->conn->prepare("SELECT 
+			CONCAT(fac_fname, ' ', fac_lname) AS 'facname', fac_id, sec_privilege
+			FROM
+			faculty fac
+			JOIN
+			accounts ON fac.acc_idz = accounts.acc_id
+			WHERE
+			acc_status = 'Active'");
+		$sql->execute();
+		echo '&nbsp;&nbsp;&nbsp;<label class="teacher">Assign a faculty to edit class schedule: </label>&nbsp;
+		<select name="teacher" class="editclass-teacher" disabled>';
+		$option = '';
+		while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			if ($row['sec_privilege'] === 'Yes') {
+				$option .= '<option value="'.$row['fac_id'].'" selected>'.$row["facname"].'</option>';
+			} else {
+				$option .= '<option value="'.$row['fac_id'].'">'.$row["facname"].'</option>';
+			}
+		}
+		echo $option;
+		echo '</select>';
+	}
+
+	public function checkTransferStudentEditStatus() {
+		$query = $this->conn->query("SELECT * FROM system_settings WHERE sy_status = 'Current'");
+		$result = $query->fetch();
+		if ($result['student_transfer'] === 'Yes') {
+			echo '<div class="switch-field" id="toggle-switch-system-settings">
+			<input type="radio" id="radio-one-switch-two" name="switch-two" value="yes" checked/>
+			<label for="radio-one-switch-two">Yes</label>
+			<input type="radio" id="radio-two-switch-two" name="switch-two" value="no"/>
+			<label for="radio-two-switch-two">No</label>
+			</div>';
+		} else {
+			echo '<div class="switch-field" id="toggle-switch-system-settings">
+			<input type="radio" id="radio-one-switch-two" name="switch-two" value="yes"/>
+			<label for="radio-one-switch-two">Yes</label>
+			<input type="radio" id="radio-two-switch-two" name="switch-two" value="no" checked/>
+			<label for="radio-two-switch-two">No</label>
+			</div>';
+		}
+	}
+
 
 	public function showSystemSettings(){
 		$sql=$this->conn->prepare("SELECT * FROM system_settings");
@@ -3553,6 +3815,175 @@ class SAdminFunct{
 		return $sql;
 	}
 
+	/*public function syStatus($sy_status){
+		$curDate = date('Y-m-d');
+		$sql3=$this->conn->prepare("SELECT sy_end FROM system_settings");
+		$sql3->execute();
+		while($row3=$sql3->fetch(PDO::FETCH_ASSOC)){
+			$school_end=$row3['sy_end'];
+		}
+
+		$sql1=$this->conn->prepare("SELECT * FROM student");
+		$sql1->execute();
+		$row1=$sql1->fetchAll();
+		if($sy_status == 'Started'){
+			if($sql1->rowCount() < 0){
+				$sql2=$this->conn->prepare("UPDATE system_settings SET sy_status=:sy_status");
+				if($sql2->execute(array(
+					':sy_status' => $sy_status
+				))){
+					$logQuery=$this->conn->prepare("SELECT * FROM system_settings");
+					$logQuery->execute();
+					while($rowQuery=$logQuery->fetch(PDO::FETCH_ASSOC)){
+						$status=$rowQuery['sy_status'];
+					}
+					$log_event="Update";
+					$log_desc="Successfully updated the school year status to ".$status;
+					$this->insertLogs($log_event, $log_desc);
+					$this->alert("Success!", "Successfully started the school year", "success", "superadmin-system-settings");
+				}
+			}else if($curDate >= $school_end){
+				//update school year status
+				$sql4=$this->conn->prepare("UPDATE system_settings SET sy_status=:sy_status");
+				$sql4->execute(array(
+					':sy_status' => $sy_status
+				));
+				//update student status
+				$sql5=$this->conn->prepare("UPDATE student SET stud_status=:stud_status, curr_stat=:curr_stat");
+				$sql5->execute(array(
+					':stud_status' => 'Not Enrolled',
+					':curr_stat' => 'Old'
+				));
+				//check the balance status of students
+				$sql6=$this->conn->prepare("SELECT * from student join balance ON stud_id=stud_idb WHERE bal_status='Not Cleared'");
+				$sql6->execute();
+				$row6=$sql6->fetchAll();
+				if($sql6->rowCount() > 0){
+					//archive those student who still have balances
+					foreach ($row6 as $value) {
+						$sql8=$this->conn->prepare("INSERT INTO balance_archive SET misc_fee=:misc_fee, bal_amt=:bal_amt, bal_status=:bal_status, stud_archive=:stud_archive");
+						$sql8->execute(array(
+							':misc_fee' => $value['misc_fee'],
+							':bal_amt' => $value['bal_amt'],
+							':bal_status' => $value['bal_status'],
+							':stud_archive' => $value['stud_idb']
+						));
+					}
+					//grade 10 to graduated
+					$curYear = date('Y');
+					$sql9=$this->conn->prepare("SELECT * from student");
+					$sql9->execute();
+					$row9=$sql9->fetchAll();
+					foreach ($row9 as $value2) {
+						$sql10=$this->conn->prepare("UPDATE student SET stud_status=:stud_status, year_out=:year_out WHERE stud_id=:stud_id");
+						$sql10->execute(array(
+							':stud_status' => (($value2['year_level'] == '10') ? 'Graduated' : $value2['stud_status']),
+							':year_out' => (($value2['year_level'] == '10') ? $curYear : Null),
+							':stud_id' => $value2['stud_id']
+						));
+					}
+					$logQuery2=$this->conn->prepare("SELECT * FROM system_settings");
+					$logQuery2->execute();
+					while($rowQuery2=$logQuery2->fetch(PDO::FETCH_ASSOC)){
+						$status2=$rowQuery2['sy_status'];
+					}
+					$log_event2="Update";
+					$log_desc2="Successfully updated the school year status to ".$status;
+					$this->insertLogs($log_event2, $log_desc2);
+					echo "
+					<div name='content'>
+					<button name='opener3' style='display:none'>
+					<div class='tooltip'>
+					</div>
+					</button>
+					<div name=dialog3 title='Successfully started the school year!'>
+					<div class='cont2'>
+					<p>The list of students who has not been cleared last School Year!</p>
+					<table id='historyDataTable' class='display'>
+					<thead>
+					<tr>
+					<th align='tleft custPad2'>Student Name</th>
+					<th align='tleft custpad2'>Grade Level</th>
+					<th align='tright'>Balance Amount</th>
+					</tr>
+					</thead>
+					<tbody>";
+					foreach ($row6 as $value3){
+						echo"
+						<tr>
+						<td align='tleft custPad2'>".$value3['first_name']." ".$value3['middle_name']." ".$value3['last_name']."</td>
+						<td align='tleft custPad2'>".$value3['year_level']."</td>
+						<td align='tright'>".$value3['bal_amt']."</td>
+						</tr>";
+					}
+					echo"
+					</tbody>
+					</table>	
+					</div>				
+					</div>
+					</div>
+					";
+				}else{
+					$this->alert("Success!", "Successfully started the school year", "success", "superadmin-system-settings");
+					$logQuery3=$this->conn->prepare("SELECT * FROM system_settings");
+					$logQuery3->execute();
+					while($rowQuery3=$logQuery3->fetch(PDO::FETCH_ASSOC)){
+						$status3=$rowQuery3['sy_status'];
+					}
+					$log_event3="Update";
+					$log_desc3="Successfully updated the school year status to ".$status;
+					$this->insertLogs($log_event3, $log_desc3);
+				}
+			}else{
+				//update school year status
+				$sql4=$this->conn->prepare("UPDATE system_settings SET sy_status=:sy_status");
+				if($sql4->execute(array(
+					':sy_status' => $sy_status
+				))){
+					$logQuery4=$this->conn->prepare("SELECT * FROM system_settings");
+					$logQuery4->execute();
+					while($rowQuery4=$logQuery4->fetch(PDO::FETCH_ASSOC)){
+						$status4=$rowQuery4['sy_status'];
+					}
+					$log_event4="Update";
+					$log_desc4="Successfully updated the school year status to ".$status;
+					$this->insertLogs($log_event4, $log_desc4);
+					$this->alert("Success!", "Successfully started the school year", "success", "superadmin-system-settings");
+				}
+			}
+			
+			
+		} else if($sy_status == 'Ended'){
+			$curDate2 = date('Y-m-d');
+			$query1=$this->conn->prepare("SELECT * FROM system_settings");
+			$query1->execute();
+			while($qrow1=$query1->fetch(PDO::FETCH_ASSOC)){
+				$syEnd=$qrow1['sy_end'];
+			}
+			if($curDate2 >= $syEnd){
+				$query2=$this->conn->prepare("DELETE FROM GRADES");
+				$query2->execute();
+				$query3=$this->conn->prepare("DELETE FROM announcements");
+				$query2->execute();
+				$query4=$this->conn->prepare("DELETE FROM attendance");
+				$query4->execute();
+				$query5=$this->conn->prepare("DELETE FROM behavior");
+				$query5->execute();
+				$query6=$this->conn->prepare("DELETE FROM logs");
+				$query6->execute();
+			}else{
+				$logQuery5=$this->conn->prepare("SELECT * FROM system_settings");
+				$logQuery5->execute();
+				while($rowQuery5=$logQuery5->fetch(PDO::FETCH_ASSOC)){
+					$status5=$rowQuery5['sy_status'];
+				}
+				$log_event5="Update";
+				$log_desc5="Successfully updated the school year status to ".$status;
+				$this->insertLogs($log_event5, $log_desc5);
+				$this->alert("Error!", "You are not allowed to the end the school year, Because there might be some data that can be deleted. Try ending the school year after the specified date", "error", "superadmin-system-settings");
+			}
+		}
+	}*/
 	public function syStatus($sy_status){
 		$curDate = date('Y-m-d');
 		$sql3=$this->conn->prepare("SELECT sy_end FROM system_settings");
@@ -3723,6 +4154,24 @@ class SAdminFunct{
 		}
 	}
 	
+	/*public function editClass($edit_class){
+		$sql2=$this->conn->prepare("UPDATE system_settings SET edit_class=:edit_class");
+		if($sql2->execute(array(
+			':edit_class' => $edit_class
+		))){
+			$logQuery=$this->conn->prepare("SELECT * FROM system_settings");
+			$logQuery->execute();
+			while($rowQuery=$logQuery->fetch(PDO::FETCH_ASSOC)){
+				$status=$rowQuery['edit_class'];
+			}
+			$log_event="Update";
+			$log_desc="Successfully updated the edit class status to ".$status;
+			$this->insertLogs($log_event, $log_desc);
+			$this->alert("Success!", "Successfully changed the status of edit class", "success", "superadmin-system-settings");
+		}else{
+			$this->alert("Error!", "Failed to changed the status of of edit class", "error", "superadmin-system-settings");
+		}
+	}*/
 	public function editClass($edit_class){
 		$sql2=$this->conn->prepare("UPDATE system_settings SET edit_class=:edit_class");
 		if($sql2->execute(array(
@@ -3739,6 +4188,36 @@ class SAdminFunct{
 			$this->alert("Success!", "Successfully changed the status of edit class", "success", "superadmin-system-settings");
 		}else{
 			$this->alert("Error!", "Failed to changed the status of of edit class", "error", "superadmin-system-settings");
+		}
+	}
+	
+	/*public function activeGrading($active_grading){
+		$sql2=$this->conn->prepare("UPDATE system_settings SET active_grading=:active_grading");
+		if($sql2->execute(array(
+			':active_grading' => $active_grading
+		))){
+			$logQuery=$this->conn->prepare("SELECT * FROM system_settings");
+			$logQuery->execute();
+			while($rowQuery=$logQuery->fetch(PDO::FETCH_ASSOC)){
+				$status=$rowQuery['edit_class'];
+			}
+			$log_event="Update";
+			$log_desc="Successfully updated the grading status to ".$status;
+			$this->insertLogs($log_event, $log_desc);
+			$this->alert("Success!", "Successfully changed the status of grading", "success", "superadmin-system-settings");
+		}else{
+			$this->alert("Error!", "Failed to changed the status of grading", "error", "superadmin-system-settings");
+		}
+	}*/
+	
+	public function selectGradingPeriod($post){
+		$sql=$this->conn->prepare("UPDATE system_settings SET current_curriculum = :curr_id WHERE sy_status = 'Current' ");
+		if($sql->execute(array(
+			':curr_id' => $_POST['curriculum']
+		))){
+			$this->alert('Success!', 'You have successfully updated the curriculum', "success", "superadmin-system-settings");
+		}else{
+			$this->alert('Error!', 'Curriculum is not updated', "error", "superadmin-system-settings");
 		}
 	}
 	

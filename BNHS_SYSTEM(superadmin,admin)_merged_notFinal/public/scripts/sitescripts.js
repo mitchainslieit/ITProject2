@@ -1360,6 +1360,18 @@ $( '#super_unique' ).on('change', function() {
  }).focus(function() {
     $(".ui-datepicker-prev, .ui-datepicker-next").remove();
 });
+ 
+ $( ".datepicker-superadmin" ).datepicker({
+ 	changeMonth: true,
+ 	dateFormat: 'yy-mm',
+ 	changeYear: true,
+ 	yearRange: "+0:+100",
+ 	onClose: function(dateText, inst) { 
+            $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+	}
+}).focus(function() {
+    $(".ui-datepicker-prev, .ui-datepicker-next").remove();
+});
 
  var superadmingTableAll = $('#superadmin-table-all').DataTable({
 	"initComplete": function (settings, json) {  
@@ -1639,6 +1651,60 @@ setInterval(function() {
 }, 2000);	
 }
 
+var superadminTableClassesRequest = $('#superadmin-table-classesRequest').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#superadmin-table-classesRequest").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: ':visible'
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: ':visible'
+		},
+		pageSize: 'Folio'
+	}
+	],
+});
+
+if ($('body[class*="superadmin-"] .menu-sidebar .menu nav li ul li span.classNotification').length) {
+setInterval(function() {
+	var data = new Array('getClassNotif', parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav li ul li span.classNotification').text()));
+	if ($('body[class*="superadmin-"] .menu-sidebar .menu nav li ul li span.classNotification').length) {
+		$.ajax({
+			type: 'get',
+			url: 'app/model/superadmin-exts/superadmin-ajax.php',
+			data: {data:data},
+			success: function(result) {
+				try {
+					console.log(result);
+					var data = JSON.parse(result);
+					var current_no = parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav li ul li span.classNotification').text());
+					var new_no = data["response"];
+					if ((current_no != new_no) && $('body').is('[class*="superadmin-"]')) {
+						var new_data = data["addthis"];
+						$('body[class*="superadmin-"] .menu-sidebar .menu nav li ul li span.classNotification').empty();
+						$('body[class*="superadmin-"] .menu-sidebar .menu nav li ul li span.classNotification').append(new_no);
+						superadminTableClassesRequest.clear().draw();
+						for (i = 0; i < new_data.length; i++) {
+							superadminTableClassesRequest.row.add($(new_data[i])).draw();
+						}
+					}
+				} catch (e) {
+					
+				}
+			}
+		});
+	}
+}, 2000);	
+}
+
 $superadminTableClasses = $('#superadmin-table-classes').DataTable({
 	"initComplete": function (settings, json) {  
 		$("#superadmin-table-classes").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
@@ -1677,6 +1743,28 @@ function getCurrentSection1SuperAdmin(value) {
 	});
 	$(showThis).show();
 }
+
+$superadminTableClasses = $('#superadmin-table-classesList').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#superadmin-table-classesList").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: ':visible'
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: ':visible'
+		},
+		pageSize: 'Folio'
+	}
+	],
+});
 
 var superadminTablePayhist = $('#superadmin-table-payhist').DataTable({
 	"initComplete": function (settings, json) {  
@@ -1888,6 +1976,119 @@ if ($('body').is('[class*="superadmin-"]')) {
 	});
 }
 
+var superAdmin_grades = $('#superadmin-table-grades').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#superadmin-table-grades").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	"columnDefs" : [{
+		"targets" : [2,3],
+		"visible" : true
+	}],
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: ':visible'
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: ':visible'
+		},
+		pageSize: 'Folio'
+	}
+	],
+	fixedColumns:   {
+		leftColumns: 1
+	}
+});
+
+$('.superadmin-grades-page').on('change', '#gradeAndsection', function() {
+	superAdmin_grades.column(2).search($(this).val() ? $(this).val() : '', true, false).draw();
+});
+
+$('.superadmin-grades-page').on('change', '#subject-grades-subject', function() {
+	superAdmin_grades.column(4).search($(this).val() ? $(this).val() : '', true, false).draw();
+});
+
+$('.superadmin-grades-page').on('change', '#subject-grades-sy', function() {
+	superAdmin_grades.column(3).search($(this).val() ? $(this).val() : '', true, false).draw();
+});
+
+$( '#subject-grades-sy' ).on('change', function() {
+	var val = $(this).val();
+	superAdmin_grades.column(3).search(val ? val : '', true, false).draw();
+});
+superAdmin_grades.column(3).search($('#subject-grades-sy').val() ? $('#subject-grades-sy').val() : '', true, false).draw();
+
+if ($('body[class*="superadmin-"]').length) {
+	$('.superadmin-system-settings-page select[name=teacher]').on('change', function() {
+		var data = new Array('update-sec-priv', $(this).val());
+
+ 		$.ajax({
+ 			context: this,
+ 			type: 'post',
+ 			url: 'app/model/superadmin-exts/superadmin-ajax.php',
+ 			data: {data:data},
+ 			success: function (result) {
+ 				swal({
+					title: "Success!",
+					text: result,
+					icon: "success"
+					}).then(function() {
+						window.location = 'superadmin-system-settings';
+				});
+ 			}
+ 		}); 
+	});
+	$('.superadmin-system-settings-page input[name=switch-one]').on('change', function() {
+		var data = new Array('toggle-edit-class', $(this).val());
+
+ 		$.ajax({
+ 			context: this,
+ 			type: 'post',
+ 			url: 'app/model/superadmin-exts/superadmin-ajax.php',
+ 			data: {data:data},
+ 			success: function (result) {
+ 				swal({
+					title: "Success!",
+					text: result,
+					icon: "success"
+					}).then(function() {
+						window.location = 'superadmin-system-settings';
+				});
+ 			}
+ 		}); 
+	});
+	$('.superadmin-grades-page #gradeAndsection').on('change', function() {
+		var value = $(this).val();
+		var data = $(this).find(':selected').data('section');
+		$('.superadmin-grades-page #subject-grades-subject option').each(function() {
+			if($('.superadmin-grades-page #gradeAndsection').val() === '') {
+				$(this).show();
+			} else if($(this).data('subjectlvl') == $('.superadmin-grades-page #gradeAndsection').val()) {
+				$(this).show();
+			} else {
+				$(this).hide();
+			}
+		});
+	});
+	/*if (dept != null) {
+		$(sibling).find('option').each(function() {
+			$(this).hide();
+		});
+		$(sibling).find('option[data-subdept="'+dept+'"]').each(function() {
+			$(this).show();
+		});
+	} else {
+		$(this).siblings('select.editclass-subjects').val('');
+		$(sibling).find('option').each(function() {
+			$(this).show();
+		});
+	}*/
+}
  /****************************************** END SUPERADMIN FUNCTIONALITY *************************************************/
 
  var student_table = $('#student-payment-history').DataTable({

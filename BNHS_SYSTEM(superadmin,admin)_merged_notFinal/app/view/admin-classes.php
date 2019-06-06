@@ -30,7 +30,7 @@
 							<div name="dialog" title="Add Class">
 								<form action="admin-classes" method="POST" autocomplete="off">
 									<span>Choose Adviser</span>
-									<select name="fac_idv" data-validation="required" required>
+									<select name="fc_id" data-validation="required" required>
 										<option selected disabled hidden value="">Choose Adviser</option>
 										<?php 
 											$obj->facultyList();
@@ -40,7 +40,7 @@
 									<select name="sectionid" data-validation="required" required>
 										<option selected disabled hidden value="">Select Section Name</option>
 										<?php
-											$obj->section();	
+											$obj->sectionTemp();	
 										?> 	
 									</select>
 									<button name="submit-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
@@ -57,11 +57,11 @@
 									<th class="tleft custPad">Section Name</th>
 									<th class="tleft custPad">Grade Level</th>
 <?php 
-										$queryCount=$this->conn->prepare("SELECT fac_no, CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS fullname, s_name, gr_lvl, fac_id, sectionid FROM faculty JOIN section ON fac_id=fc_id join request on request_id=sec_req WHERE fac_adviser='Yes' and request_status='Temporary'");
+										$queryCount=$this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary' and (r.request_type='Adviser_Insert' or r.request_type='Adviser_Update')");
 										$queryCount->execute();
 										$rowQueryCount=$queryCount->rowCount();
 										echo $rowQueryCount > 0 ? '<th>Request</th>' : '';
-									echo '
+									echo'
 									<th>Action</th>
 								</tr>
 							</thead>
@@ -72,32 +72,28 @@ $faculty_id = $obj->faculty_id();
 $facultyname = $obj->facultyname();
 $section_type=['A','B'];
 echo '
-	<tr>';
-		echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$fac_no.'</span></td>' : ' <td class="tleft custPad">'.$fac_no.'</td>';
-		echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$fullname.'</span></td>' : '<td class="tleft custPad">'.$fullname.'</td>';
-		echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$s_name.'</span></td>' : '<td class="tleft custPad">'.$s_name.'</td>';
-		echo $request_status == "Temporary" ? '<td class="tleft custPad"><span class="temporary">'.$gr_lvl.'</span></td>' : '<td class="tleft custPad">'.$gr_lvl.'</td>';
-		if($rowQueryCount > 0){
-			if($request_status == "Temporary"){
-				echo '
-				<td>For Approval to 
-				';
-				if($request_type == 'Insert'){
-					echo 'Add';
-				}else if($request_type == 'Update'){
-					echo 'Update';
-				}else if($request_type == 'Delete'){
-					echo 'Delete';
-				}else{
-					echo '';
-				}
-				echo'
-				</td>
-				';
-			}else{
-				echo '<td> </td>';
-			}
-		}
+	<tr>
+	<td class="tleft">'.$fac_no.'</td>
+	<td class="tleft">'.$fullname.'</td>';
+	echo $request_status == "Temporary" ? '<td class="tleft"><span class="temporary">'.$s_name.'</span></td>' : '<td class="tleft">'.$s_name.'</td>';
+	echo '<td class="tleft">'.$gr_lvl.'</td>';
+ 	if($rowQueryCount > 0){
+	 	if($request_status == "Temporary" && ($request_type=='Adviser_Insert' || $request_type='Adviser_Update')){
+	 		echo '
+	 		<td>For Approval to 
+	 		';
+	 			if($request_type == 'Adviser_Insert'){
+	 				echo 'Assign Adviser';
+	 			}else if($request_type == 'Adviser_Update'){
+	 				echo 'Update Adviser';
+	 			}
+	 		echo'
+	 		</td>
+	 		';
+	 	}else{
+	 		echo '<td> </td>';
+	 	}
+ 	}
 		echo'
 		<td class="action">
 			<div name="content">

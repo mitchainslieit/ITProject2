@@ -106,9 +106,15 @@ class Signin {
 	}
 	
 	private function getSectionRequest() {
-		$sql = $this->conn->query("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary'");
+		$sql = $this->conn->query("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary' and (r.request_type='Insert' or r.request_type='Update' or r.request_type= 'Delete')");
 		$sql->execute();
 		$_SESSION['sanotif_2'] = $sql->rowCount();
+	}
+	
+	private function getClassRequest() {
+		$sql = $this->conn->query("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary' and (r.request_type='Adviser_Insert' or r.request_type='Adviser_Update')");
+		$sql->execute();
+		$_SESSION['classNotif'] = $sql->rowCount();
 	}
 	
 	private function errorMessage($message) {	
