@@ -24,14 +24,16 @@ class SAAjax {
 			acc_type = 'admin'
 			AND acc_status = 'Active'") or die ("failed!");
 		$sql_2->execute();
-		$currAd = $sql_2->fetch();
+		$currAd = $sql_2->fetch(PDO::FETCH_ASSOC);
+		$admin_name=$currAd['admin_name'];
 		foreach($sql->fetchAll() as $row) {
+			extract($row);
 			$data['addthis'][] = '
 			<tr>
-				<td><input type="checkbox" id="checkItem" name="check[]" value="'.$row['request_id'].'"></td>
-				<td>'.$currAd['admin_name'].'</td>
-				<td>'.$row['request_type'].'</td>
-				<td>'.$row['request_desc'].'</td>
+				<td><input type="checkbox" id="checkItem" name="check[]" value="'.$request_id.'"></td>
+				<td class="tleft">'.$admin_name.'</td>
+				<td class="tleft">'.($request_type == 'Insert' ? 'Add' : $request_type).'</td>
+				<td class="tleft">'.$request_desc.'</td>
 			</tr>
 			';
 		}
@@ -91,7 +93,7 @@ class SAAjax {
 	}
 	
 	public function getCurriculumNotif(){
-		$sql = $this->conn->prepare("SELECT * from curriculum_temp join request on curr_request=request_id where request_status='Temporary'");
+		$sql = $this->conn->prepare("SELECT DISTINCT(c_desc) as 'c_desc',curriculum_idx,request_id, request_status, request_type, request_desc from subject_temp join curriculum_temp on curriculum_idx=cc_id join request on curr_request=request_id WHERE request_status='Temporary'");
 		$sql->execute();
 		$result = $sql->fetchAll();
 		$_SESSION['curriculumNotif'] = $sql->rowCount();
@@ -103,12 +105,14 @@ class SAAjax {
 			<tr>
 				<td><input type="checkbox" id="checkItem" name="check[]" value="'.$request_id.'" form="form1"></td>
 				<td class="tleft">'.$c_desc.'</td>
+				<td class="tleft">'.($request_type == 'Insert' ? 'Add' : $request_type).'</td>
+				<td class="tleft custPad">'.$request_desc.'</td>
 			</tr>';	
 			}
 		$data['response'] = $_SESSION['curriculumNotif'];
+	
 		echo json_encode($data);
 	}
-	
 	public function getSectionNotif(){
 		$sql = $this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary' and (r.request_type='Insert' or r.request_type='Update' or r.request_type= 'Delete')");
 		$sql->execute();
@@ -121,7 +125,7 @@ class SAAjax {
 			$data['addthis'][] = '
 			<tr>
 				<td><input type="checkbox" id="checkItem" name="check[]" value="'.$request_id.'"></td>
-				<td class="tleft custPad">'.$request_type.'</td>
+				<td class="tleft custPad">'.($request_type == 'Insert' ? 'Add' : $request_type).'</td>
 				<td class="tleft custPad">'.$request_desc.'</td>
 			</tr>';	
 			}
@@ -140,7 +144,7 @@ class SAAjax {
 			$data['addthis'][] = '
 			<tr>
 				<td><input type="checkbox" id="checkItem" name="check[]" value="'.$request_id.'"></td>
-				<td class="tleft custPad">'.$request_type.'</td>
+				<td class="tleft custPad">'.($request_type == 'Adviser_Insert' ? 'Add' : 'Update').'</td>
 				<td class="tleft custPad">'.$request_desc.'</td>
 			</tr>';
 			}
@@ -184,7 +188,7 @@ $run = new SAAjax;
 if(isset($_GET['getNotif'])) $run->getNotif();
 if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getTransferNotif') $run->getTransferNotif();
 if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getCurriculumNotif') $run->getCurriculumNotif();
-if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getCurriculumNotifBot') $run->getCurriculumNotifBot();
+/*if(isset($_GET['data2'][0]) && $_GET['data2'][0] === 'getCurriculumNotifSubject') $run->getCurriculumNotifSubject();*/
 if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getSectionNotif') $run->getSectionNotif();
 if(isset($_GET['data'][0]) && $_GET['data'][0] === 'getClassNotif') $run->getClassNotif();
 if(isset($_POST['data'][0]) && $_POST['data'][0] === 'update-sec-priv') $run->updateSecPriv();

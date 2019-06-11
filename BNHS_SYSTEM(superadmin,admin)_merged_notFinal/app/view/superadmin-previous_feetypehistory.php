@@ -1,4 +1,4 @@
-	<?php require 'app/model/admin-funct.php'; $obj = new AdminFunct;?>
+	<?php require 'app/model/Superadmin-funct.php'; $obj = new SAdminFunct;?>
 	<?php
 		if(isset($_POST['view-status'])){
 			extract($_POST);
@@ -10,17 +10,26 @@
 				<div class="header">	
 					<div class="cont">	
 						<i class="fas fa-money-check"></i>
-						<span>List of Student Payment Status</span>
+						<span>History of Fee Type</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent feeTypeHistoryContent">
 					<div class="cont1">
 						<div class="box box2">
 							<p>Year:</p>
-							<select name="year" id="yearSuperadminTable" class="year_level_balstatus1">
-								<?php $obj->getYears(); ?>
+							<p class="tleft" ><select name="year" id="yearSuperadminTable" class="year_level_balstatus1 ">
+								<?php $obj->getYearsPaymentCollected(); ?>
 							</select>
+							</p>
+						</div>
+						<div class="box box5">
+							<p>Miscellaneous Fee:</p> 
+							<p class="tleft"><?php $obj->showHistoryAmountAllocated(); ?></p>
+						</div>
+						<div class="box box4">
+							<p>Total Amount Collected:</p>
+							<p class="tleft"><?php $obj->showHistoryPaymentCollected(); ?></p>
 						</div>
 					</div>
 					<div class="cont2">
@@ -39,7 +48,7 @@
 extract($value);
 echo '
 <tr>
-	<td>'.$bd_name.'</td>
+	<td class="tleft custPad">'.$bd_name.'</td>
 	<td align="right">'.number_format($bd_amountalloc, 2).'</td>
 	<td align="right">'.number_format($bd_accamount, 2).'</td>
 	<td>'.$bd_prevsy.'</td>
@@ -48,18 +57,6 @@ echo '
 }
 ?>		
 							</tbody>
-							<tfoot>
-								<?php foreach ($obj->showHistoryPaymentCollected() as $value) {
-									extract($value);
-									echo'
-									<tr>
-										<td class="tleft"><b>TOTAL AMOUNT COLLECTED: </b>'. number_format($totalAmtCollected, 2) .'</td>
-										<td class="tleft"><b>Year: </b>'.$bd_prevsy.'</td>
-									</tr>
-									';
-								}
-								?>
-							</tfoot>
 						</table>
 					</div>
 				</div>

@@ -16,6 +16,10 @@
 			extract($_POST);
 			$obj->multipleDeleteFee();
 		}
+		if (isset($_POST['cancel-button'])){
+			extract($_POST);
+			$obj->cancelFeeType($request_id);
+		}
 	?>
 	<?php
 		$this->conn = new Connection;
@@ -29,7 +33,7 @@
 						<i class="fas fa-money-check"></i>
 						<span>Fee Type</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent feeTypeContent">
 					<div class="cont1">
@@ -48,6 +52,7 @@
 					</div>
 					<div class="cont2">
 						<form action="admin-feetype" method="POST" id="form1"></form>
+						<form action="admin-feetype" method="POST" id="form2"></form>
 						<table id="noFilterTable" class="display">
 							<thead>
 								<tr>
@@ -58,7 +63,8 @@
 										$queryCount=$this->conn->prepare("SELECT * FROM request join budget_info_temp on request_id=bd_request WHERE request_status='Temporary'");
 										$queryCount->execute();
 										$rowQueryCount=$queryCount->rowCount();
-										echo $rowQueryCount > 0 ? '<th>Request</th>' : '';
+										echo $rowQueryCount > 0 ? '<th>Request Type</th>' : '';
+										echo $rowQueryCount > 0 ? '<th>Request Status</th>' : '';
 									echo'
 									<th>Action</th>
 								</tr>
@@ -69,19 +75,32 @@
  echo '
  <tr>
  	<td><input type="checkbox" id="checkItem" name="check[]" value="'.$bd_id.'" form="form1"></td>';
- 	echo $request_status == "Temporary" ? '<td class="tleft"><span class="temporary">'.$bd_name.'</span></td>' : ' <td class="tleft">'.$bd_name.'</td>';
- 	echo $request_status == "Temporary" ? '<td class="tleft"><span class="temporary">'.number_format($tot_amt, 2).'</span></td>' : ' <td class="tleft">'.number_format($tot_amt, 2).'</td>';
+ 	echo $request_status == "Temporary" ? '<td class="tleft"><div class="temporaryContainer"><span class="temporary">'.$bd_name.'</span><span class="temporaryDesc">There is a pending request in this fee type!</span></div>' : ' <td class="tleft">'.$bd_name.'</td>';
+ 	echo $request_status == "Temporary" ? '<td class="tright"><span class="temporary">'.number_format($tot_amt, 2).'</span></td>' : ' <td class="tright">'.number_format($tot_amt, 2).'</td>';
  	if($rowQueryCount > 0){
 	 	if($request_status == "Temporary"){
 	 		echo '
-	 		<td>For Approval to 
+	 		<td>
 	 		';
-	 			if($request_type == 'Insert'){
-	 				echo 'Add';
-	 			}else if($request_type == 'Update'){
-	 				echo 'Update';
-	 			}else if($request_type == 'Delete'){
-	 				echo 'Delete';
+	 			echo $request_type == 'Insert' ? 'Add' : $request_type;
+	 		echo'
+	 		</td>
+	 		';
+	 	}else{
+	 		echo '<td> </td>';
+	 	}
+ 	}
+ 	if($rowQueryCount > 0){
+	 	if($request_status == "Temporary"){
+	 		echo '
+	 		<td>
+	 		';
+	 			if($request_type == 'Insert' || $request_type == 'Update' || $request_type='Delete'){
+	 				echo '<div class="pendingContainer">
+	 						<button class="pending">Pending</button>
+ 							<input type="hidden" name="request_id" value="'.$request_id.'" form="form2">
+ 							<button class="cancel" name="cancel-button" form="form2"><i class="far fa-window-close"></i></button>
+ 						</div>';
 	 			}else{
 	 				echo '';
 	 			}
@@ -102,7 +121,7 @@
 				</div>
 			</button>
 			<div name="dialog" title="Update fee type">
-				<form action="admin-feetype" method="POST" required autocomplete="off">
+				<form action="admin-feetype" method="POST" required autocomplete="off" class="validateChangesInForm">
 					<input type="hidden" value="'.$bd_id.'" name="bd_id">
 					<span>Fee Type:</span>
 					<input type="text"  name="bd_name" value="'.$bd_name.'" data-validation="length custom" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Fee Type" >
@@ -136,7 +155,7 @@ echo'
 	<td></td>
 	<td><b>TOTAL AMOUNT:<b></td>';
 	if($rowQueryCount > 0){
-		echo'<td align="right"><span class="temporary"><b>&#8369'; $obj->getTotalTotalAmount(); echo'</b></span></td>' ;
+		echo'<td align="right"><div class="temporaryContainer"><span class="temporary">';$obj->getTotalTotalAmount(); echo'</span><span class="temporaryDesc">The total amount is not yet final.</span></td>' ;
 	}else{
 		echo '<td align="right"><font color="green"><b>&#8369'; $obj->getTotalTotalAmount(); echo'</b></font></td>';
 	}

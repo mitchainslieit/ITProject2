@@ -12,7 +12,7 @@
 						<i class="fas fa-money-check"></i>
 						<span>Add Subjects under a Curriculum</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent currriculumContent">
 					<div class="cont1">
@@ -30,6 +30,7 @@
 								<th>Subject Department</th>
 								<th>Subject Name</th>
 							</thead>
+							
 						</table>
 						<p class="tright">
 							<button name="submit-button" form="form1" class="customButton">Save <i class="fas fa-save fnt"></i></button>

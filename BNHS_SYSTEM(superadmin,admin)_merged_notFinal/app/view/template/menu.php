@@ -14,7 +14,7 @@ case 'superadmin' :
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-previous_feetypehistory").'><a href="'.URL.'superadmin-previous_feetypehistory"><i class="fas fa-archive fnt"></i>History of Fee Type</a></li>';
 	echo '</ul>';
 	echo '</li>';
-	echo '<li '.$this->helpers->isActiveMenu("superadmin-curriculum").'><a href="'.URL.'superadmin-curriculum"><i class="fas fa-book-reader fnt"></i>Curriculum </a><span class="notificationCurriculum">'.$_SESSION['curriculumNotif'].'</span></li>';
+	echo '<li '.$this->helpers->isActiveMenu("superadmin-subjects").'><a href="'.URL.'superadmin-subjects"><i class="fas fa-book-reader fnt"></i>Curriculum </a><span class="notificationCurriculum">'.$_SESSION['curriculumNotif'].'</span></li>';
 	echo '<li>';
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-section").'><a href="'.URL.'superadmin-section"><i class="fas fa-book-open fnt"></i>Section</a><span class="notification_sa_2">'.$_SESSION['sanotif_2'].'</span></li>';
 	
@@ -24,7 +24,7 @@ case 'superadmin' :
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-classes").'><a href="'.URL.'superadmin-classes"><i class="fas fa-book-open fnt"></i>Class List</a><span class="classNotification">'.$_SESSION['classNotif'].'</span></li>';
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-classschedule").'><a href="'.URL.'superadmin-classschedule"><i class="fas fa-clipboard-list fnt"></i>Class Schedule</a></li>';
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-classedit").'><a href="'.URL.'superadmin-classedit"><i class="far fa-clipboard fnt"></i>Schedule Request</a></li>';
-	echo '<li '.$this->helpers->isActiveMenu("superadmin-transfer").'><a href="'.URL.'superadmin-transfer"><i class="fas fa-bell fnt"></i>Accept Request</a><span class="notificationTransfer">'.$_SESSION['transferNotif'].'</span></li>';
+	echo '<li class="transferCont hidden"'.$this->helpers->isActiveMenu("superadmin-transfer").'><a href="'.URL.'superadmin-transfer"><i class="fas fa-bell fnt"></i>Transfer Student Req</a><span class="notificationTransfer">'.$_SESSION['transferNotif'].'</span></li>';
 	echo '</ul>';
 	echo '</li>';
 	echo '<li '.$this->helpers->isActiveMenu("superadmin-grades").'><a href="'.URL.'superadmin-grades"><i class="fas fa-list fnt"></i>Grades</a></li>';

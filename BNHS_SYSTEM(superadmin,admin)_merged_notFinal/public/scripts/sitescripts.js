@@ -554,6 +554,21 @@ setInterval(function() {
 	}
 }, 2000);
 */
+$(function() {
+    var $form = $('.validateChangesInForm');
+    
+    var initialState = $form.serialize();
+    
+    $form.submit(function (e) {
+      if (initialState === $form.serialize()) {
+        alert('No changes');
+      } else {
+            $form = $(this).get(0);
+      }
+      e.preventDefault();
+    });
+});
+
 $('[name=opener2]').each(function () {
 	var panel = $(this).siblings('[name=dialog2]');
 	$(this).click(function () {
@@ -599,7 +614,7 @@ $("#checkAl").click(function () {
 });
 	
 $("#checkAl1").click(function () {
-	$('input:checkbox').not(this).prop('checked', this.checked);
+	$('input:checkbox.chkbox1').not(this).prop('checked', this.checked);
 });
 	
 $("#noFilterTable, #ptaTable").DataTable({
@@ -909,10 +924,7 @@ var adminTablePaymentHistory = $('#admin-table-paymentHistory').DataTable({
 		pageSize: 'Folio',
 		orientation: 'landscape'
 	}
-	],
-	fixedColumns:   {
-		leftColumns: 1
-	}
+	]
 });
 
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus1', function(e) {
@@ -930,7 +942,43 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 	adminTablePaymentHistory.column(4).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
 });
 
+$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus3', function(e) {
+	var val2 = $(this).val();
+	adminTablePaymentHistory.column(4).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+	
+	$('#admin_home .contentpage .widget .balContent .cont1 .box4 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#admin_home .contentpage .widget .balContent .cont1 .box2 .year_level_balstatus3').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
+	
+	$('#admin_home .contentpage .widget .balContent .cont1 .box5 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#admin_home .contentpage .widget .balContent .cont1 .box2 .year_level_balstatus3').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
+});
+$('#admin_home .contentpage .widget .balContent .cont1 .box4 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#admin_home .contentpage .widget .balContent .cont1 .box2 .year_level_balstatus3').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
+	
+	$('#admin_home .contentpage .widget .balContent .cont1 .box5 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#admin_home .contentpage .widget .balContent .cont1 .box2 .year_level_balstatus3').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
 
+adminTablePaymentHistory.column(4).search($('.year_level_balstatus3').val() ? $('.year_level_balstatus3').val() : '', true, false).draw();
 
 var adminTableFeetypeHistory = $('#admin-table-feetypeHistory').DataTable({
 	"initComplete": function (settings, json) {  
@@ -965,7 +1013,37 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 $( '#yearAdminTable' ).on('change', function() {
 	var val = $(this).val();
 	adminTableFeetypeHistory.column(3).search(val ? val : '', true, false).draw();
+	$('#admin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box4 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#admin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box2 .year_level_balstatus1').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
+	
+	$('#admin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box5 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#admin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box2 .year_level_balstatus1').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
 });
+$('#admin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box4 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#admin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box2 .year_level_balstatus1').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
+	
+	$('#admin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box5 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#admin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box2 .year_level_balstatus1').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
 adminTableFeetypeHistory.column(3).search($('#yearAdminTable').val() ? $('#yearAdminTable').val() : '', true, false).draw();
 
 
@@ -1165,11 +1243,9 @@ $('#curriculumTable tbody').on( 'click', 'tr', function () {
 $('#addRow').on( 'click', function () {
 	CurriculumTable.row.add( [
 		'<select name="subj_level[]" data-validation="required"><option selected disabled hidden>Select Subject Level</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select>' ,
-		'<select name="subj_dept[]" data-validation="required" required><option selected disabled hidden>Subject Department</option><option value="Filipino">Filipino</option><option value="Math">Math</option><option value="MAPEH">MAPEH</option><option value="Science">Science</option><option value="AP">AP</option><option value="Math">Math</option><option value="English">English</option><option value="TLE">TLE</option><option value="Math">Math</option></select>',
+		'<input type="text" list="subjects" name="subj_dept[]"/><datalist  name="subj_dept[]" id="subjects" data-validation="required" required><option selected disabled hidden>Subject Department</option><option value="Filipino">Filipino</option><option value="Math">Math</option><option value="MAPEH">MAPEH</option><option value="Science">Science</option><option value="AP">AP</option><option value="Math">Math</option><option value="English">English</option><option value="TLE">TLE</option><option value="Math">Math</option></datalist>',
 		'<input type="text" name="subj_name[]" data-validation="length custom" data-validation-length="max45" data-validation-regexp="^[a-zA-Z0-9\-& ]+$" data-validation-error-msg="Enter less than 45 characters and Alphaneumerics only" value="" data-validation="required" required placeholder="Subject Name" class="subject-name">'
 		] ).draw( false );
-	
-	counter++;
 } );
 $('#removeRow').click( function () {
 	/*CurriculumTable.row('tr:last').remove().draw( false );*/
@@ -1187,6 +1263,9 @@ var adminTableCurriculum = $('#admin-table-curriculum').DataTable({
 		$("#admin-table-curriculum").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
 	},
 	dom: "lBfrtip",
+	searching: true,
+	/*"bFilter": true,*/
+	responsive: true,
 	buttons: [
 	{
 		extend: 'excelHtml5',
@@ -1211,10 +1290,19 @@ var adminTableCurriculum = $('#admin-table-curriculum').DataTable({
 	"lengthMenu": [[10, 25, -1], [10, 25, "All"]]
 });
 
+/*uncomment to customize search filter*/
+/*$("#admin-table-curriculum_filter").addClass("hidden"); // hidden search input
+
+$("#serachInput").on("input", function (e) {
+   e.preventDefault();
+   $('#admin-table-curriculum').DataTable().search($(this).val()).draw();
+});*/
+
 $( '#super_unique' ).on('change', function() {
 	var val = $(this).val();
 	adminTableCurriculum.column(3).search(val ? val : '', true, false).draw();
 });
+adminTableCurriculum.column(3).search($('#super_unique').val() ? $('#super_unique').val() : '', true, false).draw();
 
 $( '.sidebar-menu li' ).has('li.active-menu').addClass('active');
 /****************************************** END ADMIN FUNCTIONALITY *************************************************/
@@ -1244,6 +1332,7 @@ var sanotif_1 = $('#superadmin_feeType_request').DataTable({
 });
 
 if ($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_1').length) {
+/*$(".widgetHide").addClass("hidden");*/
  setInterval(function() {
  	var data = 'getNotif';
  		$.ajax({
@@ -1255,9 +1344,14 @@ if ($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificatio
  					var data = JSON.parse(result);
  					var current_no = parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_1').text());
  					var new_no = data["response"];
+ 					if(new_no === 0){
+				 		$('.FeeTypeWidgetHide').addClass('hidden');
+				 	}else{
+				 		$('.FeeTypeWidgetHide').removeClass('hidden');
+				 		$('.FeeTypeWidgetHide').addClass('show');
+				 	}
  					if ((current_no != new_no) && $('body').is('[class*="superadmin-"]')) {
  						var new_data = data["addthis"];
- 						console.log(data);
  						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_1').empty();
  						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_1').append(new_no);
  						sanotif_1.clear().draw();
@@ -1297,8 +1391,15 @@ setInterval(function() {
 					var data = JSON.parse(result);
 					var current_no = parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationTransfer').text());
 					var new_no = data["response"];
+					if(new_no === 0){
+				 		$('.transferCont').addClass('hidden');
+				 	}else{
+				 		$('.transferCont').removeClass('hidden');
+				 		$('.transferCont').addClass('show');
+				 	}
 					if ((current_no != new_no) && $('body').is('[class*="superadmin-"]')) {
 						var new_data = data["addthis"];
+						
 						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationTransfer').empty();
 						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationTransfer').append(new_no);
 						superadminTableTransfer.clear().draw();
@@ -1481,6 +1582,11 @@ var superadmingTableAnnouncement = $('#superadmin-table-announcement').DataTable
 	superadminTableBalStatus.column(7).search(val1 ? "^" + val1 + "$"  : '', true, false).draw();
 });
  
+ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus2', function(e) {
+	var val2 = $(this).val();
+	superadminTableBalStatus.column(6).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+});
+ 
  var superadminTableFeetypeHistory = $('#superadmin-table-feetypeHistory').DataTable({
 	"initComplete": function (settings, json) {  
 		$("#superadmin-table-feetypeHistory").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
@@ -1514,7 +1620,37 @@ $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', 
 $( '#yearSuperadminTable' ).on('change', function() {
 	var val = $(this).val();
 	superadminTableFeetypeHistory.column(3).search(val ? val : '', true, false).draw();
+	$('#superadmin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box4 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#superadmin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box2 .year_level_balstatus1').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
+	
+	$('#superadmin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box5 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#superadmin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box2 .year_level_balstatus1').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
 });
+$('#superadmin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box4 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#superadmin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box2 .year_level_balstatus1').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
+	
+	$('#superadmin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box5 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#superadmin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box2 .year_level_balstatus1').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
 superadminTableFeetypeHistory.column(3).search($('#yearSuperadminTable').val() ? $('#yearSuperadminTable').val() : '', true, false).draw();
 
 
@@ -1554,10 +1690,21 @@ $( '#super_unique2' ).on('change', function() {
 superadminTableCurriculum2.column(0).search($('#super_unique2').val() ? $('#super_unique2').val() : '', true, false).draw();
 
 
-
-var superadminTableNoFunct=$( "#superadmin-table-noFunct, #admin-table-noFunct" ).DataTable({
+var adminTableNoFunct=$( " #admin-table-noFunct" ).DataTable({
 	"initComplete": function (settings, json) {  
-		$("#superadmin-table-noFunct, #admin-table-noFunct").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+		$("#admin-table-noFunct").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	"paging":   false,
+  	"ordering": false,
+  	"info": false,
+	buttons: false,
+	"searching":false,
+	stateSave: true
+});
+
+var superadminTableNoFunct=$( "#superadmin-table-noFunct" ).DataTable({
+	"initComplete": function (settings, json) {  
+		$("#superadmin-table-noFunct").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
 	},
 	"paging":   false,
   	"ordering": false,
@@ -1576,11 +1723,19 @@ setInterval(function() {
 			data: {data:data},
 			success: function(result) {
 				try {
+					console.log(result);
 					var data = JSON.parse(result);
 					var current_no = parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationCurriculum').text());
 					var new_no = data["response"];
+					if(new_no === 0){
+				 		$('.SubjectWidgetHide').addClass('hidden');
+				 	}else{
+				 		$('.SubjectWidgetHide').removeClass('hidden');
+				 		$('.SubjectWidgetHide').addClass('show');
+				 	}
 					if ((current_no != new_no) && $('body').is('[class*="superadmin-"]')) {
 						var new_data = data["addthis"];
+						
 						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationCurriculum').empty();
 						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notificationCurriculum').append(new_no);
 						superadminTableNoFunct.clear().draw();
@@ -1588,6 +1743,7 @@ setInterval(function() {
 							superadminTableNoFunct.row.add($(new_data[i])).draw();
 						}
 					}
+					
 				} catch (e) {
 					
 				}
@@ -1596,7 +1752,27 @@ setInterval(function() {
 	}
 }, 2000);	
 
-
+var superadminTableSectionTop = $('#superadmin-table-section-top').DataTable({
+	"initComplete": function (settings, json) {  
+		$("#superadmin-table-section-top").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+	},
+	dom: "lBfrtip",
+	buttons: [
+	{
+		extend: 'excelHtml5',
+		exportOptions: {
+			columns: [1,2]
+		}
+	},
+	{
+		extend: 'pdfHtml5',
+		exportOptions: {
+			columns: [1,2]
+		},
+		pageSize: 'Folio'
+	}
+	],
+});
 
  var superadminTableSection = $('#superadmin-table-section').DataTable({
 	"initComplete": function (settings, json) {  
@@ -1633,6 +1809,12 @@ setInterval(function() {
 					var data = JSON.parse(result);
 					var current_no = parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_2').text());
 					var new_no = data["response"];
+					if(new_no === 0){
+				 		$('.SectionWidget').addClass('hidden');
+				 	}else{
+				 		$('.SectionWidget').removeClass('hidden');
+				 		$('.SectionWidget').addClass('show');
+				 	}
 					if ((current_no != new_no) && $('body').is('[class*="superadmin-"]')) {
 						var new_data = data["addthis"];
 						$('body[class*="superadmin-"] .menu-sidebar .menu nav ul li span.notification_sa_2').empty();
@@ -1683,7 +1865,6 @@ setInterval(function() {
 			data: {data:data},
 			success: function(result) {
 				try {
-					console.log(result);
 					var data = JSON.parse(result);
 					var current_no = parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav li ul li span.classNotification').text());
 					var new_no = data["response"];
@@ -1851,8 +2032,7 @@ $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', 
 		orientation: 'landscape',
 		pageSize: 'Folio'
 	}
-	],
-	"order": [[ 3, "desc" ]]
+	]
 });
 $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.log_events', function() {
 	var val5 = $(this).val();
@@ -1947,7 +2127,38 @@ $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', 
 $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus3', function(e) {
 	var val2 = $(this).val();
 	superadminTablePaymentHistory.column(4).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+	
+	$('#superadmin_home .contentpage .widget .balContent .cont1 .box4 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#superadmin_home .contentpage .widget .balContent .cont1 .box2 .year_level_balstatus3').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
+	
+	$('#superadmin_home .contentpage .widget .balContent .cont1 .box5 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#superadmin_home .contentpage .widget .balContent .cont1 .box2 .year_level_balstatus3').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
 });
+$('#superadmin_home .contentpage .widget .balContent .cont1 .box4 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#superadmin_home .contentpage .widget .balContent .cont1 .box2 .year_level_balstatus3').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
+	
+	$('#superadmin_home .contentpage .widget .balContent .cont1 .box5 span.wtotal').each(function() {
+		if ($(this).data('wtotal') != $('#superadmin_home .contentpage .widget .balContent .cont1 .box2 .year_level_balstatus3').val()) {
+			$(this).hide();
+		} else {
+			$(this).show();
+		}
+	});
 
 $( '#yearSuperadminTable' ).on('change', function() {
 	var val = $(this).val();

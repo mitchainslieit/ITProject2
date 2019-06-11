@@ -19,7 +19,7 @@ if (isset($_POST['update_funds'])) {
 					<i class="fas fa-user-plus fnt"></i>
 					<span>Payment Transaction</span>
 				</p>
-				<p>School Year: 2019-2020</p>
+				<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 			</div>	
 			<div class="eventcontent statementContent">
 				<div class="cont1">

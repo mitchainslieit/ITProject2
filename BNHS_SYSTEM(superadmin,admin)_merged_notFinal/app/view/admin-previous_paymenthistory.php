@@ -10,18 +10,16 @@
 				<div class="header">	
 					<div class="cont">	
 						<i class="fas fa-money-check"></i>
-						<span>List of Student Payment Status</span>
+						<span>History of Payments</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent balContent">
-					<p>Miscellaneous Fee: &#x20B1; <?php $obj->getMiscFee(); ?></p>
-	
 					<div class="cont1">
 						<div class="box box2">
 							<p>Year:</p>
 							<select name="year" id="yearAdminTable" class="year_level_balstatus3">
-								<?php $obj->getYears(); ?>
+								<?php $obj->getYearsPaymentCollected(); ?>
 							</select>
 						</div>
 						<div class="box box3">
@@ -38,6 +36,14 @@
 								<option value="">All</option>
 								<?php $obj->getGradeAndSection(); ?>
 							</select>
+						</div>
+						<div class="box box5">
+							<p>Miscellaneous Fee:</p> 
+							<p style="width:215px" class="tleft"><?php $obj->showHistoryAmountAllocated(); ?></p>
+						</div>
+						<div class="box box4">
+							<p>Total Amount Collected:</p>
+							<p style="width:215px" class="tleft"><?php $obj->showHistoryPaymentCollected(); ?></p>
 						</div>
 					</div>
 					<div class="cont2">
@@ -61,10 +67,10 @@
 extract($value);
 echo '
 <tr>
-	<td>'.$stud_lrno.'</td>
-	<td>'.$Name.'</td>
+	<td class="tleft">'.$stud_lrno.'</td>
+	<td class="tleft">'.$Name.'</td>
 	<td>'.$year_level.'</td>
-	<td>'.$section.'</td>
+	<td class="tleft">'.$section.'</td>
 	<td>'.$prev_sy.'</td>
 	<td align="right">'.number_format($misc_fee, 2).'</td>
 	<td align="right">'.number_format($bal_amt, 2).'</td>
@@ -75,21 +81,6 @@ echo '
 }
 ?>		
 							</tbody>
-							<tfoot>
-								<?php foreach ($obj->showHistoryPaymentCollected() as $value) {
-									extract($value);
-									echo'
-									<tr>
-										<td><b>TOTAL AMOUNT COLLECTED:</b></td>
-										<td>'. number_format($totalAmtCollected, 2) .'</td>
-										<td><b>Year: </b></td>
-										<td>'.$bd_prevsy.'<td>
-									</tr>
-									';
-									
-								}
-								?>
-							</tfoot>
 						</table>
 					</div>
 				</div>

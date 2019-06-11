@@ -283,11 +283,13 @@ table.dataTable td {
   height: 32px;
 }
 .dataTables_wrapper .dataTables_length {
-  float: left;
+  float: right;
+  margin-top: 45px !important;
 }
 .dataTables_wrapper .dataTables_filter {
-  float: right;
-  text-align: right;
+  float: left;
+  text-align: left;
+ 
 }
 .dataTables_wrapper .dataTables_filter input {
   margin-left: 0.5em;

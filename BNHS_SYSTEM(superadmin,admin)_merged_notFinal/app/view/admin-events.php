@@ -41,13 +41,13 @@
 						<i class="fas fa-money-check"></i>
 						<span>Event</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent eventContent">
 					<div class="cont1">
 						<button name="opener" class="customButton">Add event <i class="fas fa-plus fnt"></i></button>
 						<div name="dialog" title="Create events" >
-							<form action="admin-events" method="POST" enctype="multipart/form-data" autocomplete="off">
+							<form action="admin-events" method="POST" enctype="multipart/form-data" autocomplete="off" >
 								<span>Event Title:</span>
 								<input type="text" name="title" value="" data-validation="length required required" data-validation-length="max45" data-validation-error-msg="Enter less than 45 characters" placeholder="Event Title" >
 								<span>Start Date:</span>
@@ -71,7 +71,7 @@
 						<table id="admin-table-events" class="display">
 							<thead>
 								<tr>
-									<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form1"> </th>
+									<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl1" class="selectAllCheck" form="form1"> </th>
 									<th class="tleft">Title</th>
 									<th class="tleft">Date Start</th>
 									<th class="tleft">Date End</th>
@@ -88,7 +88,7 @@
  extract($value);
  echo '
  <tr>
- 	<td><input type="checkbox" id="checkItem" name="check[]" value="'.$ann_id.'" form="form1"></td>
+ 	<td><input type="checkbox" class="chkbox1" id="checkItem" name="check[]" value="'.$ann_id.'" form="form1"></td>
 	<td class="tleft">'.$title.'</td>
 	<td class="tleft">'.$date_start_1.'</td>
 	<td class="tleft">'.$date_end_1.'</td>
@@ -105,7 +105,7 @@
 				</div>
 			</button>
 			<div name="dialog" title="Update announcement">
-				<form action="admin-events" method="POST" enctype="multipart/form-data" required autocomplete="off">
+				<form action="admin-events" method="POST" enctype="multipart/form-data" required autocomplete="off" class="validateChangesInForm">
 					<input type="hidden" value="'.$ann_id.'" name="ann_id">
 					<span>Title:</span>
 					<input type="text" name="title" value="'.$title.'" data-validation="length required" data-validation-length="max45" data-validation-error-msg="Enter less than 45 characters" placeholder="Title">
@@ -165,7 +165,7 @@
 						<i class="fas fa-money-check"></i>
 						<span>Announcement</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent eventContent">
 					<div class="cont1">
@@ -197,7 +197,7 @@
 						<table class="admin-table-withScroll" class="display" width="100%">
 							<thead>
 								<tr>
-									<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl1" class="selectAllCheck" form="form2"> </th>
+									<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form2"> </th>
 									<th class="tleft">Announcement</th>
 									<th class="tleft">Date Start</th>
 									<th class="tleft">Date End</th>
@@ -233,7 +233,7 @@
 				</div>
 			</button>	
 			<div name="dialog" title="Update announcement">
-				<form action="admin-events" method="POST" enctype="multipart/form-data" required autocomplete="off">
+				<form action="admin-events" method="POST" enctype="multipart/form-data" required >
 					<input type="hidden" value="'.$ann_id.'" name="ann_id">
 					<span>Announcement:</span>
 					<textarea name="post" id="" cols="30" rows="5" placeholder="Announcement" data-validation="length required" data-validation-length="max500" data-validation-error-msg="Enter less than 500 characters" value="'.$post.'">'.$post.'</textarea>

@@ -25,7 +25,7 @@
 						<i class="fas fa-bell"></i>
 						<span>Admin Request</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php// echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
 				</div>
 				<div class="widgetContent">
 					<div class="cont2">
@@ -38,9 +38,9 @@
 								</tr>
 							</thead>
 							<tbody>
-<?php foreach($obj->adminRequests() as $value){
-extract($value);
-$currentAdmin = $obj->currentAdmin();
+<?php// foreach($obj->adminRequests() as $value){
+//extract($value);
+//$currentAdmin = $obj->currentAdmin();
 echo '
 	<tr>
 		<td><input type="checkbox" id="checkItem" name="check[]" value="'.$acc_idz.'" form="form1"></td>
@@ -62,7 +62,7 @@ echo '
 						<i class="fas fa-bell"></i>
 						<span>Admin Request</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent">
 					<div class="cont2">

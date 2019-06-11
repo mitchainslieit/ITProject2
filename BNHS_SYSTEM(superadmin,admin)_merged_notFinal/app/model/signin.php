@@ -100,7 +100,7 @@ class Signin {
 	}
 	
 	private function getCurriculumRequests(){
-		$query=$this->conn->prepare("SELECT * from curriculum_temp join request on curr_request=request_id where request_status='Temporary'");
+		$query=$this->conn->prepare("SELECT DISTINCT(c_desc) as 'c_desc',curriculum_idx,request_id,request_desc,request_type from subject_temp join curriculum_temp on curriculum_idx=cc_id join request on curr_request=request_id WHERE request_status='Temporary'");
 		$query->execute();
 		$_SESSION['curriculumNotif'] = $query->rowCount();	
 	}

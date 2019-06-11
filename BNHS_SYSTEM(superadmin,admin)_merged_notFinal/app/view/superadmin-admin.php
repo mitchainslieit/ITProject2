@@ -25,7 +25,7 @@
 						<i class="fas fa-money-check"></i>
 						<span>Admin List</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent adminContent">
 					<div class="cont1">

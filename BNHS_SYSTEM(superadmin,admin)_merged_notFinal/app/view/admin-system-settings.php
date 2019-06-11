@@ -33,7 +33,7 @@
 						<i class="fas fa-money-check"></i>
 						<span>Event</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent systemContent">
 					<div class="cont1">

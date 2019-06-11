@@ -8,6 +8,17 @@ class AdminFunct{
 	
 	}
 	/**************** GENERAL ****************/
+	public function getSchoolYear() {
+		$query = $this->conn->prepare("SELECT * FROM system_settings where sy_status ='Current'");
+		$query->execute();
+		$rowCount = $query->fetch();
+		$sy_start1 = $rowCount['sy_start'];
+		$sy_end1 = $rowCount['sy_end'];
+		$sy_start = date('Y', strtotime($sy_start1));
+		$sy_end = date('Y', strtotime($sy_end1));
+		echo  " ".$sy_start. "-" .$sy_end. " ";
+		return $sy_start;
+	}
 	public function insertLogs($log_event, $log_desc){
 		try {
 			$admin_id=$_SESSION['accid'];
@@ -23,7 +34,7 @@ class AdminFunct{
 	}
 	public function addRequest($request_desc){
 		try {
-			$sql3=$this->conn->prepare("INSERT INTO request SET request_type='Insert', request_desc=:request_desc, request_id='Temporary'");
+			$sql3=$this->conn->prepare("INSERT INTO request SET request_type='Insert', request_desc=:request_desc, request_status='Temporary'");
 			$sql3->execute(array(
 				':request_desc' => $request_desc, 
 			)); 	
@@ -117,6 +128,63 @@ class AdminFunct{
 	/**************** END GENERAL ****************/
 	
 	/**************** FEE TYPE *******************/
+	public function cancelFeeType($request_id){
+		$query1 = $this->conn->prepare("SELECT * FROM request join budget_info_temp bi on request.request_id = bi.bd_request WHERE request_id =:id");
+		$query1->execute(array(
+			':id' => $request_id
+		));
+		$row1=$query1->fetch(PDO::FETCH_ASSOC);
+		$req_type=$row1['request_type'];
+		$req_desc=$row1['request_desc'];
+		$req_stat=$row1['request_status'];
+		$req_bdname=$row1['bd_name'];
+		$req_totamt=$row1['tot_amt'];
+		$req_accamt=$row1['acc_amt'];
+		$req_bdsy=$row1['bd_sy'];
+
+		if($req_type == 'Insert'){
+			$rejectinsert = $this->conn->prepare("DELETE from request where request_id=:id");
+			if($rejectinsert->execute(array(
+				':id' => $request_id,
+			))){
+				$this->alert('Success!', 'You have successfully cancelled your request', "success", "admin-feetype");
+			} else {
+				$this->alert('Error!', "Failed to cancel your request", "error", "admin-feetype");
+			}
+		}else if ($req_type == 'Update'){
+			$rejectupdate = $this->conn->prepare("SELECT * from budget_info where budget_name=:budget_name");
+			$rejectupdate->execute(array(
+				':budget_name' => $req_bdname
+			));
+			$row=$rejectupdate->fetch(PDO::FETCH_ASSOC);
+			$totamt=$row['total_amount'];
+
+			$updatereject = $this->conn->prepare("UPDATE budget_info_temp SET tot_amt =:rejecttotamt, name_temp=:name_temp WHERE bd_name =:bd_name ");
+			if($updatereject->execute(array(
+				':rejecttotamt' => $totamt,
+				':name_temp' => $req_bdname,
+				':bd_name' => $req_bdname
+			))){
+				$updatestat = $this->conn->prepare("UPDATE request SET request_status = 'Permanent' WHERE request_id =:id ");
+				$updatestat->execute(array(
+					':id' => $request_id
+				));
+				$this->alert('Success!', 'You have successfully cancelled your request', "success", "admin-feetype");
+			} else {
+				$this->alert('Error!', "Failed to cancel your request", "error", "admin-feetype");
+			}
+		}else if ($req_type == 'Delete'){
+			$updateDel = $this->conn->prepare("UPDATE request SET request_status = 'Permanent' WHERE request_id =:id ");
+			if($updateDel->execute(array(
+				':id' => $request_id
+			))){
+				$this->alert('Success!', 'You have successfully cancelled your request', "success", "admin-feetype");
+			} else {
+				$this->alert('Error!', "Failed to cancel your request", "error", "admin-feetype");
+			}
+		}
+	}
+	
 	public function multipleDeleteFee(){
 		$checkbox = $_POST['check'];
 		if($checkbox !== null){
@@ -129,12 +197,29 @@ class AdminFunct{
 				));
 				$rowQueryGetID=$queryGetID->fetch(PDO::FETCH_ASSOC);
 				$req_id=$rowQueryGetID['bd_request'];
-				$budget_name=$rowQueryGetID['bd_name'];
-				$request_desc='Delete Fee Type '.$budget_name;
 				
-				$this->deleteRequest($req_id, $request_desc);
-				$this->alert("Success!", "The delete request has been sent for Fee Type  $budget_name.", "success", "admin-feetype");
-			
+				$queryTableReq=$this->conn->prepare("SELECT * FROM request WHERE request_id=:request_id");
+				$queryTableReq->execute(array(
+					':request_id' => $req_id
+				));
+				$rowQueryTableReq=$queryTableReq->fetch(PDO::FETCH_ASSOC);
+				$queryStat=$rowQueryTableReq['request_status'];
+				
+				if($queryStat == 'Permanent'){
+					$budget_name=$rowQueryGetID['bd_name'];
+					$amount=$rowQueryGetID['tot_amt'];
+					$request_desc='Delete Fee Type '.$budget_name.' with an amount of ₱'.$amount.'.00';
+					
+					$this->deleteRequest($req_id, $request_desc);
+					$this->alert("Success!", "Your request has been sent!", "success", "admin-feetype");
+				}else{
+					$this->alert("Error!", "There is a pending request under this fee type. Wait for the principal to approve the previous request.", "error", "admin-feetype");
+				}
+			}
+		}else{
+			$this->alert("Error!", "Please select atleast one item", "error", "admin-feetype");
+		}
+	}
 				
 			/*	$sql1=$this->conn->prepare("SELECT budget_name, total_amount FROM budget_info WHERE budget_id=:budget_id");
 				$sql1->execute(array(
@@ -200,11 +285,7 @@ class AdminFunct{
 				}else{
 					$this->alert("Error!", "You are not allowed to delete the selected item/s", "error", "admin-feetype");
 				}*/
-			}
-		}else{
-			$this->alert("Error!", "Please select atleast one item", "error", "admin-feetype");
-		}
-	}
+	
 	public function addFeeType($budget_name, $total_amount) {
 		try{
 			$query1=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee FROM budget_info");
@@ -212,8 +293,8 @@ class AdminFunct{
 			$row1=$query1->fetch(PDO::FETCH_ASSOC);
 			$prev_misc_fee=$row1['misc_fee'];
 			
-			$curYear = date('Y');
-			$request_desc='Add Fee Type '.$budget_name.' with amount of '.$total_amount;
+			$curYear = $this->getSchoolYear();
+			$request_desc='Add Fee Type '.$budget_name.' with an amount of ₱'.$total_amount.'.00';
 			$this->addRequest($request_desc);
 			$request_id=$this->getRequestID();
 			
@@ -257,7 +338,7 @@ class AdminFunct{
 					}
 				}
 				*/
-				$this->alert("Success!", "The request has been sent!", "success", "admin-feetype");
+				$this->alert("Success!", "Your request has been sent", "success", "admin-feetype");
 			}else{	
 				$this->alert("Error!", "Failed to add Fee Type! This Fee Type already exist.", "error", "admin-feetype");
 			}
@@ -273,95 +354,122 @@ class AdminFunct{
 			));
 			$rowQueryGetID=$queryGetID->fetch(PDO::FETCH_ASSOC);
 			$req_id=$rowQueryGetID['bd_request'];
-			$request_desc='Update Fee Type '.$budget_name. ' with amount of '.$total_amount;
-			$this->updateRequest($req_id, $request_desc);
+			$request_desc='Update Fee Type '.$budget_name. ' with an amount of ₱'.$total_amount.'.00';
 			
 			$query1=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee FROM budget_info");
 			$query1->execute();
 			$row1=$query1->fetch(PDO::FETCH_ASSOC);
 			$prev_misc_fee=$row1['misc_fee'];
 			
-			$sql1=$this->conn->prepare("UPDATE budget_info_temp SET name_temp=:name_temp, tot_amt=:tot_amt WHERE bd_id=:bd_id");
-			if($sql1->execute(array(
-				':name_temp' => $budget_name,
-				':tot_amt' => $total_amount,
-				':bd_id'=>$id
-			))){
-				/*superadmin update fee type*/
-				/*$query6=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee FROM budget_info");
-				$query6->execute();
-				$row6=$query6->fetch(PDO::FETCH_ASSOC);
-				$prev_misc_fee2=$row6['misc_fee'];
-				
-				$query7=$this->conn->prepare("SELECT ($prev_misc_fee2 - misc_fee) as difference FROM balance");
-				$query7->execute();
-				$row7=$query7->fetch(PDO::FETCH_ASSOC);
-				$difference2=$row7['difference'];
-				
-				$query8=$this->conn->prepare("SELECT * FROM balance");
-				$query8->execute();
-				if($query8->rowCount() > 0){
-					$query9=$this->conn->prepare("UPDATE balance SET misc_fee = (misc_fee + $difference2), bal_amt = (bal_amt + $difference2)");
-					$query9->execute();
-					$query13=$this->conn->prepare("SELECT * FROM balance");
-					$query13->execute();
-					$result13 = $query13->fetchAll();
-					foreach ($result13 as $row13) {
-						if($row13['bal_amt'] == 0){
-							$query14=$this->conn->prepare("UPDATE balance SET bal_status='Cleared' WHERE bal_amt='0'");
-							$query14->execute();
-						}else{
-							$query15=$this->conn->prepare("UPDATE balance SET bal_status='Not Cleared' WHERE bal_amt > '0'");
-							$query15->execute();
-						}
-					}
+			$queryTableReq=$this->conn->prepare("SELECT * FROM request WHERE request_id=:request_id");
+			$queryTableReq->execute(array(
+				':request_id' => $req_id
+			));
+			$rowQueryTableReq=$queryTableReq->fetch(PDO::FETCH_ASSOC);
+			$queryStat=$rowQueryTableReq['request_status'];
+			
+			if($queryStat == 'Permanent'){
+				$sql1=$this->conn->prepare("UPDATE budget_info_temp SET name_temp=:name_temp, tot_amt=:tot_amt WHERE bd_id=:bd_id");
+				if($sql1->execute(array(
+					':name_temp' => $budget_name,
+					':tot_amt' => $total_amount,
+					':bd_id'=>$id
+				))){
+					$this->updateRequest($req_id, $request_desc);
+					$this->alert("Success!", "Your request has been sent!", "success", "admin-feetype");
+				}else{	
+					$this->alert("Error!", "Failed to update Fee Type!", "error", "admin-feetype");
 				}
-				$query10 = $this->conn->prepare("SELECT * FROM payment");
-				$query10->execute();
-				if($query10->rowCount() > 0){
-					$query11=$this->conn->prepare("SELECT max(pay_id) as pay_id from payment group by balb_id");
-					$query11->execute();
-					$result2 = $query11->fetchAll();
-					foreach($result2 as $row) {
-						$query12=$this->conn->prepare("UPDATE payment set remain_bal = (remain_bal +:difference) WHERE pay_id=:pay_id");
-						$query12->execute(array(
-							':difference' => $difference2,
-							':pay_id' => $row['pay_id']
-						)) or die ('failed');
-					}
-				}
-				$sql2=$this->conn->prepare("SELECT * FROM budget_info WHERE budget_id=?");
-				$sql2->bindParam(1, $id);
-				$sql2->execute();
-				$row=$sql2->fetch(PDO::FETCH_ASSOC);
-				$budget_name=$row['budget_name'];
-				$log_event="Update";
-				$log_desc="Updated the Fee Type ".$budget_name." with amount of ".number_format($total_amount, 2);
-				$this->insertLogs($log_event, $log_desc);*/
-				$this->alert("Success!", "The update request has been sent for Fee Type  $budget_name with amount of $total_amount.", "success", "admin-feetype");
-			}else{	
-				 $this->alert("Error!", "Failed to update Fee Type!", "error", "admin-feetype");
+			}else{
+				$this->alert("Error!", "There is a pending request under this fee type. Wait for the principal to approve the previous request.", "error", "admin-feetype");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
 		}
 	}
+					/*superadmin update fee type*/
+					/*$query6=$this->conn->prepare("SELECT SUM(total_amount) as misc_fee FROM budget_info");
+					$query6->execute();
+					$row6=$query6->fetch(PDO::FETCH_ASSOC);
+					$prev_misc_fee2=$row6['misc_fee'];
+					
+					$query7=$this->conn->prepare("SELECT ($prev_misc_fee2 - misc_fee) as difference FROM balance");
+					$query7->execute();
+					$row7=$query7->fetch(PDO::FETCH_ASSOC);
+					$difference2=$row7['difference'];
+					
+					$query8=$this->conn->prepare("SELECT * FROM balance");
+					$query8->execute();
+					if($query8->rowCount() > 0){
+						$query9=$this->conn->prepare("UPDATE balance SET misc_fee = (misc_fee + $difference2), bal_amt = (bal_amt + $difference2)");
+						$query9->execute();
+						$query13=$this->conn->prepare("SELECT * FROM balance");
+						$query13->execute();
+						$result13 = $query13->fetchAll();
+						foreach ($result13 as $row13) {
+							if($row13['bal_amt'] == 0){
+								$query14=$this->conn->prepare("UPDATE balance SET bal_status='Cleared' WHERE bal_amt='0'");
+								$query14->execute();
+							}else{
+								$query15=$this->conn->prepare("UPDATE balance SET bal_status='Not Cleared' WHERE bal_amt > '0'");
+								$query15->execute();
+							}
+						}
+					}
+					$query10 = $this->conn->prepare("SELECT * FROM payment");
+					$query10->execute();
+					if($query10->rowCount() > 0){
+						$query11=$this->conn->prepare("SELECT max(pay_id) as pay_id from payment group by balb_id");
+						$query11->execute();
+						$result2 = $query11->fetchAll();
+						foreach($result2 as $row) {
+							$query12=$this->conn->prepare("UPDATE payment set remain_bal = (remain_bal +:difference) WHERE pay_id=:pay_id");
+							$query12->execute(array(
+								':difference' => $difference2,
+								':pay_id' => $row['pay_id']
+							)) or die ('failed');
+						}
+					}
+					$sql2=$this->conn->prepare("SELECT * FROM budget_info WHERE budget_id=?");
+					$sql2->bindParam(1, $id);
+					$sql2->execute();
+					$row=$sql2->fetch(PDO::FETCH_ASSOC);
+					$budget_name=$row['budget_name'];
+					$log_event="Update";
+					$log_desc="Updated the Fee Type ".$budget_name." with amount of ".number_format($total_amount, 2);
+					$this->insertLogs($log_event, $log_desc);*/
+	
 	public function deleteFeeType($id, $table){
 		try{
 			$queryGetID=$this->conn->prepare("SELECT * FROM budget_info_temp where bd_id=:bd_id");
-			if($queryGetID->execute(array(
+			$queryGetID->execute(array(
 				':bd_id' => $id
-			))){
-				$rowQueryGetID=$queryGetID->fetch(PDO::FETCH_ASSOC);
-				$req_id=$rowQueryGetID['bd_request'];
+			));
+			$rowQueryGetID=$queryGetID->fetch(PDO::FETCH_ASSOC);
+			$req_id=$rowQueryGetID['bd_request'];
+			
+			$queryTableReq=$this->conn->prepare("SELECT * FROM request WHERE request_id=:request_id");
+			$queryTableReq->execute(array(
+				':request_id' => $req_id
+			));
+			$rowQueryTableReq=$queryTableReq->fetch(PDO::FETCH_ASSOC);
+			$queryStat=$rowQueryTableReq['request_status'];
+			
+			if($queryStat == 'Permanent'){
 				$budget_name=$rowQueryGetID['bd_name'];
-				$request_desc='Delete Fee Type '.$budget_name;
+				$amount = $rowQueryGetID['tot_amt'];
+				$request_desc='Delete Fee Type '.$budget_name.' with an amount of ₱'.$amount.'.00';
 				
 				$this->deleteRequest($req_id, $request_desc);
-				$this->alert("Success!", "The delete request has been sent for Fee Type  $budget_name.", "success", "admin-feetype");
+				$this->alert("Success!", "Your request has been sent!", "success", "admin-feetype");
 			}else{
-				$this->alert("Error!", "Failed to delete Fee Type!", "error", "admin-feetype");
+				$this->alert("Error!", "There is a pending request under this fee type. Wait for the principal to approve the previous request.", "error", "admin-feetype");
 			}
+		} catch (PDOException $exception) {
+			die('ERROR: ' . $exception->getMessage());
+		}
+	}
+			
 			/*superadmin delete fee type*/
 			/*$sql1=$this->conn->prepare("SELECT budget_name, total_amount FROM budget_info WHERE budget_id=:budget_id");
 			$sql1->execute(array(
@@ -428,10 +536,6 @@ class AdminFunct{
 			}else{	
 				$this->alert("Error!", "Failed to delete Fee Type!", "error", "admin-feetype");
 			}*/
-		} catch (PDOException $exception) {
-			die('ERROR: ' . $exception->getMessage());
-		}
-	}
 	public function showFeeType(){
 		$sql = $this->conn->prepare("SELECT * FROM request join budget_info_temp on request_id=bd_request") or die ("failed!");
 		$sql->execute();
@@ -521,17 +625,30 @@ class AdminFunct{
 		return $data;
 	}
 	
-	public function showHistoryPaymentCollected(){
-		$sql=$this->conn->prepare("SELECT bd_prevsy, SUM(bd_accamount) as totalAmtCollected FROM payment_collected GROUP BY bd_prevsy;");
+	public function getYearsPaymentCollected() {
+		$sql=$this->conn->prepare("SELECT bd_prevsy FROM payment_collected GROUP BY bd_prevsy;");
 		$sql->execute();
-		if($sql->rowCount()>0){
-			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
-				$data[]=$r;
-			}
-		}else{
-			return $sql;
+		$option = '';
+		while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			$option .= '<option value="'.$row["bd_prevsy"].'" name="year">'.$row["bd_prevsy"].'</option>';
 		}
-		return $data;
+		echo $option;
+	}
+	
+	public function showHistoryAmountAllocated(){
+		$sql=$this->conn->prepare("SELECT bd_prevsy, SUM(bd_amountalloc) as totalAmtAllocated FROM payment_collected GROUP BY bd_prevsy");
+		$sql->execute();
+		foreach($sql->fetchAll() as $rowCount){
+		echo  "<span class=\"wtotal\" data-wtotal=".$rowCount['bd_prevsy'].">&#x20B1;". number_format($rowCount['totalAmtAllocated'],2) . "</span>";	
+		}
+	}
+	
+	public function showHistoryPaymentCollected(){
+		$sql=$this->conn->prepare("SELECT bd_prevsy, SUM(bd_accamount) as totalAmtCollected FROM payment_collected GROUP BY bd_prevsy");
+		$sql->execute();
+		foreach($sql->fetchAll() as $rowCount){
+		echo  "<span class=\"wtotal\" data-wtotal=".$rowCount['bd_prevsy'].">&#x20B1;". number_format($rowCount['totalAmtCollected'],2) . "</span>";	
+		}
 	}
 	
 	public function showHistoryFeetype(){
@@ -560,9 +677,31 @@ class AdminFunct{
 	/********* END STUDENT PAYMENT STATUS **********/
 	
 	/********* CURRICULUM SECTION *****************/
+	public function cancelCurriculum($request_id){
+		$queryGetDetailsTemp=$this->conn->prepare("SELECT * FROM curriculum_temp WHERE curr_request=:curr_request");
+		$queryGetDetailsTemp->execute(array(
+			':curr_request' => $request_id
+		));
+		$rowQueryGetDetailsTemp=$queryGetDetailsTemp->fetch(PDO::FETCH_ASSOC);
+		$curriculum_idTemp=$rowQueryGetDetailsTemp['cc_id'];
+		
+		$queryUpdateReqStatus=$this->conn->prepare("DELETE FROM request WHERE request_id=:request_id");
+		$queryUpdateReqStatus->execute(array(
+			':request_id' => $request_id
+		));
+		
+		$queryToDel=$this->conn->prepare("DELETE FROM curriculum_temp WHERE cc_id=:cc_id");
+		if($queryToDel->execute(array(
+			':cc_id' => $curriculum_idTemp
+		))){
+			$this->alert('Success!', 'You have successfully cancelled your request', "success", "admin-subjects");
+		}else {
+			$this->alert('Error!', "Failed to cancel your request", "error", "admin-subjects");
+		}
+	}
 	
 	public function getCurriculum() {
-		$sql=$this->conn->prepare("SELECT curr_id, curr_desc from curriculum");
+		$sql=$this->conn->prepare("SELECT cc_id, c_desc from curriculum_temp");
 		$sql->execute();
 		if($sql->rowCount() > 0){
 			while($row=$sql->fetch(PDO::FETCH_ASSOC)){
@@ -595,19 +734,19 @@ class AdminFunct{
 				if($queryToDel->execute(array(
 					':cc_id' => $curriculum_idTemp
 				))){
-					$this->alert('Success!', 'You have successfully cancelled your request', "success", "admin-subject");
+					$this->alert('Success!', 'You have successfully cancelled your request', "success", "admin-subjects");
 				}else {
-					$this->alert('Error!', "Failed to cancel the request", "error", "admin-subject");
+					$this->alert('Error!', "Failed to cancel the request", "error", "admin-subjects");
 				}
 			}
 		}else{
-			$this->alert("Error!", "Please select atleast one item", "error", "admin-subject");
+			$this->alert("Error!", "Please select atleast one item", "error", "admin-subjects");
 		}
 	}
 	
 	
 	public function showCurriculumRequestDistinct(){
-		$queryCurriculumRequest=$this->conn->prepare("SELECT DISTINCT(c_desc) as 'c_desc',curriculum_idx,request_id, request_status, request_type from subject_temp join curriculum_temp on curriculum_idx=cc_id join request on curr_request=request_id WHERE request_status='Temporary'");
+		$queryCurriculumRequest=$this->conn->prepare("SELECT DISTINCT(c_desc) as 'c_desc',curriculum_idx,request_id, request_status, request_type,request_desc from subject_temp join curriculum_temp on curriculum_idx=cc_id join request on curr_request=request_id WHERE request_status='Temporary'");
 		$queryCurriculumRequest->execute();
 		if($queryCurriculumRequest->rowCount()>0){
 			while($row=$queryCurriculumRequest->fetch(PDO::FETCH_ASSOC)){
@@ -638,7 +777,7 @@ class AdminFunct{
 					$subj_name[] = $post['subj_name'][$c];
 				} 
 			}
-			$request_desc='Add Curriculum '.$post['curr_name'];
+			$request_desc='Curriculum '.$post['curr_name'];
 			$this->addRequest($request_desc);
 			$req_id=$this->getRequestID();
 			
@@ -647,7 +786,7 @@ class AdminFunct{
 				':c_desc' => $post['curr_name'],
 				':curr_request' => $req_id
 			)) or die($this-> alert("Error!", "Error inserting a curriculum.", "error", "admin-curriculum"));
-			$queryReq_id=$this->conn->prepare("SELECT cc_id FROM curriculum_temp ORDER BY 1 DESC");
+			$queryReq_id=$this->conn->prepare("SELECT cc_id FROM curriculum_temp ORDER BY 1 DESC LIMIT 1");
 			$queryReq_id->execute();
 			$rowReqID=$queryReq_id->fetch(PDO::FETCH_ASSOC);
 			$cc_idRowReqID=$rowReqID['cc_id'];
@@ -783,6 +922,62 @@ class AdminFunct{
 	/**************** END SUBJECT ****************/
 	
 	/**************** SECTION *******************/
+	public function cancelSection($request_id){
+		$query1 = $this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req WHERE request_id =:id");
+		$query1->execute(array(
+			':id' => $request_id
+		));
+		$row1=$query1->fetch(PDO::FETCH_ASSOC);
+		$req_type=$row1['request_type'];
+		$req_desc=$row1['request_desc'];
+		$req_stat=$row1['request_status'];
+		$req_sname=$row1['s_name'];
+		$req_grlvl=$row1['gr_lvl'];
+		$req_facidv=$row1['fc_id'];
+		if($req_type == 'Insert'){
+			$rejectinsert = $this->conn->prepare("DELETE from request where request_id=:id");
+			if($rejectinsert->execute(array(
+				':id' => $request_id,
+			))){
+				$this->alert('Success!', 'You have successfully cancelled your request', "success", "admin-section");
+			} else {
+				$this->alert('Error!', "Failed to cancel your request", "error", "admin-section");
+			}
+		}else if ($req_type == 'Update'){
+			$rejectupdate = $this->conn->prepare("SELECT * from section where sec_name=:sec_name");
+			$rejectupdate->execute(array(
+				':sec_name' => $req_sname
+			));
+			$row=$rejectupdate->fetch(PDO::FETCH_ASSOC);
+			$currentSec_name=$row['sec_name'];
+			$currentGrade_lvl=$row['grade_lvl'];
+			
+			$updatereject = $this->conn->prepare("UPDATE section_temp SET name_temp =:name_temp, gr_lvl=:gr_lvl WHERE s_name =:s_name ");
+			if($updatereject->execute(array(
+				':name_temp' => $currentSec_name,
+				':gr_lvl' => $currentGrade_lvl,
+				':s_name' => $req_sname
+			))){
+				$updatestat = $this->conn->prepare("UPDATE request SET request_status = 'Permanent' WHERE request_id =:id ");
+				$updatestat->execute(array(
+					':id' => $request_id
+				));
+				$this->alert('Success!', 'You have successfully cancelled your request', "success", "admin-section");
+			} else {
+				$this->alert('Error!', "Failed to cancel your request", "error", "admin-section");
+			}
+		}else if ($req_type == 'Delete'){
+			$updateDel = $this->conn->prepare("UPDATE request SET request_status = 'Permanent' WHERE request_id =:id ");
+			if($updateDel->execute(array(
+				':id' => $request_id
+			))){
+				$this->alert('Success!', 'You have successfully cancelled your request', "success", "admin-section");
+			} else {
+				$this->alert('Error!', "Failed to cancel your request", "error", "admin-section");
+			}
+		}
+	}
+	
 	public function multipleDeleteSection(){
 		$checkbox = $_POST['check'];
 		if($checkbox !== null){
@@ -796,7 +991,7 @@ class AdminFunct{
 				$queryType=$rowQueryTableReq['request_type'];
 				$queryStat=$rowQueryTableReq['request_status'];
 				
-				if(($queryType == 'Insert' || $queryType == 'Update' || $queryType == 'Delete') && $queryStat == 'Permanent'){	
+				if($queryStat == 'Permanent'){	
 					$querySearch=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
 					if($querySearch->execute(array(
 						':sectionid' => $del_id
@@ -804,14 +999,14 @@ class AdminFunct{
 						$rowQuerySearch=$querySearch->fetch(PDO::FETCH_ASSOC);
 						$req_id=$rowQuerySearch['sec_req'];
 						$sec_name=$rowQuerySearch['s_name'];
-						$request_desc='Delete Section '.$sec_name;
+						$request_desc='Section '.$sec_name;
 						$this->deleteRequest($req_id, $request_desc);
 						$this->alert("Success!", "The selected item/s has been successfully deleted", "success", "admin-section");
 					}else{
 						$this->alert("Error!", "You are not allowed to delete the selected item/s, because there might be some student/s that has enrolled in this section", "error", "admin-section");
 					}
 				}else{
-					$this->alert("Error!", "There is a pending request under this section. Wait for the superadmin to approve the previous request", "error", "admin-section");
+					$this->alert("Error!", "There is a pending request under this section. Wait for the principal to approve the previous request", "error", "admin-section");
 				}
 				
 				/*$sql = $this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
@@ -897,7 +1092,7 @@ class AdminFunct{
 	public function addSection($sec_name, $grade_lvl){
 		try {
 			$created=date('Y-m-d H:i:s');	
-			$request_desc='Add Section Grade '.$grade_lvl. ' - '.$sec_name;
+			$request_desc='Grade '.$grade_lvl. ' - Section '.$sec_name;
 			$this->addRequest($request_desc);
 			$request_id=$this->getRequestID();
 			$sql1=$this->conn->prepare("INSERT INTO section_temp SET s_name=:s_name, gr_lvl=:gr_lvl, tt_sec=:tt_sec, sec_req=:sec_req");
@@ -914,7 +1109,7 @@ class AdminFunct{
 				$log_event="Insert";
 				$log_desc="Added Section ".$sec_name;
 				$this->insertLogs($log_event, $log_desc);*/
-				$this->alert("Success!", "A new section has been created! Class: $sec_name, Grade Level: $grade_lvl", "success", "admin-section");
+				$this->alert("Success!", "Your request has been sent!", "success", "admin-section");
 			}else{
 				$this->alert("Error!", "Failed to add section! This section already exist", "error", "admin-section");
 			}
@@ -931,7 +1126,7 @@ class AdminFunct{
 		$queryType=$rowQueryTableReq['request_type'];
 		$queryStat=$rowQueryTableReq['request_status'];
 		
-		if(($queryType == 'Insert' || $queryType == 'Update' || $queryType == 'Delete') && $queryStat == 'Permanent'){
+		if($queryStat == 'Permanent'){
 			$sql1=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
 			$sql1->execute(array(
 				':sectionid' => $id
@@ -939,7 +1134,7 @@ class AdminFunct{
 			$row1=$sql1->fetch(PDO::FETCH_ASSOC);
 			$secToUpdate=$row1['s_name'];
 			$req_id=$row1['sec_req'];
-			$request_desc='Update Section Grade '.$grade_lvl. ' - '.$sec_name;
+			$request_desc='Grade '.$grade_lvl. ' - Section '.$sec_name;
 			$this->updateRequest($req_id, $request_desc);
 			
 			$sql2=$this->conn->prepare("UPDATE section_temp 
@@ -960,16 +1155,15 @@ class AdminFunct{
 				$log_event="Update";
 				$log_desc="Updated the Section ".$secToUpdate." to ".$sec_name;
 				$this->insertLogs($log_event, $log_desc);*/
-				$this->alert("Success!", "Section has been successfully updated", "success", "admin-section");
+				$this->alert("Success!", "Your request has been sent!", "success", "admin-section");
 			}else{
 				$this->alert("Error!", "Failed to update section", "error", "admin-section");
 			}
 		}else{
-			$this->alert("Error!", "There is a pending request under this section. Wait for the superadmin to approve the previous request", "error", "admin-section");
+			$this->alert("Error!", "There is a pending request under this section. Wait for the principal to approve the previous request", "error", "admin-section");
 		}
-			
-		
 	}	
+	
 	public function deleteSection($id){
 		try {
 			$queryTableReq=$this->conn->prepare("SELECT * FROM request join section_temp on request_id=sec_req WHERE sectionid=:sectionid");
@@ -980,7 +1174,7 @@ class AdminFunct{
 			$queryType=$rowQueryTableReq['request_type'];
 			$queryStat=$rowQueryTableReq['request_status'];
 			
-			if(($queryType == 'Insert' || $queryType == 'Update' || $queryType == 'Delete') && $queryStat == 'Permanent'){
+			if($queryStat == 'Permanent'){
 				$querySearch=$this->conn->prepare("SELECT * FROM section_temp WHERE sectionid=:sectionid");
 				if($querySearch->execute(array(
 					':sectionid' => $id
@@ -988,15 +1182,16 @@ class AdminFunct{
 					$rowQuerySearch=$querySearch->fetch(PDO::FETCH_ASSOC);
 					$req_id=$rowQuerySearch['sec_req'];
 					$sec_name=$rowQuerySearch['s_name'];
-					$request_desc='Delete Section '.$sec_name;
+					$grade_level=$rowQuerySearch['gr_lvl'];
+					$request_desc='Grade '.$grade_level. ' - Section '.$sec_name;
 					$this->deleteRequest($req_id, $request_desc);
-					$this->alert("Success!", "The request has been sent", "success", "admin-section");
+					$this->alert("Success!", "Your request has been sent!", "success", "admin-section");
 					
 				}else{
 					$this->alert("Error!", "Failed to delete section!", "error", "admin-section");
 				}
 			}else{
-				$this->alert("Error!", "There is a pending request under this section. Wait for the superadmin to approve the previous request", "error", "admin-section");
+				$this->alert("Error!", "There is a pending request under this section. Wait for the principal to approve the previous request", "error", "admin-section");
 			}
 			
 			/*$sql = $this->conn->prepare("SELECT * FROM section WHERE sec_id=:sec_id");
@@ -1020,13 +1215,6 @@ class AdminFunct{
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
 		}
-	}
-	public function getSchoolYear(){
-		$query = $this->conn->prepare("SELECT school_year 'sy' FROM student group by 1");
-		$query->execute();
-		$rowCount = $query->fetch();
-		$rowCount1 = $rowCount['sy'] + 1;
-		echo " " . $rowCount['sy'] . "-" . $rowCount1 . " ";
 	}
 	public function createSectionTable($row) {
 		$fac_id = $row['fac_idv'];
@@ -1411,6 +1599,64 @@ class AdminFunct{
 	/**************** END TRANSFER STUDENT *******/
 
 	/**************** CLASS **********************/
+	public function cancelClasses($request_id){
+		$query1 = $this->conn->prepare("SELECT *
+			FROM
+			request r join section_temp st on st.sec_req = r.request_id
+			WHERE
+			((request_type = 'Adviser_Insert'
+			OR request_type = 'Adviser_Update') and request_status = 'Temporary') and request_id=:request_id");
+		$query1->execute(array(
+			':request_id' => $request_id
+		));
+		$row1=$query1->fetch(PDO::FETCH_ASSOC);
+		$req_id=$row1['request_id'];
+		$req_type=$row1['request_type'];
+		$req_desc=$row1['request_desc'];
+		$req_stat=$row1['request_status'];
+		$req_sname=$row1['s_name'];
+		$req_grlvl=$row1['gr_lvl'];
+		$req_facidv=$row1['fc_id'];
+		
+		if($req_type == 'Adviser_Insert' or $req_type == 'Adviser_Update'){
+			if($req_type == 'Adviser_Insert'){
+				$queryUpdate=$this->conn->prepare("UPDATE section_temp SET fc_id=null WHERE sec_req=:sec_req");
+				if($queryUpdate->execute(array(
+					':sec_req' => $request_id
+				))){
+					$queryUpdateReqStatus=$this->conn->prepare("UPDATE request SET request_status='Permanent' WHERE request_id=:request_id");
+					$queryUpdateReqStatus->execute(array(
+						':request_id' => $request_id
+					));
+					$this->alert('Success!', 'You have successfully rejected the request', "success", "admin-classes");
+				}else{
+					$this->alert('Error!', 'Failed to reject the request', "error", "admin-classes");
+				}
+			}else if($req_type == 'Adviser_Update'){
+				$queryGetDetails = $this->conn->prepare("SELECT * FROM section WHERE sec_name=:sec_name");
+				$queryGetDetails->execute(array(
+					':sec_name' => $req_sname
+				));
+				$rowQueryGetDetails=$queryGetDetails->fetch(PDO::FETCH_ASSOC);
+				$fac_idv=$rowQueryGetDetails['fac_idv'];
+				
+				$queryUpdate=$this->conn->prepare("UPDATE section_temp SET fc_id=:fc_id WHERE sec_req=:sec_req");
+				if($queryUpdate->execute(array(
+					':fc_id' => $fac_idv,
+					':sec_req' => $request_id
+				))){
+					$queryUpdateReqStatus=$this->conn->prepare("UPDATE request SET request_status='Permanent' WHERE request_id=:request_id");
+					$queryUpdateReqStatus->execute(array(
+						':request_id' => $request_id
+					));
+					$this->alert('Success!', 'You have successfully rejected the request', "success", "admin-classes");
+				}else{
+					$this->alert('Error!', 'Failed to reject the request', "error", "admin-classes");
+				}
+			}
+		}
+
+	}
 	
 	public function showClasses(){
 		$sql=$this->conn->prepare("SELECT *,fac_no, CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS fullname, s_name, gr_lvl, fac_id, sectionid FROM faculty JOIN section_temp ON fac_id=fc_id join request on sec_req=request_id WHERE fac_adviser='Yes' ");
@@ -1431,11 +1677,13 @@ class AdminFunct{
 		}
 	}
 	public function sectionTemp() {
-		$sql = $this->conn->prepare("SELECT sectionid, s_name, gr_lvl FROM section_temp WHERE fc_id IS NULL");
+		$sql = $this->conn->prepare("SELECT sectionid, s_name, gr_lvl FROM section_temp join request on sec_req=request_id WHERE fc_id IS NULL and request_status='Permanent'");
 		$sql->execute();
 		while ($row = $sql->fetch()) {
 			echo "<option value='" . $row['sectionid'] . "'>".$row['gr_lvl']." - " . $row['s_name'] . "</option>";
 		}
+		$rowCount = $sql->rowCount();
+		return $rowCount;
 	}
 	
 	public function facultylist(){
@@ -1444,6 +1692,8 @@ class AdminFunct{
 		while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
 			echo "<option value='" . $row['fac_id'] . "'>" . $row['facultyname'] . "</option>";
 		}
+		$rowCount = $sql->rowCount();
+		return $rowCount;
 	}
 	public function faculty_id() {
 		$query = $this->conn->prepare("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS facultyname, fac_id FROM Faculty WHERE fac_adviser='Yes'");
@@ -1481,7 +1731,7 @@ class AdminFunct{
 			$queryType=$rowQueryTableReq['request_type'];
 			$queryStat=$rowQueryTableReq['request_status'];
 			
-			if(($queryType == 'Insert' || $queryType == 'Update' || $queryType == 'Delete') && $queryStat == 'Permanent'){
+			if($queryStat == 'Permanent'){
 				$sql=$this->conn->prepare("UPDATE section_temp
 				SET fc_id=:fc_id
 				WHERE sectionid=:sectionid");
@@ -1498,7 +1748,7 @@ class AdminFunct{
 					$grade_lvl=$row7['gr_lvl'];
 					$log_event="Insert";
 					
-					$request_desc="Add ".$sec_adviser." as an adviser in Grade ".$grade_lvl." - ".$sec_name;
+					$request_desc= $sec_adviser." adviser in Grade ".$grade_lvl." - ".$sec_name;
 					
 					$queryAdviserInsert=$this->conn->prepare("UPDATE request SET request_type=:request_type, request_desc=:request_desc, request_status='Temporary' WHERE request_id=:request_id");
 					$queryAdviserInsert->execute(array(
@@ -1511,7 +1761,7 @@ class AdminFunct{
 					$this->alert("Error!", "Failed to add class!", "error", "admin-classes");
 				}	
 			}else{
-				$this->alert("Error!", "You are not allowed to assign an adivser in this class because this section is not yet been approved by the superadmin", "error", "admin-classes");
+				$this->alert("Error!", "You are not allowed to assign an adivser in this class because this section is not yet been approved by the principal", "error", "admin-classes");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -1610,7 +1860,7 @@ class AdminFunct{
 					$sec_name =$row7['s_name'];
 					$grade_lvl=$row7['gr_lvl'];
 					
-					$request_desc="Update ".$sec_adviser." as an adviser in Grade ".$grade_lvl." - ".$sec_name;
+					$request_desc="".$sec_adviser." adviser in Grade ".$grade_lvl." - ".$sec_name;
 					
 					$queryAdviserUpdate=$this->conn->prepare("UPDATE request SET request_type=:request_type, request_desc=:request_desc, request_status='Temporary' WHERE request_id=:request_id");
 					$queryAdviserUpdate->execute(array(
@@ -1624,7 +1874,7 @@ class AdminFunct{
 					$this->alert("Error!", "Failed to update class!", "error", "admin-classes");
 				}
 			}else{
-				$this->alert("Error!", "There is a pending request under this section. Wait for the superadmin to approve the previous request.", "error", "admin-classes");
+				$this->alert("Error!", "There is a pending request under this section. Wait for the principal to approve the previous request.", "error", "admin-classes");
 			}
 		} catch (PDOException $exception) {
 			die('ERROR: ' . $exception->getMessage());
@@ -2064,11 +2314,11 @@ class AdminFunct{
 		}
 	}
 	public function department() {
-		$query = $this->conn->prepare("SELECT fac_dept FROM Faculty");
+		$query = $this->conn->prepare("SELECT subj_dept FROM subject GROUP BY subj_dept ORDER BY subj_dept");
 		$query->execute();
 		$department = array();
 		while ($row = $query->fetch()) {
-			$department[] = $row['fac_dept'];
+			$department[] = $row['subj_dept'];
 		}
 		return $department;
 	}
@@ -2077,71 +2327,79 @@ class AdminFunct{
 	/*************** PTA/PARENT ACCOUNT *****************/
 	public function multipleDeleteParent(){
 		$checkbox = $_POST['check'];
-		for($i=0;$i<count($checkbox);$i++){
-			$del_id = $checkbox[$i]; 
-			$sql1=$this->conn->prepare("SELECT CONCAT(tr_fname,' ',tr_midname,' ',tr_lname) AS treasurername FROM treasurer JOIN accounts ON acc_trid=acc_id WHERE acc_trid=:acc_trid");
-			$sql1->execute(array(
-				':acc_trid' => $del_id
-			));
-			$row1=$sql1->fetch(PDO::FETCH_ASSOC);
-			$treasurername=$row1['treasurername'];	
-			$queryDel=$this->conn->prepare("DELETE a.*, b.* 
-				FROM treasurer a 
-				LEFT JOIN accounts b 
-				ON b.acc_id = a.acc_trid 
-				WHERE a.acc_trid =:acc_trid ");
-			if($queryDel->execute(array(
-				':acc_trid' => $del_id
-			))){
-				$log_event="Deleted";
-				$log_desc="Deleted the account of ".$treasurername;
-				$this->insertLogs($log_event, $log_desc);
-				$this->alert("Success!", "The selected item/s has been successfully deleted", "success", "admin-parent");
-			}else{
-				$this->alert("Error!", "You are not allowed to delete the selected item/s", "error", "admin-parent");
+		if($checkbox !== null){
+			for($i=0;$i<count($checkbox);$i++){
+				$del_id = $checkbox[$i]; 
+				$sql1=$this->conn->prepare("SELECT CONCAT(tr_fname,' ',tr_midname,' ',tr_lname) AS treasurername FROM treasurer JOIN accounts ON acc_trid=acc_id WHERE acc_trid=:acc_trid");
+				$sql1->execute(array(
+					':acc_trid' => $del_id
+				));
+				$row1=$sql1->fetch(PDO::FETCH_ASSOC);
+				$treasurername=$row1['treasurername'];	
+				$queryDel=$this->conn->prepare("DELETE a.*, b.* 
+					FROM treasurer a 
+					LEFT JOIN accounts b 
+					ON b.acc_id = a.acc_trid 
+					WHERE a.acc_trid =:acc_trid ");
+				if($queryDel->execute(array(
+					':acc_trid' => $del_id
+				))){
+					$log_event="Deleted";
+					$log_desc="Deleted the account of ".$treasurername;
+					$this->insertLogs($log_event, $log_desc);
+					$this->alert("Success!", "The selected item/s has been successfully deleted", "success", "admin-parent");
+				}else{
+					$this->alert("Error!", "You are not allowed to delete the selected item/s", "error", "admin-parent");
+				}
 			}
+		}else{
+			$this->alert("Error!", "Please select atleast one item", "error", "admin-parent");
 		}
 	}
 	
 	public function multipleResetParent(){
 		$checkbox = $_POST['check'];
-		for($i=0;$i<count($checkbox);$i++){
-			$del_id = $checkbox[$i]; 
-			
-			$querySearch = $this->conn->prepare("SELECT acc_id FROM accounts WHERE acc_id=?");
-			$querySearch->bindParam(1, $del_id);
-			$querySearch->execute();
-			$row = $querySearch->fetch();
-			$getaccid = $row['acc_id'];
-			
-			$querySearch1 = $this->conn->prepare("SELECT tr_fname, tr_midname, tr_lname FROM treasurer WHERE acc_trid=?");
-			$querySearch1->bindParam(1, $getaccid);
-			$querySearch1->execute();
-			$row1 = $querySearch1->fetch();
-			$tr_fname = $row1['tr_fname'];
-			$tr_midname = $row1['tr_midname'];
-			$tr_lname = $row1['tr_lname'];
-			$password = str_replace(' ', ' ', ($tr_fname[0].$tr_midname[0].$tr_lname));
-			$newPass = password_hash($password, PASSWORD_DEFAULT);
-			
-			$queryUpdate = $this->conn->prepare("UPDATE accounts SET password=:password WHERE acc_id=:acc_id");
-			if($queryUpdate->execute(array(
-				':password' => $newPass,
-				':acc_id' => $getaccid
-			))){
-				$sql2=$this->conn->prepare("SELECT username FROM accounts WHERE acc_id=:acc_id");
-				$sql2->execute(array(
+		if($checkbox !== null){
+			for($i=0;$i<count($checkbox);$i++){
+				$del_id = $checkbox[$i]; 
+				
+				$querySearch = $this->conn->prepare("SELECT acc_id FROM accounts WHERE acc_id=?");
+				$querySearch->bindParam(1, $del_id);
+				$querySearch->execute();
+				$row = $querySearch->fetch();
+				$getaccid = $row['acc_id'];
+				
+				$querySearch1 = $this->conn->prepare("SELECT tr_fname, tr_midname, tr_lname FROM treasurer WHERE acc_trid=?");
+				$querySearch1->bindParam(1, $getaccid);
+				$querySearch1->execute();
+				$row1 = $querySearch1->fetch();
+				$tr_fname = $row1['tr_fname'];
+				$tr_midname = $row1['tr_midname'];
+				$tr_lname = $row1['tr_lname'];
+				$password = str_replace(' ', ' ', ($tr_fname[0].$tr_midname[0].$tr_lname));
+				$newPass = password_hash($password, PASSWORD_DEFAULT);
+				
+				$queryUpdate = $this->conn->prepare("UPDATE accounts SET password=:password WHERE acc_id=:acc_id");
+				if($queryUpdate->execute(array(
+					':password' => $newPass,
 					':acc_id' => $getaccid
-				));
-				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
-				$username=$row2['username'];	
-				$log_event="Reset";
-				$log_desc="The account of ".$tr_fname." ".$tr_midname." ".$tr_lname." has been successfully reset";
-				$this->insertLogs($log_event, $log_desc);
-				$this->alert("Success!", "The selected item/s has been successfully reset", "success", "admin-parent");
-			}else{
-				$this->alert("Error!", "You are not allowed to reset the selected item/s", "error", "admin-parent");
+				))){
+					$sql2=$this->conn->prepare("SELECT username FROM accounts WHERE acc_id=:acc_id");
+					$sql2->execute(array(
+						':acc_id' => $getaccid
+					));
+					$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+					$username=$row2['username'];	
+					$log_event="Reset";
+					$log_desc="The account of ".$tr_fname." ".$tr_midname." ".$tr_lname." has been successfully reset";
+					$this->insertLogs($log_event, $log_desc);
+					$this->alert("Success!", "The selected item/s has been successfully reset", "success", "admin-parent");
+				}else{
+					$this->alert("Error!", "You are not allowed to reset the selected item/s", "error", "admin-parent");
+				}
 			}
+		}else{
+			$this->alert("Error!", "Please select atleast one item", "error", "admin-parent");
 		}
 	}
 	public function deactiveTreasurer(){
@@ -2695,43 +2953,46 @@ class AdminFunct{
 	/**************** STUDENT  ***********************/
 	public function multipleResetStudent(){
 		$checkbox = $_POST['check'];
-		for($i=0;$i<count($checkbox);$i++){
-			$del_id = $checkbox[$i]; 
-
-			$querySearch = $this->conn->prepare("SELECT acc_id FROM accounts WHERE acc_id=?");
-			$querySearch->bindParam(1, $del_id);
-			$querySearch->execute();
-			$row = $querySearch->fetch();
-			$getaccid = $row['acc_id'];
-			
-			$querySearch1 = $this->conn->prepare("SELECT first_name, middle_name, last_name FROM student WHERE accc_id=?");
-			$querySearch1->bindParam(1, $getaccid);
-			$querySearch1->execute();
-			$row1 = $querySearch1->fetch();
-			$first_name = $row1['first_name'];
-			$middle_name = $row1['middle_name'];
-			$last_name = $row1['last_name'];
-			$password = str_replace(' ', ' ', ($first_name[0].$middle_name[0].$last_name));
-			$newPass = password_hash($password, PASSWORD_DEFAULT);
-			
-			$queryUpdate = $this->conn->prepare("UPDATE accounts SET password=:password WHERE acc_id=:acc_id");
-			if($queryUpdate->execute(array(
-				':password' => $newPass,
-				':acc_id' => $getaccid
-			))){
-				$sql2=$this->conn->prepare("SELECT username FROM accounts WHERE acc_id=:acc_id");
-				$sql2->execute(array(
+		if($checkbox !== null){
+			for($i=0;$i<count($checkbox);$i++){
+				$del_id = $checkbox[$i]; 
+				$querySearch = $this->conn->prepare("SELECT acc_id FROM accounts WHERE acc_id=?");
+				$querySearch->bindParam(1, $del_id);
+				$querySearch->execute();
+				$row = $querySearch->fetch();
+				$getaccid = $row['acc_id'];
+				
+				$querySearch1 = $this->conn->prepare("SELECT first_name, middle_name, last_name FROM student WHERE accc_id=?");
+				$querySearch1->bindParam(1, $getaccid);
+				$querySearch1->execute();
+				$row1 = $querySearch1->fetch();
+				$first_name = $row1['first_name'];
+				$middle_name = $row1['middle_name'];
+				$last_name = $row1['last_name'];
+				$password = str_replace(' ', ' ', ($first_name[0].$middle_name[0].$last_name));
+				$newPass = password_hash($password, PASSWORD_DEFAULT);
+				
+				$queryUpdate = $this->conn->prepare("UPDATE accounts SET password=:password WHERE acc_id=:acc_id");
+				if($queryUpdate->execute(array(
+					':password' => $newPass,
 					':acc_id' => $getaccid
-				));
-				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
-				$username=$row2['username'];
-				$log_event="Reset";
-				$log_desc="The account of ".$first_name." ".$middle_name." ".$last_name." has been successfully reset";
-				$this->insertLogs($log_event, $log_desc);
-				$this->Prompt("Successfully reset account password! Username = <span class='prompt'>$username</span> Password: <span class='prompt'>$password</span>", "rgb(1, 58, 6)", "admin-student");
-			}else{
-				$this->alert("Error!", "Failed to reset account password!", "error", "admin-student");
+				))){
+					$sql2=$this->conn->prepare("SELECT username FROM accounts WHERE acc_id=:acc_id");
+					$sql2->execute(array(
+						':acc_id' => $getaccid
+					));
+					$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+					$username=$row2['username'];
+					$log_event="Reset";
+					$log_desc="The account of ".$first_name." ".$middle_name." ".$last_name." has been successfully reset";
+					$this->insertLogs($log_event, $log_desc);
+					$this->Prompt("Successfully reset account password! Username = <span class='prompt'>$username</span> Password: <span class='prompt'>$password</span>", "rgb(1, 58, 6)", "admin-student");
+				}else{
+					$this->alert("Error!", "Failed to reset account password!", "error", "admin-student");
+				}
 			}
+		}else{
+			$this->alert("Error!", "Please select atleast one item", "error", "admin-student");
 		}
 	}
 	public function deactiveStudent(){
@@ -2818,7 +3079,7 @@ class AdminFunct{
 	
 	public function showStudentList(){
 		try {
-			$sql=$this->conn->query("SELECT * FROM section join student on secc_id = sec_id JOIN accounts ON accc_id=acc_id") or die("failed!");
+			$sql=$this->conn->query("SELECT *, DATE_FORMAT(date(stud_bday), '%M %e, %Y') as stud_bday FROM section join student on secc_id = sec_id JOIN accounts ON accc_id=acc_id") or die("failed!");
 			$sql->execute();
 			if($sql->rowCount()>0){
 				while($r = $sql->fetch(PDO::FETCH_ASSOC)){
@@ -3249,7 +3510,7 @@ class AdminFunct{
 					@unlink($new_path);
 					/*move_uploaded_file($temp, $path); */
 					
-					$temp2 = $attachment['tmp_name'];
+					$temp = $attachment['tmp_name'];
 					$staticValue="attachment";
 					$path = "public/attachment/";
 			        	
@@ -3258,12 +3519,14 @@ class AdminFunct{
 					$ext = end($tmp);
 					$filename = "$staticValue$underScore$id.".$ext;
 			        	$newname = $path.$filename;
-			        	move_uploaded_file($temp2, $newname);
+			        	move_uploaded_file($temp, $newname);
 			        	$sql3 = $this->conn->prepare("UPDATE announcements SET attachment=:attachment WHERE ann_id=:ann_id");
-					$sql3->execute(array(
+					if($sql3->execute(array(
 						':attachment' => $filename,
 						':ann_id' => $id
-					));
+					))){
+						$this->alert("Success!", "Successfully updated the announcement  Title: $post, Start Date: $date_start, End Date: $date_end, but the attachment already exist! Please change the filename and re-upload the file using the edit operator!", "success", "admin-events");
+					}
 				}else{
 					$sql8=$this->conn->prepare("SELECT DATE_FORMAT(date(date_start), '%M %e, %Y'),  DATE_FORMAT(date(date_end), '%M %e, %Y'), attachment as attch from announcements WHERE ann_id=:ann_id");
 					$sql8->execute(array(
@@ -3280,73 +3543,69 @@ class AdminFunct{
 				$this->alert("Success!", "Successfully updated the announcement  Title: $title, Start Date: $date_start, End Date: $date_end, but the attachment already exist! Please change the filename and re-upload the file using the edit operator!", "success", "admin-events");
 			}
 		}
-		try{
-			if(!empty($attachment['name'])) {
-				$checkbox = $_POST['view_lim'];
-				$sql1 = "UPDATE announcements SET title=:title, date_start=:date_start, date_end=:date_end, post=:post, view_lim=('";
-				for($i=0; $i<sizeof ($checkbox);$i++) {
-					$sql1 .= $checkbox[$i];
-					if ($i<sizeof ($checkbox) - 1) {
-						$sql1 .= ",";
-					}
-				}
-				$sql1 .= "'), attachment=:attachment WHERE ann_id=:ann_id";
-				$sql1=$this->conn->prepare($sql1);
-				if($sql1->execute(array(
-				':title'  => (empty($title) ? null : $title),
-				':date_start' => $date_start,
-				':date_end' => $date_end,
-				':post' => (empty($post) ? null : $post),
-				':attachment' => $filename,
-				':ann_id' => $ann_id))){
-					$sql2=$this->conn->prepare("SELECT DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start,  DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end, attachment as attch from announcements WHERE ann_id=:ann_id");
-					$sql2->execute(array(
-						':ann_id' => $ann_id
-					));
-					$row2=$sql2->fetch(PDO::FETCH_ASSOC);
-					$attch=$row2['attch'];
-					$log_event="Update";
-					$log_desc="Updated the announcement with the following details(Announcement: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch.")";
-					$this->insertLogs($log_event, $log_desc);
-					$this->alert("Success!", "An announcement has been updated! Announcement: $post, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
-				}else{
-					$this->alert("Error!", "Failed to post the announcement", "error", "admin-events");
-				}
-			} else {
-				$checkbox = $_POST['view_lim'];
-				$sql1 = "UPDATE announcements SET title=:title, date_start=:date_start, date_end=:date_end, post=:post, view_lim=('";
-				for($i=0; $i<sizeof ($checkbox);$i++) {
-					$sql1 .= $checkbox[$i];
-					if ($i<sizeof ($checkbox) - 1) {
-						$sql1 .= ",";
-					}
-				}
-				$sql1 .= "') WHERE ann_id=:ann_id";
-				$sql1=$this->conn->prepare($sql1);
-				if($sql1->execute(array(
-				':ann_id' => $ann_id,
-				':title'  => (empty($title) ? null : $title),
-				':post' => (empty($post) ? null : $post),
-				':date_start' => $date_start,
-				':date_end' => $date_end))){
-					$sql2=$this->conn->prepare("SELECT DATE_FORMAT(date(date_start), '%M %e, %Y'),  DATE_FORMAT(date(date_end), '%M %e, %Y'), attachment as attch from announcements WHERE ann_id=:ann_id");
-					$sql2->execute(array(
-						':ann_id' => $ann_id
-					));
-					$row2=$sql2->fetch(PDO::FETCH_ASSOC);
-					$attch=$row2['attch'];
-					$log_event="Update";
-					$log_desc="Updated the announcement with the following details( Announcement: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch.")";
-					$this->insertLogs($log_event, $log_desc);
-					$this->alert("Success!", "An announcement has been updated! Announcement: $post, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
-				}else{
-					$this->alert("Error!", "Failed to post the announcement", "error", "admin-events");
+		if(!empty($attachment['name'])) {
+			$checkbox = $_POST['view_lim'];
+			$sql1 = "UPDATE announcements SET title=:title, date_start=:date_start, date_end=:date_end, post=:post, view_lim=('";
+			for($i=0; $i<sizeof ($checkbox);$i++) {
+				$sql1 .= $checkbox[$i];
+				if ($i<sizeof ($checkbox) - 1) {
+					$sql1 .= ",";
 				}
 			}
-		} catch (PDOException $exception){
-			die('ERROR: ' . $exception->getMessage());
+			$sql1 .= "'), attachment=:attachment WHERE ann_id=:ann_id";
+			$sql1=$this->conn->prepare($sql1);
+			if($sql1->execute(array(
+			':title'  => (empty($title) ? null : $title),
+			':date_start' => $date_start,
+			':date_end' => $date_end,
+			':post' => (empty($post) ? null : $post),
+			':attachment' => $filename,
+			':ann_id' => $ann_id))){
+				$sql2=$this->conn->prepare("SELECT DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start,  DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end, attachment as attch from announcements WHERE ann_id=:ann_id");
+				$sql2->execute(array(
+					':ann_id' => $ann_id
+				));
+				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+				$attch=$row2['attch'];
+				$log_event="Update";
+				$log_desc="Updated the announcement with the following details(Announcement: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch.")";
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "An announcement has been updated! Announcement: $post, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
+			}else{
+				$this->alert("Error!", "Failed to post the announcement", "error", "admin-events");
+			}
+		} 
+		if(empty($attachment['name'])){
+			$checkbox = $_POST['view_lim'];
+			$sql1 = "UPDATE announcements SET title=:title, date_start=:date_start, date_end=:date_end, post=:post, view_lim=('";
+			for($i=0; $i<sizeof ($checkbox);$i++) {
+				$sql1 .= $checkbox[$i];
+				if ($i<sizeof ($checkbox) - 1) {
+					$sql1 .= ",";
+				}
+			}
+			$sql1 .= "') WHERE ann_id=:ann_id";
+			$sql1=$this->conn->prepare($sql1);
+			if($sql1->execute(array(
+			':ann_id' => $ann_id,
+			':title'  => (empty($title) ? null : $title),
+			':post' => (empty($post) ? null : $post),
+			':date_start' => $date_start,
+			':date_end' => $date_end))){
+				$sql2=$this->conn->prepare("SELECT DATE_FORMAT(date(date_start), '%M %e, %Y'),  DATE_FORMAT(date(date_end), '%M %e, %Y'), attachment as attch from announcements WHERE ann_id=:ann_id");
+				$sql2->execute(array(
+					':ann_id' => $ann_id
+				));
+				$row2=$sql2->fetch(PDO::FETCH_ASSOC);
+				$attch=$row2['attch'];
+				$log_event="Update";
+				$log_desc="Updated the announcement with the following details( Announcement: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch.")";
+				$this->insertLogs($log_event, $log_desc);
+				$this->alert("Success!", "An announcement has been updated! Announcement: $post, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
+			}else{
+				$this->alert("Error!", "Failed to post the announcement", "error", "admin-events");
+			}
 		}
-		
 	}
 	
 	public function deleteEvent($ann_id){
@@ -3532,7 +3791,7 @@ class AdminFunct{
 			$queryDelete=$this->conn->prepare("DELETE FROM announcements where holiday='Yes'");
 			$queryDelete->execute();
 		}
-		$curYear = date('Y'); 
+		$curYear = $this->getSchoolYear();
 		$array_holiday = ['New Year', 'Chinese Lunar New Year', 'People Power Anniversary', 'The Day of Valor', 'Maundy Thursday', 'Good Friday', 'Black Saturday', 'Easter Sunday', 'Labor Day', 'Eidul-Fitar', 'Independence Day', 'Eid al-Adha (Feast of the Sacrifice)', 'Eid al-Adha Day 2', 'Ninoy Aquino Day', 'National Heroes Day', 'All Saints Day', 'All Souls Day', 'Bonifacio Day', 'Feast of the Immaculate Conception', 'Christmas Eve', 'Christmas Day', 'Rizal Day', 'New Years Eve'];
 		$array_start_date = [$curYear.'-01-01 00:00:00', $curYear.'-02-05 00:00:00', $curYear.'-02-25 00:00:00', $curYear.'-04-09 00:00:00', $curYear.'-04-18 00:00:00', $curYear.'-04-19 00:00:00', $curYear.'-04-20 00:00:00', $curYear.'-04-21 00:00:00', $curYear.'-05-01 00:00:00', $curYear.'-06-06 00:00:00', $curYear.'-06-12 00:00:00', $curYear.'-08-12 00:00:00', $curYear.'-08-13 00:00:00', $curYear.'-08-21 00:00:00', $curYear.'-08-26 00:00:00', $curYear.'-11-01 00:00:00', $curYear.'-11-02 00:00:00', $curYear.'-11-30 00:00:00', $curYear.'-12-08 00:00:00', $curYear.'-12-24 00:00:00', $curYear.'-12-25 00:00:00', $curYear.'-12-30 00:00:00', $curYear.'-12-31 00:00:00'];
 		$array_end_date = [$curYear.'-01-01 23:59:59', $curYear.'-02-05 23:59:59', $curYear.'-02-25 23:59:59', $curYear.'-04-09 23:59:59', $curYear.'-04-18 23:59:59', $curYear.'-04-19 23:59:59', $curYear.'-04-20 23:59:59', $curYear.'-04-21 23:59:59', $curYear.'-05-01 23:59:59', $curYear.'-06-06 23:59:59', $curYear.'-06-12 23:59:59', $curYear.'-08-12 23:59:59', $curYear.'-08-13 23:59:59', $curYear.'-08-21 23:59:59', $curYear.'-08-26 23:59:59', $curYear.'-11-01 23:59:59', $curYear.'-11-02 23:59:59', $curYear.'-11-30 23:59:59', $curYear.'-12-08 23:59:59', $curYear.'-12-24 23:59:59', $curYear.'-12-25 23:59:59', $curYear.'-12-30 23:59:59', $curYear.'-12-31 23:59:59'];
@@ -3637,7 +3896,7 @@ class AdminFunct{
 						));
 					}
 					//grade 10 to graduated
-					$curYear = date('Y');
+					$curYear = $this->getSchoolYear();
 					$sql9=$this->conn->prepare("SELECT * from student");
 					$sql9->execute();
 					$row9=$sql9->fetchAll();

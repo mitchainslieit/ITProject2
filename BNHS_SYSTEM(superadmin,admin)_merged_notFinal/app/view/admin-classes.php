@@ -4,9 +4,13 @@
 			extract($_POST);
 			$obj->addClass($sectionid, $fc_id);
 		}
-		if(isset($_POST['update-button'])){
+		if(isset($_POST['reject-button'])){
 			extract($_POST);
 			$obj->updateClass($sectionid, $fc_id);
+		}
+		if (isset($_POST['cancel-button'])){
+			extract($_POST);
+			$obj->cancelClasses($request_id);
 		}
 	?>
 	<?php
@@ -21,7 +25,7 @@
 						<i class="fas fa-money-check"></i>
 						<span>Classes</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year:  <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent">
 					<div class="cont1">
@@ -31,16 +35,16 @@
 								<form action="admin-classes" method="POST" autocomplete="off">
 									<span>Choose Adviser</span>
 									<select name="fc_id" data-validation="required" required>
-										<option selected disabled hidden value="">Choose Adviser</option>
 										<?php 
-											$obj->facultyList();
+											$rowCountFac=$obj->facultyList();
+											echo $rowCountFac > 0 ? '<option selected disabled hidden value="">Choose Adviser</option>' : '<option selected disabled hidden value="">No more available adviser</option>';
 										?>
 									</select>
 									<span>Section Name:</span>
 									<select name="sectionid" data-validation="required" required>
-										<option selected disabled hidden value="">Select Section Name</option>
 										<?php
-											$obj->sectionTemp();	
+											$rowCountSec=$obj->sectionTemp();
+											echo $rowCountSec > 0 ? '<option selected disabled hidden value="">Select Section Name</option>' : '<option selected disabled hidden value="">No more available section</option>';	
 										?> 	
 									</select>
 									<button name="submit-button" class="customButton">Save <i class="fas fa-save fnt"></i></button>
@@ -49,6 +53,7 @@
 						</div>
 					</div>
 					<div class="cont2">
+						<form action="admin-classes" method="POST" id="form2"></form>
 						<table id="admin-table-classes" class="display">
 							<thead>
 								<tr>
@@ -60,7 +65,8 @@
 										$queryCount=$this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary' and (r.request_type='Adviser_Insert' or r.request_type='Adviser_Update')");
 										$queryCount->execute();
 										$rowQueryCount=$queryCount->rowCount();
-										echo $rowQueryCount > 0 ? '<th>Request</th>' : '';
+										echo $rowQueryCount > 0 ? '<th>Request Type</th>' : '';
+										echo $rowQueryCount > 0 ? '<th>Request Status</th>' : '';
 									echo'
 									<th>Action</th>
 								</tr>
@@ -75,17 +81,19 @@ echo '
 	<tr>
 	<td class="tleft">'.$fac_no.'</td>
 	<td class="tleft">'.$fullname.'</td>';
-	echo $request_status == "Temporary" ? '<td class="tleft"><span class="temporary">'.$s_name.'</span></td>' : '<td class="tleft">'.$s_name.'</td>';
+	echo $request_status == "Temporary" ? '<td class="tleft"><div class="temporaryContainer"><span class="temporary">'.$s_name.'</span><span class="temporaryDesc">There is a pending request in this section!</span></div></td>' : '<td class="tleft">'.$s_name.'</td>';
 	echo '<td class="tleft">'.$gr_lvl.'</td>';
- 	if($rowQueryCount > 0){
-	 	if($request_status == "Temporary" && ($request_type=='Adviser_Insert' || $request_type='Adviser_Update')){
+	if($rowQueryCount > 0){
+	 	if($request_status == "Temporary"){
 	 		echo '
-	 		<td>For Approval to 
+	 		<td>
 	 		';
 	 			if($request_type == 'Adviser_Insert'){
-	 				echo 'Assign Adviser';
+	 				echo 'Add';
 	 			}else if($request_type == 'Adviser_Update'){
-	 				echo 'Update Adviser';
+	 				echo 'Update';
+	 			}else{
+	 				echo '';
 	 			}
 	 		echo'
 	 		</td>
@@ -94,7 +102,28 @@ echo '
 	 		echo '<td> </td>';
 	 	}
  	}
-		echo'
+ 	if($rowQueryCount > 0){
+	 	if($request_status == "Temporary"){
+	 		echo '
+	 		<td>
+	 		';
+	 			if($request_type == 'Adviser_Insert' || $request_type == 'Adviser_Update'){
+	 				echo '<div class="pendingContainer">
+	 						<button class="pending">Pending</button>
+ 							<input type="hidden" name="request_id" value="'.$request_id.'" form="form2">
+ 							<button class="cancel" name="cancel-button" form="form2"><i class="far fa-window-close"></i></button>
+ 						</div>';
+	 			}else{
+	 				echo '';
+	 			}
+	 		echo'
+	 		</td>
+	 		';
+	 	}else{
+	 		echo '<td> </td>';
+	 	}
+ 	}
+	echo'
 		<td class="action">
 			<div name="content">
 				<button name="opener">
@@ -104,7 +133,7 @@ echo '
 					</div>
 				</button>
 				<div name="dialog" title="Update class data">
-					<form action="admin-classes" method="POST" required autocomplete="off">
+					<form action="admin-classes" method="POST" required autocomplete="off" class="validateChangesInForm">
 						<input type="hidden" name="sectionid" value="'.$sectionid.'">
 						<span>Employee ID</span>
 						<input type="text" name="" value="'.$fac_no.'" disabled="disabled">
@@ -129,7 +158,7 @@ echo '
 						<select name="" disabled="disabled">
 							<option value="">'.$gr_lvl.'</option>
 						</select>
-						<button name="update-button" class="customButton">Update <i class="fas fa-save fnt"></i></button>
+						<button name="reject-button" class="customButton">Update <i class="fas fa-save fnt"></i></button>
 					</form>
 				</div>  
 			</div>
@@ -146,7 +175,7 @@ echo '
 			<div class="widget">	
 				<div class="header">	
 					<p>	<i class="fa fa-user fnt"></i><span>Adviser Class Schedule</span></p>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>	
 				<div class="editContent widgetcontent">
 					<div class="cont2">

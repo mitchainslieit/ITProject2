@@ -30,7 +30,7 @@
 								}
 							   ?></span>
 						<i class="fas fa-users-cog"></i>
-					</div>	
+					</div>		
 				</a>
 				<a href="admin-faculty" class="box box3">
 					<h4>TOTAL <span>No. Of Teachers</span></h4>

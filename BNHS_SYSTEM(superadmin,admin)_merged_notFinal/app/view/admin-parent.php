@@ -70,7 +70,7 @@
 						<i class="fas fa-money-check"></i>
 						<span>PTA Treasurer List</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent ptaContent">
 					<div name="content">
@@ -91,7 +91,7 @@
 					<table id="admin-table-treasurer" class="display" width="100%">
 						<thead>
 							<tr>
-								<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form1"> </th>
+								<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl1" class="selectAllCheck" form="form1"> </th>
 								<th class="tleft custPad">PTA Treasurer</th>
 								<th class="tleft custPad">Username</th>
 								<th class="tleft custPad">Account Status</th>
@@ -107,10 +107,12 @@ $studentName = $obj->studentName();*/
 $status = ['Active','Deactivated'];
 echo '
 	<tr>
-		<td><input type="checkbox" id="checkItem" name="check[]" value="'.$acc_trid.'" form="form1"></td>
+		<td><input type="checkbox" class="chkbox1" id="checkItem" name="check[]" value="'.$acc_trid.'" form="form1"></td>
 		<td class="tleft custPad">'.$tr_fname.' '.$tr_midname.' '.$tr_lname.'</td>
 		<td class="tleft custPad">'.$username.'</td>
-		<td class="tleft custPad">'.$acc_status.'</td>
+		<td class="">';
+		echo $acc_status=='Active' ? '<span class="accActive">Active</span>' : '<span class="accDeactive">Deactivated</span>';
+		echo'</td>
 		<td class="action">
 			<div name="content">
 				<button name="opener">
@@ -120,7 +122,7 @@ echo '
 					</div>
 				</button>
 				<div name="dialog" title="Update PTA Treasurer data">
-					<form action="admin-parent" method="POST" required>
+					<form action="admin-parent" method="POST" required class="validateChangesInForm">
 						<input type="hidden" value="'.$tr_id.'" name="guar_id">
 						<span>First name:</span>
 						<input type="text" name="tr_fname" value="'.$tr_fname.'" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="First name" required>
@@ -155,7 +157,7 @@ echo '
 					</div>
 				</button>
 				<div name="dialog" title="Change Status">
-					<form action="admin-parent" method="POST" required>
+					<form action="admin-parent" method="POST" required class="validateChangesInForm">
 						<input type="hidden" value="'.$acc_id.'" name="acc_id">
 						<select name="acc_status">
 						';
@@ -216,7 +218,7 @@ echo '
 						<i class="fas fa-money-check"></i>
 						<span>Parent List</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent parentContent">
 					<div class="cont1">
@@ -232,7 +234,7 @@ echo '
 					<table id="admin-table-parent" class="display">
 						<thead>
 							<tr>
-								<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl1" class="selectAllCheck" form="form2"> </th>
+								<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form2"> </th>
 								<th class="tleft">Parent Name</th>
 								<th class="tleft">Address</th>
 								<th class="tleft">Mobile Number</th>
@@ -258,7 +260,9 @@ echo '
 	<td class="tleft custPad2">'.$first_name.' '.$last_name.'</td>
 	<td class="tleft custPad2">Grade '.$year_level.' - '.$sec_name.'</td>
 	<td class="tleft custPad2">'.$username.'</td>
-	<td class="tleft custPad2">'.$acc_status.'</td>
+	<td class="">';
+	echo $acc_status=='Active' ? '<span class="accActive">Active</span>' : '<span class="accDeactive">Deactivated</span>';
+	echo'</td>
 	<td class="action">
 		<div name="content">
 			<button name="opener">

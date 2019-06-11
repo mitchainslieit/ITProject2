@@ -12,7 +12,7 @@
 						<i class="fas fa-money-check"></i>
 						<span>List of Student Payment Status</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent balContent">
 					<p>Miscellaneous Fee: &#x20B1; <?php $obj->getMiscFee(); ?></p>
@@ -54,10 +54,10 @@
 extract($value);
 echo '
 <tr>
-	<td>'.$stud_lrno.'</td>
-	<td>'.$Name.'</td>
-	<td>'.$year_level.'</td>
-	<td>'.$sec_name.'</td>
+	<td class="tleft">'.$stud_lrno.'</td>
+	<td class="tleft">'.$Name.'</td>
+	<td class="tright">'.$year_level.'</td>
+	<td class="tleft">'.$sec_name.'</td>
 	<td align="right">'.number_format($pay_amt, 2).'</td>
 	<td align="right">'.number_format($remaining_balance, 2).'</td>
 	<td>'.$bal_status.'</td>

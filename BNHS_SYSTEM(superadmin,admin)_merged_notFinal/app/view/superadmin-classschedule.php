@@ -4,7 +4,7 @@
 			<div class="widget">	
 				<div class="header">	
 					<p>	<i class="fa fa-user fnt"></i><span>Adviser Class Schedule</span></p>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>	
 				<div class="editContent widgetcontent">
 					<div class="cont2">

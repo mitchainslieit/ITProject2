@@ -7,6 +7,10 @@
 			extract($_POST);
 			$obj->rejectCurriculumRequest();
 		}
+		if (isset($_POST['cancel-button'])){
+			extract($_POST);
+			$obj->cancelCurriculum($request_id);
+		}
 	?>
 	<div class="contentpage" id="contentpage">
 		<div class="row">
@@ -16,11 +20,14 @@
 						<i class="fas fa-money-check"></i>
 						<span>Curriculum</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
-				<div class="widgetContent subjectContent">
+				<div class="widgetContent curriculumContent">
 					<div class="cont3">
+						<!-- uncomment to customize search filter -->
+						<!-- <input id="serachInput" type="text">  -->
 						<form action="admin-subjects" method="POST" id="form1"></form>
+						<form action="admin-subjects" method="POST" id="form2"></form>
 <?php
 						$queryCount=$this->conn->prepare("SELECT * FROM request join curriculum_temp on request_id=curr_request WHERE request_status='Temporary'");
 						$queryCount->execute();
@@ -32,7 +39,8 @@
 									<tr>
 										<th><span class="selectAll">Select All</span><input type="checkbox" id="checkAl" class="selectAllCheck" form="form1"> </th>
 										<th class="tleft">Curriculum Name</th>';
-											echo $rowQueryCount > 0 ? '<th>Request</th>' : '';
+										echo $rowQueryCount > 0 ? '<th>Request Type</th>' : '';
+										echo $rowQueryCount > 0 ? '<th>Request Status</th>' : '';
 									echo'
 									</tr>
 								</thead>
@@ -45,26 +53,39 @@
 			';
 			echo $request_status == "Temporary" ? '<td class="tleft"><span class="temporary">'.$c_desc.'</span></td>' : ' <td class="tleft">'.$c_desc.'</td>';
 			if($rowQueryCount > 0){
-			 	if($request_status == "Temporary"){
-			 		echo '
-			 		<td>For Approval to 
-			 		';
-			 			if($request_type == 'Insert'){
-			 				echo 'Add';
-			 			}else if($request_type == 'Update'){
-			 				echo 'Update';
-			 			}else if($request_type == 'Delete'){
-			 				echo 'Delete';
-			 			}else{
-			 				echo '';
-			 			}
-			 		echo'
-			 		</td>
-			 		';
-			 	}else{
-			 		echo '<td> </td>';
-			 	}
-		 	}
+				if($request_status == "Temporary"){
+					echo '
+					<td>
+					';
+					echo $request_type == 'Insert' ? 'Add' : $request_type;
+					echo'
+					</td>
+					';
+				}else{
+					echo '<td> </td>';
+				}
+			}
+			if($rowQueryCount > 0){
+				if($request_status == "Temporary"){
+					echo '
+					<td>
+					';
+					if($request_type == 'Insert' || $request_type == 'Update' || $request_type='Delete'){
+						echo '<div class="pendingContainer">
+		 						<button class="pending">Pending</button>
+	 							<input type="hidden" name="request_id" value="'.$request_id.'" form="form2">
+	 							<button class="cancel" name="cancel-button" form="form2"><i class="far fa-window-close"></i></button>
+	 						</div>';
+					}else{
+						echo '';
+					}
+					echo'
+					</td>
+					';
+				}else{
+					echo '<td> </td>';
+				}
+			}
 			echo'
 		</tr>	';
 	}						
@@ -91,7 +112,7 @@
 								<?php 
 								foreach ($obj->getCurriculum() as $row) {
 									extract($row);
-									echo '<option value="'.$curr_id.'">'.$curr_desc.'</option>';
+									echo '<option value="'.$cc_id.'">'.$c_desc.'</option>';
 								}
 
 							?>	
@@ -108,16 +129,16 @@
 									</tr>
 								</thead>
 								<tbody>
-	<?php foreach ($obj->showSingleTable("subject") as $value) {
+	<?php foreach ($obj->showSingleTable("subject_temp") as $value) {
 	extract($value);
 	$department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 'TLE', 'Values'];
 	$subject_level = ['7', '8', '9', '10'];
 	echo '
 		<tr>
-			<td class="tleft custPad">'.$subj_level.'</td>
-			<td class="tleft custPad">'.$subj_dept.'</td>
-			<td class="tleft custPad">'.$subj_name.'</td>
-			<td>'.$curriculum.'</td>
+			<td class="tleft custPad">'.$s_level.'</td>
+			<td class="tleft custPad">'.$s_dept.'</td>
+			<td class="tleft custPad">'.$s_name.'</td>
+			<td>'.$curriculum_idx.'</td>
 		</tr>
 		';
 	}

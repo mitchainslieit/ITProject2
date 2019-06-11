@@ -20,6 +20,10 @@
 			extract($_POST);
 			$obj->multipleDeleteSection();
 		}
+		if (isset($_POST['cancel-button'])){
+			extract($_POST);
+			$obj->cancelSection($request_id);
+		}
 	?>
 	<?php
 		$this->conn = new Connection;
@@ -33,7 +37,7 @@
 						<i class="fas fa-money-check"></i>
 						<span>Section</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent sectionContent">
 					<div class="cont1">
@@ -58,6 +62,7 @@
 					</div>
 					<div class="cont2">
 						<form method="post" action="admin-section" id="form1"></form>
+						<form action="admin-section" method="POST" id="form2"></form>
 							<table id="admin-table-section" class="display">
 								<thead>
 									<tr>
@@ -68,7 +73,8 @@
 										$queryCount=$this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary' and (r.request_type='Insert' or r.request_type='Delete' or r.request_type='Update')");
 										$queryCount->execute();
 										$rowQueryCount=$queryCount->rowCount();
-										echo $rowQueryCount > 0 ? '<th class="tleft custPad">Request</th>' : '';
+										echo $rowQueryCount > 0 ? '<th>Request Type</th>' : '';
+										echo $rowQueryCount > 0 ? '<th>Request Status</th>' : '';
 										echo '
 										<th>Action</th>
 									</tr>
@@ -83,26 +89,56 @@ foreach ($obj->showSectionTable() as $value) {
 			<td class="tleft custPad">'.$gr_lvl.'</td>
 			<td class="tleft custPad">';
 			if($request_status=='Temporary'){
-				echo '<span class="temporary">'.$s_name.'</span>';
+				echo '<div class="temporaryContainer">
+						<span class="temporary">'.$s_name.'</span>
+						<span class="temporaryDesc">There is a pending request in this section!</span>
+					</div>';
 			}else{
 				echo $s_name;
 			}
 			echo'
 			</td>
 			';
-			if($request_type == "Update" && $request_status=='Temporary'){
-				echo '<td class="tleft custPad">For approval to '.$request_type.'</td>';
-			}else{
-				echo'';
-			}if($request_type == "Insert" && $request_status=='Temporary'){
-				echo '<td class="tleft custPad">For approval to '.$request_type.'</td>';
-			}else{
-				echo '';
-			} if($request_type == "Delete" && $request_status=='Temporary'){
-				echo '<td class="tleft custPad">For approval to '.$request_type.'</td>';
-			}else{
-				echo '';
-			}
+			if($rowQueryCount > 0){
+			 	if($request_status == "Temporary"){
+			 		echo '
+			 		<td>
+			 		';
+			 		if($request_type == 'Insert'){
+			 			echo 'Add';
+			 		}else if($request_type == 'Update' || $request_type == 'Delete'){
+			 			echo $request_type;
+			 		}else{
+			 			echo '';
+			 		}
+			 		echo'
+			 		</td>
+			 		';
+			 	}else{
+			 		echo '<td> </td>';
+			 	}
+		 	}
+		 	if($rowQueryCount > 0){
+			 	if($request_status == "Temporary"){
+			 		echo '
+			 		<td>
+			 		';
+			 		if($request_type == 'Insert' || $request_type == 'Update' || $request_type== 'Delete'){
+			 			echo '<div class="pendingContainer">
+		 						<button class="pending">Pending</button>
+	 							<input type="hidden" name="request_id" value="'.$request_id.'" form="form2">
+	 							<button class="cancel" name="cancel-button" form="form2"><i class="far fa-window-close"></i></button>
+	 						</div>';
+			 		}else{
+			 			echo '';
+			 		}
+			 		echo'
+			 		</td>
+			 		';
+			 	}else{
+			 		echo '<td> </td>';
+			 	}
+		 	}
 			echo'</td>
 			<td class="action">
 				<div name="content">
@@ -113,7 +149,7 @@ foreach ($obj->showSectionTable() as $value) {
 						</div>
 					</button>
 					<div name="dialog" title="Update section data">
-						<form action="admin-section" method="POST" required autocomplete="off">
+						<form action="admin-section" method="POST" required autocomplete="off" class="validateChangesInForm">
 							<input type="hidden" value="'.$sectionid.'" name="sectionid">
 							<span>Grade Level</span>
 							<select name="gr_lvl" required>

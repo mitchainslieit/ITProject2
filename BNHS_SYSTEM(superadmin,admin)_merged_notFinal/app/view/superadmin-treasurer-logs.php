@@ -8,7 +8,7 @@
 						<i class="fas fa-money-check"></i>
 						<span>Treasurer History of Logs</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent logsContent">
 					<div class="cont1">

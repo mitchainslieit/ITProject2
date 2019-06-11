@@ -28,7 +28,7 @@
 						<i class="fas fa-money-check"></i>
 						<span>Student List</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent studentContent">
 					<div class="cont1">
@@ -52,7 +52,7 @@
 									<th>Gender</th>
 									<th>Grade Level and Section</th>
 									<th>Address</th>
-									<th>Birth Day</th>
+									<th>Birth Date</th>
 									<th>Mother's Name</th>
 									<th>Father's Name</th>
 									<th>Nationality</th>
@@ -86,7 +86,7 @@
 	<td class="tleft">'.$ethnicity.'</td>
 	<td class="tleft">'.$blood_type.'</td>
 	<td class="tleft">'.$medical_stat.'</td>
-	<td class="tleft">'.$stud_status.'</td>
+	<td class="">'.$stud_status.'</td>
 	<td class="tleft">';
 		if($curr_stat == 'New'){
 			echo 'Transferee';
@@ -94,7 +94,9 @@
 			echo 'Old';
 		}
 	echo'</td>
-	<td class="tleft">'.$acc_status.'</td>
+	<td class="tleft">';
+	echo $acc_status=='Active' ? '<span class="accActive">Active</span>' : '<span class="accDeactive">Deactivated</span>';
+	echo'</td>
 	<td class="action">
 		<div name="content">
 			<button name="opener">
@@ -104,7 +106,7 @@
 				</div>
 			</button>
 			<div name="dialog" title="Change Status">
-				<form action="admin-student" method="POST" required>
+				<form action="admin-student" method="POST" required class="validateChangesInForm">
 					<input type="hidden" value="'.$acc_id.'" name="acc_id">
 					<select name="acc_status">
 					';

@@ -69,7 +69,7 @@
 						<i class="fas fa-money-bill fnt"></i>
 						<span>Student's Payment Transactions</span>
 					</p>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>	
 				<div class="widgetContent payHistoryContent">
 					<p>Miscellaneous Fee: &#x20B1; <?php $obj->getMiscFee(); ?></p>

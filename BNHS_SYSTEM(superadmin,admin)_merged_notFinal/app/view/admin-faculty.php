@@ -46,7 +46,7 @@
 						<i class="fas fa-money-check"></i>
 						<span>Faculty List</span>
 					</div>
-					<p>School Year: <?php echo date("Y"); ?> - <?php echo date("Y")+1; ?></p>
+					<p>School Year: <?php $obj->getSchoolYear(); ?></p>
 				</div>
 				<div class="widgetContent facultyContent">
 					<div class="cont1">
@@ -63,26 +63,13 @@
 									<span>Last name:</span>
 									<input type="text" name="fac_lname" value="" data-validation="length custom required" data-validation-length="max45" data-validation-regexp="^[a-zA-Z\-&ñ. ]+$" data-validation-error-msg="Enter less than 45 characters and Alphabets only" placeholder="Last name" required>
 									<span>Department</span>
-									<!--<select name="fac_dept" value="">
-									 uncomment this to use dynamic insertion -->
-									<!-- <?php
-										/*$department=$obj->department();
+									<select name="fac_dept" value="">
+									<?php
+										$department=$obj->department();
 										for ($c = 0; $c < sizeof($department); $c++) {
 											echo '<option value="'.$department[$c].'">'.$department[$c].'</option>';
-										}	*/
+										}	
 									?>
-									</select> -->
-									<select name="fac_dept" value="" data-validation="required" required>
-										<option selected disabled hidden>Select Department</option>
-										<option value="Filipino">Filipino</option>
-										<option value="Math">Math</option>
-										<option value="MAPEH">MAPEH</option>
-										<option value="Science">Science</option>
-										<option value="AP">AP</option>
-										<option value="Math">Math</option>
-										<option value="English">English</option>
-										<option value="TLE">TLE</option>
-										<option value="Values">Values</option>
 									</select>
 									<span>Adviser</span>
 									<select name="fac_adviser" value="" data-validation="required" required>
@@ -134,7 +121,7 @@ if($obj->priv() === true) {
 
  foreach($obj->showFacList() as $row){
  extract($row);
- $department = ['Filipino', 'Math', 'MAPEH', 'Science', 'AP', 'Math', 'English', 'TLE', 'Values'];
+$department=$obj->department();
  $adviser = ['Yes', 'No'];
  $status = ['Active','Deactivated'];
  echo '
@@ -145,8 +132,9 @@ if($obj->priv() === true) {
  	<td class="tleft custPad2">'.$fac_dept.'</td>
  	<td class="tleft custPad2">'.$username.'</td>
  	<td>'.$viewHandledSection.'</td>
- 	<td>'.$acc_status.'</td>
- 	
+ 	<td>'; echo $acc_status=='Active' ? '<span class="accActive">Active</span>' : '<span class="accDeactive">Deactivated</span>';
+ 	echo'
+ 	</td>
  	<td class="action">
  		<div name="content">
 			<button name="opener">
@@ -156,7 +144,7 @@ if($obj->priv() === true) {
 				</div>
 			</button>
 			<div name="dialog" title="Update faculty data">
-				<form action="admin-faculty" method="POST" required autocomplete="off">
+				<form action="admin-faculty" method="POST" required autocomplete="off" class="validateChangesInForm">
 					<input type="hidden" value="'.$fac_id.'" name="fac_id">
 					<span>Employee ID</span>
 					<input type="text" name="fac_no" value="'.$fac_no.'" data-validation="length custom required" data-validation-length="max15" data-validation-regexp="^[a-zA-Z0-9\-&ñ ]+$" data-validation-error-msg="Enter less than 15 characters and Alphaneumerics only" placeholder="Employee ID" required>
@@ -209,7 +197,7 @@ if($obj->priv() === true) {
 				</div>
 			</button>
 			<div name="dialog" title="Change Status">
-				<form action="admin-faculty" method="POST" required>
+				<form action="admin-faculty" method="POST" required class="validateChangesInForm">
 					<input type="hidden" value="'.$acc_id.'" name="acc_id">
 					<select name="acc_status">
 					';
