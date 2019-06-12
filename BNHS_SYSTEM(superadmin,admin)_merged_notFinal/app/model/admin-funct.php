@@ -19,6 +19,14 @@ class AdminFunct{
 		echo  " ".$sy_start. "-" .$sy_end. " ";
 		return $sy_start;
 	}
+	public function getSY() {
+		$query = $this->conn->prepare("SELECT * FROM system_settings where sy_status ='Current'");
+		$query->execute();
+		$rowCount = $query->fetch();
+		$sy_start1 = $rowCount['sy_start'];
+		$sy_start = date('Y', strtotime($sy_start1));
+		return $sy_start;
+	}
 	public function insertLogs($log_event, $log_desc){
 		try {
 			$admin_id=$_SESSION['accid'];
@@ -293,7 +301,7 @@ class AdminFunct{
 			$row1=$query1->fetch(PDO::FETCH_ASSOC);
 			$prev_misc_fee=$row1['misc_fee'];
 			
-			$curYear = $this->getSchoolYear();
+			$curYear = $this->getSY();
 			$request_desc='Add Fee Type '.$budget_name.' with an amount of ₱'.$total_amount.'.00';
 			$this->addRequest($request_desc);
 			$request_id=$this->getRequestID();
@@ -3232,10 +3240,17 @@ class AdminFunct{
 	}
 	
 	public function showEvents(){
-		$admin_id = $_SESSION['accid'];
-		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start_1, DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, date_start, date_end, post, view_lim, attachment FROM announcements WHERE post_adminid=? AND title IS NOT NULL AND holiday='No'") or die ("failed!");
-		$sql->bindParam(1, $admin_id);
-		$sql->execute();
+		$accID = $_SESSION['accid'];
+		$queryGetAdminId=$this->conn->prepare("SELECT * FROM admin WHERE acc_admid=:acc_admid");
+		$queryGetAdminId->execute(array(
+			':acc_admid' => $accID
+		));
+		$rowQueryGetAdminId=$queryGetAdminId->fetch(PDO::FETCH_ASSOC);
+		$admin_id=$rowQueryGetAdminId['admin_id'];
+		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start_1, DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, date_start, date_end, post, view_lim, attachment FROM announcements WHERE post_adminid=:admin_id AND title IS NOT NULL AND holiday='No'") or die ("failed!");
+		$sql->execute(array(
+			':admin_id' => $admin_id
+		));
 		if($sql->rowCount()>0){
 			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
 				$data[]=$r;
@@ -3245,7 +3260,13 @@ class AdminFunct{
 		return $sql;
 	}
 	public function showHolidays(){
-		$admin_id = $_SESSION['accid'];
+		$accID = $_SESSION['accid'];
+		$queryGetAdminId=$this->conn->prepare("SELECT * FROM admin WHERE acc_admid=:acc_admid");
+		$queryGetAdminId->execute(array(
+			':acc_admid' => $accID
+		));
+		$rowQueryGetAdminId=$queryGetAdminId->fetch(PDO::FETCH_ASSOC);
+		$admin_id=$rowQueryGetAdminId['admin_id'];
 		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e') as date_start_1,  DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, DAY(CURDATE()), DAY(date_start) FROM announcements WHERE post_adminid=? AND title IS NOT NULL AND holiday='Yes' AND (date_start between now() and adddate(now(), +15))") or die ("failed!");
 		$sql->bindParam(1, $admin_id);
 		$sql->execute();
@@ -3259,9 +3280,7 @@ class AdminFunct{
 	}	
 	
 	public function showEventsSection(){
-		$admin_id = $_SESSION['accid'];
-		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start_1, DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, date_start, date_end, post, view_lim, attachment FROM announcements WHERE post_adminid=? AND title IS NOT NULL") or die ("failed!");
-		$sql->bindParam(1, $admin_id);
+		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start_1, DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, date_start, date_end, post, view_lim, attachment FROM announcements WHERE post_adminid IS NOT NULL AND title IS NOT NULL AND holiday='No'") or die ("failed!");
 		$sql->execute();
 		if($sql->rowCount()>0){
 			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
@@ -3273,7 +3292,13 @@ class AdminFunct{
 	}
 	
 	public function showAnnouncementSection(){
-		$admin_id = $_SESSION['accid'];
+		$accID = $_SESSION['accid'];
+		$queryGetAdminId=$this->conn->prepare("SELECT * FROM admin WHERE acc_admid=:acc_admid");
+		$queryGetAdminId->execute(array(
+			':acc_admid' => $accID
+		));
+		$rowQueryGetAdminId=$queryGetAdminId->fetch(PDO::FETCH_ASSOC);
+		$admin_id=$rowQueryGetAdminId['admin_id'];
 		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start_1, DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, date_start, date_end, post, view_lim, attachment FROM announcements WHERE post_adminid=? and post IS NOT NULL") or die ("failed!");
 		$sql->bindParam(1, $admin_id);
 		$sql->execute();
@@ -3288,10 +3313,17 @@ class AdminFunct{
 	
 	
 	public function getAnnouncements() {
-		$admin_id = $_SESSION['accid'];
-		$sql = $this->conn->prepare("SELECT * FROM announcements WHERE post_adminid=? AND post IS NOT NULL") or die ("failed!");
-		$sql->bindParam(1, $admin_id);
-		$sql->execute();
+		$accID = $_SESSION['accid'];
+		$queryGetAdminId=$this->conn->prepare("SELECT * FROM admin WHERE acc_admid=:acc_admid");
+		$queryGetAdminId->execute(array(
+			':acc_admid' => $accID
+		));
+		$rowQueryGetAdminId=$queryGetAdminId->fetch(PDO::FETCH_ASSOC);
+		$admin_id=$rowQueryGetAdminId['admin_id'];
+		$sql = $this->conn->prepare("SELECT *, EXTRACT(YEAR FROM date_start) AS 'year' FROM announcements WHERE post_adminid=:admin_id AND post IS NOT NULL") or die ("failed!");
+		$sql->execute(array(
+			':admin_id' => $admin_id
+		));
 		$result = $sql->fetchAll();
 		foreach($result as $row) {
 			$html = '<tr>';
@@ -3306,7 +3338,13 @@ class AdminFunct{
 	
 	public function insertEvent($title, $date_start, $date_end, $view_lim){
 		try{
-			$admin_id = $_SESSION['accid'];
+			$accID = $_SESSION['accid'];
+			$queryGetAdminId=$this->conn->prepare("SELECT * FROM admin WHERE acc_admid=:acc_admid");
+			$queryGetAdminId->execute(array(
+				':acc_admid' => $accID
+			));
+			$rowQueryGetAdminId=$queryGetAdminId->fetch(PDO::FETCH_ASSOC);
+			$admin_id=$rowQueryGetAdminId['admin_id'];
 			$checkbox = $_POST['view_lim'];
 			$sql = "INSERT INTO announcements SET title=:title, date_start=:date_start, date_end=:date_end, view_lim=('";
 			for($i=0; $i<sizeof ($checkbox);$i++) {
@@ -3321,7 +3359,7 @@ class AdminFunct{
 			':title'  => (empty($title) ? null : $title),
 			':date_start' => $date_start,
 			':date_end' => $date_end.' 23:59:59',
-			':post_adminid' => $_SESSION['accid']))){
+			':post_adminid' => $admin_id))){
 				$sql2=$this->conn->prepare("SELECT * from announcements WHERE post_adminid=? ORDER BY ann_id DESC LIMIT 1");
 				$sql2->bindParam(1, $admin_id);
 				$sql2->execute();
@@ -3329,15 +3367,15 @@ class AdminFunct{
 				$ann_id=$row2['ann_id'];
 				$sql3=$this->conn->prepare("INSERT INTO admann SET adminn_id=:adminn_id, annn_id=:annn_id");
 				$sql3->execute(array(
-					':adminn_id' => $_SESSION['accid'],
+					':adminn_id' => $admin_id,
 					':annn_id' => $ann_id
 				));
 				$log_event="Insert";
-				$log_desc="Added announcement with a Title: ".$title;
+				$log_desc="Added event with a Title: ".$title;
 				$this->insertLogs($log_event, $log_desc);
-				$this->alert("Success!", "An announcement has been created! Title: $title, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
+				$this->alert("Success!", "An event has been created! Title: $title, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
 			}else{
-				$this->alert("Error!", "Failed to post announcement", "error", "admin-events");
+				$this->alert("Error!", "Failed to post event", "error", "admin-events");
 			}
 			
 		} catch (PDOException $exception){
@@ -3347,7 +3385,13 @@ class AdminFunct{
 	
 	public function insertAnnouncement($post, $date_start, $date_end, $view_lim, $attachment){
 		try{
-			$admin_id=$_SESSION['accid'];
+			$accID = $_SESSION['accid'];
+			$queryGetAdminId=$this->conn->prepare("SELECT * FROM admin WHERE acc_admid=:acc_admid");
+			$queryGetAdminId->execute(array(
+				':acc_admid' => $accID
+			));
+			$rowQueryGetAdminId=$queryGetAdminId->fetch(PDO::FETCH_ASSOC);
+			$admin_id=$rowQueryGetAdminId['admin_id'];
 			$checkbox = $_POST['view_lim'];
 			$sql = "INSERT INTO announcements SET date_start=:date_start, date_end=:date_end, post=:post, view_lim=('";
 			for($i=0; $i<sizeof ($checkbox);$i++) {
@@ -3363,7 +3407,7 @@ class AdminFunct{
 			':date_end' => $date_end,
 			':post' => (empty($post) ? null : $post),
 			':attachment' => (empty($attachment['name']) ? null : $attachment['name']),
-			':post_adminid' => $_SESSION['accid']))){
+			':post_adminid' => $admin_id))){
 				$sql2=$this->conn->prepare("SELECT * from announcements WHERE post_adminid=? ORDER BY ann_id DESC LIMIT 1");
 				$sql2->bindParam(1, $admin_id);
 				$sql2->execute();
@@ -3371,7 +3415,7 @@ class AdminFunct{
 				$ann_id=$row2['ann_id'];
 				$sql3=$this->conn->prepare("INSERT INTO admann set adminn_id=:adminn_id, annn_id=:annn_id");
 				$sql3->execute(array(
-					':adminn_id' => $_SESSION['accid'],
+					':adminn_id' => $admin_id,
 					':annn_id' => $ann_id
 				));
 				$log_event="Insert";
@@ -3735,9 +3779,18 @@ class AdminFunct{
 	} 
 	
 	/**************** LOGS ********************/
+	public function getYearLogs() {
+		$sql=$this->conn->prepare("SELECT year(log_date) as 'dateModified' FROM logs GROUP BY dateModified ORDER BY 1 DESC");
+		$sql->execute();
+		$option = '';
+		while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			$option .= '<option value="'.$row["dateModified"].'" name="year">'.$row["dateModified"].'</option>';
+		}
+		echo $option;
+	}
 	
 	public function showAdminLogs(){
-		$sql=$this->conn->query("SELECT CONCAT(adm_fname,' ',adm_midname,' ',adm_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate 
+		$sql=$this->conn->query("SELECT CONCAT(adm_fname,' ',adm_midname,' ',adm_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e, %Y - %H:%i:%S') AS logdate, year(log_date) as 'dateModified' 
 			FROM logs 
 			JOIN accounts on acc_id = user_id 
 			JOIN admin on acc_admid = acc_id") or die ("failed!");
@@ -3751,7 +3804,7 @@ class AdminFunct{
 		return $data;
 	}
 	public function showFacultyLogs(){
-		$sql=$this->conn->query("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate 
+		$sql=$this->conn->query("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e, %Y - %H:%i:%S') AS logdate, year(log_date) as 'dateModified'
 			FROM logs 
 			JOIN accounts on acc_id = user_id 
 			JOIN faculty on acc_idz = acc_id") or die ("failed!");
@@ -3765,7 +3818,7 @@ class AdminFunct{
 		return $data;
 	}
 	public function showTreasurerLogs(){
-		$sql=$this->conn->query("SELECT CONCAT(tr_fname,' ',tr_midname,' ',tr_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate 
+		$sql=$this->conn->query("SELECT CONCAT(tr_fname,' ',tr_midname,' ',tr_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e, %Y - %H:%i:%S') AS logdate, year(log_date) as 'dateModified' 
 			FROM logs 
 			JOIN accounts on acc_id = user_id 
 			JOIN treasurer on acc_trid = acc_id") or die ("failed!");
@@ -3785,13 +3838,20 @@ class AdminFunct{
 	/*************** SYSTEM SETTING *******************/
 
 	public function insertHolidays(){
+		$accID = $_SESSION['accid'];
+		$queryGetAdminId=$this->conn->prepare("SELECT * FROM admin WHERE acc_admid=:acc_admid");
+		$queryGetAdminId->execute(array(
+			':acc_admid' => $accID
+		));
+		$rowQueryGetAdminId=$queryGetAdminId->fetch(PDO::FETCH_ASSOC);
+		$admin_id=$rowQueryGetAdminId['admin_id'];
 		$query=$this->conn->prepare("SELECT * FROM announcements where holiday='Yes'");
 		$query->execute();
 		if($query->rowCount() > 0){
 			$queryDelete=$this->conn->prepare("DELETE FROM announcements where holiday='Yes'");
 			$queryDelete->execute();
 		}
-		$curYear = $this->getSchoolYear();
+		$curYear = $this->getSY();
 		$array_holiday = ['New Year', 'Chinese Lunar New Year', 'People Power Anniversary', 'The Day of Valor', 'Maundy Thursday', 'Good Friday', 'Black Saturday', 'Easter Sunday', 'Labor Day', 'Eidul-Fitar', 'Independence Day', 'Eid al-Adha (Feast of the Sacrifice)', 'Eid al-Adha Day 2', 'Ninoy Aquino Day', 'National Heroes Day', 'All Saints Day', 'All Souls Day', 'Bonifacio Day', 'Feast of the Immaculate Conception', 'Christmas Eve', 'Christmas Day', 'Rizal Day', 'New Years Eve'];
 		$array_start_date = [$curYear.'-01-01 00:00:00', $curYear.'-02-05 00:00:00', $curYear.'-02-25 00:00:00', $curYear.'-04-09 00:00:00', $curYear.'-04-18 00:00:00', $curYear.'-04-19 00:00:00', $curYear.'-04-20 00:00:00', $curYear.'-04-21 00:00:00', $curYear.'-05-01 00:00:00', $curYear.'-06-06 00:00:00', $curYear.'-06-12 00:00:00', $curYear.'-08-12 00:00:00', $curYear.'-08-13 00:00:00', $curYear.'-08-21 00:00:00', $curYear.'-08-26 00:00:00', $curYear.'-11-01 00:00:00', $curYear.'-11-02 00:00:00', $curYear.'-11-30 00:00:00', $curYear.'-12-08 00:00:00', $curYear.'-12-24 00:00:00', $curYear.'-12-25 00:00:00', $curYear.'-12-30 00:00:00', $curYear.'-12-31 00:00:00'];
 		$array_end_date = [$curYear.'-01-01 23:59:59', $curYear.'-02-05 23:59:59', $curYear.'-02-25 23:59:59', $curYear.'-04-09 23:59:59', $curYear.'-04-18 23:59:59', $curYear.'-04-19 23:59:59', $curYear.'-04-20 23:59:59', $curYear.'-04-21 23:59:59', $curYear.'-05-01 23:59:59', $curYear.'-06-06 23:59:59', $curYear.'-06-12 23:59:59', $curYear.'-08-12 23:59:59', $curYear.'-08-13 23:59:59', $curYear.'-08-21 23:59:59', $curYear.'-08-26 23:59:59', $curYear.'-11-01 23:59:59', $curYear.'-11-02 23:59:59', $curYear.'-11-30 23:59:59', $curYear.'-12-08 23:59:59', $curYear.'-12-24 23:59:59', $curYear.'-12-25 23:59:59', $curYear.'-12-30 23:59:59', $curYear.'-12-31 23:59:59'];
@@ -3803,7 +3863,7 @@ class AdminFunct{
 				':date_end' => $array_end_date[$i],
 				':view_lim' => '0',
 				':holiday' => 'Yes',
-				':post_adminid' => $_SESSION['accid']
+				':post_adminid' => $admin_id
 			));
 		}
 		$this->alert("Success!", "You have successfully inserted the holidays", "success", "admin-system-settings");
@@ -3896,7 +3956,7 @@ class AdminFunct{
 						));
 					}
 					//grade 10 to graduated
-					$curYear = $this->getSchoolYear();
+					$curYear = $this->getSY();
 					$sql9=$this->conn->prepare("SELECT * from student");
 					$sql9->execute();
 					$row9=$sql9->fetchAll();

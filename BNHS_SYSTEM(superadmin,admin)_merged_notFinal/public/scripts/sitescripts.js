@@ -519,41 +519,7 @@
  /****************************************** END OF FRONT-END FUNCTIONALITIES USING JQUERY ******************************************/
 
 /****************************************** ADMIN FUNCTIONALITY ****************************************************/
-/*var adminTable8 = $('#admin-table-request').DataTable({
-	"initComplete": function (settings, json) {  
-		$("#admin-table-request").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
-	}
-});
 
-setInterval(function() {
-	var data = new Array('getNotif', parseInt($('body[class*="admin-"] .menu-sidebar .menu nav ul li span.notification').text()));
-	if ($('body[class*="admin-"] .menu-sidebar .menu nav ul li span.notification').length) {
-		$.ajax({
-			type: 'get',
-			url: 'app/model/admin-exts/admin-ajax.php',
-			data: {data:data},
-			success: function(result) {
-				try {
-					var data = JSON.parse(result);
-					var current_no = parseInt($('body[class*="admin-"] .menu-sidebar .menu nav ul li span.notification').text());
-					var new_no = data["response"];
-					if ((current_no != new_no) && $('body').is('[class*="admin-"]')) {
-						var new_data = data["addthis"];
-						$('body[class*="admin-"] .menu-sidebar .menu nav ul li span.notification').empty();
-						$('body[class*="admin-"] .menu-sidebar .menu nav ul li span.notification').append(new_no);
-						adminTable8.clear().draw();
-						for (i = 0; i < new_data.length; i++) {
-							adminTable8.row.add($(new_data[i])).draw();
-						}
-					}
-				} catch (e) {
-					
-				}
-			}
-		});
-	}
-}, 2000);
-*/
 $(function() {
     var $form = $('.validateChangesInForm');
     
@@ -562,6 +528,20 @@ $(function() {
     $form.submit(function (e) {
       if (initialState === $form.serialize()) {
         alert('No changes');
+      } else {
+            $form = $(this).get(0);
+      }
+      e.preventDefault();
+    });
+});
+$(function() {
+    var $form = $('.validateChangesInFormCurriculum');
+    
+    var initialState = $form.serialize();
+    
+    $form.submit(function (e) {
+      if (initialState === $form.serialize()) {
+        alert('You are not allowed to update the curriculum!');
       } else {
             $form = $(this).get(0);
       }
@@ -642,10 +622,10 @@ $( "#eventDataTable, #announcementDataTable, #historyDataTable, #notif" ).DataTa
 });
 
 
-$( "#stud-list, .admin-table, .admin-table-withScroll" ).DataTable({
+$( "#stud-list, .admin-table, .admin-table-withScroll, .systemTable" ).DataTable({
 	//"scrollX": true,            
 	"initComplete": function (settings, json) {  
-		$("#stud-list, .admin-table, .admin-table-withScroll").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
+		$("#stud-list, .admin-table, .admin-table-withScroll, .systemTable").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");            
 	},
 	stateSave: true,
 	"lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
@@ -794,12 +774,11 @@ $adminTableEvents = $('#admin-table-events').DataTable({
 	{
 		var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
 		var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
-		var title = event.title;
 		var id = event.id;
 		$.ajax({
 			url:"app/model/unstructured/updateEvent.php",
 			type:"POST",
-			data:{title:title, start:start, end:end, id:id},
+			data:{start:start, end:end, id:id},
 			success:function(){
 				calendarAdmin.fullCalendar('refetchEvents');
 				alert('Event Update');
@@ -941,6 +920,7 @@ $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.yea
 	var val2 = $(this).val();
 	adminTablePaymentHistory.column(4).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
 });
+adminTablePaymentHistory.column(4).search($('.year_level_balstatus3').val() ? $('.year_level_balstatus3').val() : '', true, false).draw();
 
 $( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.year_level_balstatus3', function(e) {
 	var val2 = $(this).val();
@@ -978,7 +958,6 @@ $('#admin_home .contentpage .widget .balContent .cont1 .box4 span.wtotal').each(
 		}
 	});
 
-adminTablePaymentHistory.column(4).search($('.year_level_balstatus3').val() ? $('.year_level_balstatus3').val() : '', true, false).draw();
 
 var adminTableFeetypeHistory = $('#admin-table-feetypeHistory').DataTable({
 	"initComplete": function (settings, json) {  
@@ -1129,13 +1108,22 @@ var adminTable5 = $('#admin-table-logs').DataTable({
 		pageSize: 'Folio'
 	}
 	],
-	"order": [[ 3, "desc" ]]
+	"order": [[ 3, "desc" ]],
+	"columnDefs": [{
+ 		"targets": [4],
+ 		"visible": false
+ 	}]
 });
-$( '#admin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.log_events', function() {
+$( '#admin_home .contentpage .widget .widgetContent .cont1 .box1' ).on('change', '.log_events', function() {
 	var val5 = $(this).val();
 	adminTable5.column(2).search(val5 ? val5 : '', true, false).draw();
 });
 
+$( '#admin_home .contentpage .widget .widgetContent .cont1 .box2' ).on('change', '.year_level', function(e) {
+	var val2 = $(this).val();
+	adminTable5.column(4).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+});
+adminTable5.column(4).search($('.year_level').val() ? $('.year_level').val() : '', true, false).draw();
 
 var adminTable6 = $('#admin-table-student').DataTable({
 	"initComplete": function (settings, json) {  
@@ -1451,6 +1439,30 @@ $( '#super_unique' ).on('change', function() {
 });
 
  $( ".datepicker-schoolyear" ).datepicker({
+ 	changeMonth: true,
+ 	dateFormat: 'yy-mm',
+ 	changeYear: true,
+ 	yearRange: "+0:+100",
+ 	/*onClose: function(dateText, inst) { 
+            $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+	}*/
+ }).focus(function() {
+    $(".ui-datepicker-prev, .ui-datepicker-next").remove();
+});
+ 
+  $( ".datepicker-schoolyearStart" ).datepicker({
+ 	changeMonth: true,
+ 	dateFormat: 'yy-mm',
+ 	changeYear: true,
+ 	yearRange: "+0:+100",
+ 	onClose: function(dateText, inst) { 
+            $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+	}
+ }).focus(function() {
+    $(".ui-datepicker-prev, .ui-datepicker-next").remove();
+});
+
+ $( ".datepicker-schoolyearEnd" ).datepicker({
  	changeMonth: true,
  	dateFormat: 'yy-mm',
  	changeYear: true,
@@ -1868,6 +1880,12 @@ setInterval(function() {
 					var data = JSON.parse(result);
 					var current_no = parseInt($('body[class*="superadmin-"] .menu-sidebar .menu nav li ul li span.classNotification').text());
 					var new_no = data["response"];
+					if(new_no === 0){
+				 		$('.ClassWidget').addClass('hidden');
+				 	}else{
+				 		$('.ClassWidget').removeClass('hidden');
+				 		$('.ClassWidget').addClass('show');
+				 	}
 					if ((current_no != new_no) && $('body').is('[class*="superadmin-"]')) {
 						var new_data = data["addthis"];
 						$('body[class*="superadmin-"] .menu-sidebar .menu nav li ul li span.classNotification').empty();
@@ -2032,12 +2050,22 @@ $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', 
 		orientation: 'landscape',
 		pageSize: 'Folio'
 	}
-	]
+	],
+	"columnDefs": [{
+ 		"targets": [4],
+ 		"visible": false
+ 	}]
 });
 $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', '.log_events', function() {
 	var val5 = $(this).val();
 	superadminTableLogs.column(2).search(val5 ? val5 : '', true, false).draw();
 });
+
+ $( '#superadmin_home .contentpage .widget .widgetContent .cont1 .box2' ).on('change', '.year_level', function(e) {
+	var val2 = $(this).val();
+	superadminTableLogs.column(4).search(val2 ? "^" + val2 + "$" : '', true, false).draw();
+});
+superadminTableLogs.column(4).search($('.year_level').val() ? $('.year_level').val() : '', true, false).draw();
 
  var superadminTable = $('.superadmin-table, .superadmin-request-table, .superadmin-classrequest-table, .superadmin-table-withScroll').DataTable({
  	"initComplete": function (settings, json) {  
@@ -2049,6 +2077,7 @@ $( '#superadmin_home .contentpage .widget .widgetContent .cont1' ).on('change', 
  		"visible" : false
  	}]
  });
+ 
 
  getCurrentSection('sec1');
 
@@ -2167,9 +2196,9 @@ $( '#yearSuperadminTable' ).on('change', function() {
 superadminTablePaymentHistory.column(4).search($('#yearSuperadminTable').val() ? $('#yearSuperadminTable').val() : '', true, false).draw();
 
 if ($('body').is('[class*="superadmin-"]')) {
-	$('.superadmin-classes-page').on('change', '#getCurrentLevel', function() {
+	$('.superadmin-classedit-page').on('change', '#getCurrentLevel', function() {
 		var current = $(this).val();
-		$('.superadmin-classes-page .classes-edit').each(function() {
+		$('.superadmin-classedit-page .classes-edit').each(function() {
 			var this_id = $(this).attr('id');
 			$(this).hide();
 			if(current === this_id) {
@@ -2177,8 +2206,8 @@ if ($('body').is('[class*="superadmin-"]')) {
 			}
 		});
 	});
-	$('.superadmin-classes-page .classes-edit').each(function() {
-		var current = $('.superadmin-classes-page #getCurrentLevel').val();
+	$('.superadmin-classedit-page .classes-edit').each(function() {
+		var current = $('.superadmin-classedit-page #getCurrentLevel').val();
 		var this_id = $(this).attr('id');
 		$(this).hide();
 		if(current === this_id) {
@@ -2286,19 +2315,31 @@ if ($('body[class*="superadmin-"]').length) {
 			}
 		});
 	});
-	/*if (dept != null) {
-		$(sibling).find('option').each(function() {
-			$(this).hide();
-		});
-		$(sibling).find('option[data-subdept="'+dept+'"]').each(function() {
-			$(this).show();
-		});
-	} else {
-		$(this).siblings('select.editclass-subjects').val('');
-		$(sibling).find('option').each(function() {
-			$(this).show();
-		});
-	}*/
+	//Add Inactive Class To All Accordion Headers
+	$('.accordion-header').toggleClass('inactive-header');
+
+//Set The Accordion Content Width
+var contentwidth = $('.accordion-header').width();
+$('.accordion-content').css({'width' : contentwidth });
+
+//Open The First Accordion Section When Page Loads
+$('.accordion-header').first().toggleClass('active-header').toggleClass('inactive-header');
+$('.accordion-content').first().slideDown().toggleClass('open-content');
+
+// The Accordion Effect
+$('.accordion-header').click(function () {
+	if($(this).is('.inactive-header')) {
+		$('.active-header').toggleClass('active-header').toggleClass('inactive-header').next().slideToggle().toggleClass('open-content');
+		$(this).toggleClass('active-header').toggleClass('inactive-header');
+		$(this).next().slideToggle().toggleClass('open-content');
+	}
+	
+	else {
+		$(this).toggleClass('active-header').toggleClass('inactive-header');
+		$(this).next().slideToggle().toggleClass('open-content');
+	}
+});
+
 }
  /****************************************** END SUPERADMIN FUNCTIONALITY *************************************************/
 
@@ -2391,13 +2432,5 @@ if ($('body[class*="superadmin-"]').length) {
  	beforeShowDay: $.datepicker.noWeekends
  }).datepicker("setDate", new Date());
 
- $( ".datepicker-schoolyear" ).datepicker({
- 	changeMonth: true,
- 	dateFormat: 'yyyy',
- 	maxDate: new Date, 
- 	minDate: "-2m",
- 	beforeShowDay: $.datepicker.noWeekends
- }).datepicker("setDate", new Date());
 
-//superadmin
-
+ 

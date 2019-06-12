@@ -14,7 +14,7 @@
 						</p>
 					</div>
 					<div class="eventcontent">
-						<div id="calendar"></div>
+						<div id="calendarAdmin"></div>
 						<div id="eventDialog" title="Event Details" style="display:none;">
 							<form action="">
 								Start Date: <span id="startDate"></span><br>

@@ -1,5 +1,11 @@
 	<?php require 'app/model/Superadmin-funct.php'; $obj = new SAdminFunct(); ?>
-
+	<?php
+		if(isset($_POST['accept-schedule'])) {
+			$obj->acceptNewSchedule();
+		} else if (isset($_POST['reject-schedule'])) {
+			$obj->rejectNewSchedule($_POST);
+		}
+	?>
 	<div class="contentpage" id="contentpage">
 		<div class="row">
 			<!-- ADMIN'S REQUEST -->

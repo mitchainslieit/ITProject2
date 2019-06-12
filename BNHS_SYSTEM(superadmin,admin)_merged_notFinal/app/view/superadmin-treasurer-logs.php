@@ -12,14 +12,22 @@
 				</div>
 				<div class="widgetContent logsContent">
 					<div class="cont1">
-						<p>Log Event:</p>
-						<select name="log_event" class="log_events">
-							<option value="">All</option>
-							<option value="Insert">Insert</option>
-							<option value="Update">Update</option>
-							<option value="Delete">Delete</option>
-							<option value="Reset">Reset</option>
-						</select>
+						<div class="box box1">
+							<p>Log Event:</p>
+							<select name="log_event" class="log_events">
+								<option value="">All</option>
+								<option value="Insert">Insert</option>
+								<option value="Update">Update</option>
+								<option value="Delete">Delete</option>
+								<option value="Reset">Reset</option>
+							</select>
+						</div>
+						<div class="box box2">
+							<p>Year:</p>
+							<select name="year" id="" class="year_level">
+								<?php $obj->getYearLogs(); ?>
+							</select>
+						</div>
 					</div>
 					<div class="cont2">
 						<table id="superadmin-table-logs" class="display">
@@ -29,6 +37,7 @@
 									<th class="tleft">Log Event</th>
 									<th class="tleft">Log Description</th>
 									<th class="tleft">Log Timestamp</th>
+									<th>Date Modified</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -42,6 +51,7 @@
  	<td class="tleft">'.$log_event.'</td>
  	<td class="tleft longText">'.$log_desc.'</td>
  	<td class="tleft">'.$logdate.'</td>
+ 	<td>'.$dateModified.'</td>
  </tr> ';
 }
 ?>

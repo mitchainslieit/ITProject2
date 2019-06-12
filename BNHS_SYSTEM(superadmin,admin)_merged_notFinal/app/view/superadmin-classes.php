@@ -126,7 +126,7 @@ echo '
 				</div>
 			</div>
 			<!-- Admin's Request -->
-			<div class="widget">	
+			<div class="widget ClassWidget hidden">	
 				<div class="header">	
 					<div class="cont">	
 						<i class="fas fa-bell"></i>

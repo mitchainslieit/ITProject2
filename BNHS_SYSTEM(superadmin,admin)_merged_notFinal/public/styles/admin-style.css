@@ -214,7 +214,8 @@ span.attachment{font-weight: 400; font-style: italic; display: block}
 .ui-dialog-content{min-height: 62px !important}
 
 /* logs */
-#admin_home .contentpage .widget .logsContent .cont1{width: 170px;}
+#admin_home .contentpage .widget .logsContent .cont1{width: 290px;}
+#admin_home .contentpage .widget .logsContent .cont1 .box{display: flex;}
 .logLongText{white-space: unset !important; text-align: justify;}
 #admin_home .contentpage .widget .systemContent #ui-datepicker-div{display: block !important;} 
 

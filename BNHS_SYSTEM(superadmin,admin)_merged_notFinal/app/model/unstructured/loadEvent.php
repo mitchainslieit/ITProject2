@@ -9,7 +9,7 @@ class LoadCalendar {
 
 	public function getEvents() {
 		$data = array();
-		$query = "SELECT * FROM announcements ORDER BY ann_id";
+		$query = "SELECT * FROM announcements WHERE post_adminid IS NOT NULL ORDER BY ann_id AND title IS NOT NULL";
 		$statement = $this->conn->prepare($query);
 		$statement->execute();
 		$result = $statement->fetchAll();

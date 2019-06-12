@@ -12,9 +12,6 @@
   src: url('OpenSans-Bold.ttf'); 
 }
 
-.ui-datepicker-calendar{display: none;}
-
-.
 /*floats*/
 .fl {float:left;}
 .fr {float:right;}
@@ -35,6 +32,7 @@ h1,h2,h3,h4,h5{ padding:0; margin:0; }
 .hidden{display: none}
 span.prompt{font-weight: 700; text-decoration: underline;}
 i.fnt{padding-left: 9px;}
+i.fnt2{padding-right: 9px;}
 td.action{display: flex;justify-content: center;}
 td.action > *{padding: 0px 5px;}
 /* #ui-datepicker-div{display: none !important;} */
@@ -68,12 +66,12 @@ span.selectAll{font-size: 11px; display: block}
 
 #superadmin_home .contentpage .widget .curriculumContent .cont2 .cont1{display: flex; width: 350px !important; justify-content: space-between; align-items: center; margin: 20px 20px 15px 0px}
 /* accept/reject shedule */
-.superadmin-classes-page #getCurrentLevel { padding: 8px 6px; border-radius: 8px; }
-.superadmin-classes-page .classes-edit table { border-collapse: collapse; margin-top: 20px; }
-.superadmin-classes-page .classes-edit table th { font-weight: bold; color: #3f3f3f; font-size: 14px; text-align: center; padding: 10px 18px !important; }
-.superadmin-classes-page .classes-edit table th, .superadmin-classes-page .classes-edit table td { border: 1px solid #ddd; padding: 8px 12px; }
-.superadmin-classes-page .classes-edit table tbody tr:nth-of-type(odd) { background: #d1d1d1; }
-.superadmin-classes-page #ScheduleEditting { height: 435px; display: flex; justify-content: center; align-items: center; }
+.superadmin-classedit-page #getCurrentLevel { padding: 8px 6px; border-radius: 8px; }
+.superadmin-classedit-page .classes-edit table { border-collapse: collapse; margin-top: 20px; }
+.superadmin-classedit-page .classes-edit table th { font-weight: bold; color: #3f3f3f; font-size: 14px; text-align: center; padding: 10px 18px !important; }
+.superadmin-classedit-page .classes-edit table th, .superadmin-classedit-page .classes-edit table td { border: 1px solid #ddd; padding: 8px 12px; }
+.superadmin-classedit-page .classes-edit table tbody tr:nth-of-type(odd) { background: #d1d1d1; }
+.superadmin-classedit-page #ScheduleEditting { height: 435px; display: flex; justify-content: center; align-items: center; }
 
 /* tooltip */
 .tooltip {position: relative;display: inline-block;}
@@ -91,7 +89,6 @@ span.selectAll{font-size: 11px; display: block}
 .clearfix {display:block;}
 /**************************************************CONTENT PAGE**********************************************************************/
 
-.datepicker-schoolyear {width: 100px !important; text-align: center;}
 /* dialog */
 .ui-dialog{padding:0px !important; font-family: 'Open Sans' !important;}
 .ui-widget-overlay.custom-overlay{background-color: black;background-image: none;opacity: 0.8;z-index: 1040;}
@@ -212,31 +209,44 @@ span.attachment{font-weight: 400; font-style: italic; display: block}
 .ui-dialog-content{min-height: 62px !important}
 
 /* logs */
-#superadmin_home .contentpage .widget .logsContent .cont1{width: 170px;}
+#superadmin_home .contentpage .widget .logsContent .cont1{width: 290px;}
+#superadmin_home .contentpage .widget .logsContent .cont1 .box{display: flex;}
 .logLongText{white-space: unset !important; text-align: justify;}
-#superadmin_home .contentpage .widget .systemContent #ui-datepicker-div{display: block !important;} 
+.superadmin-system-settings-page .ui-datepicker-calendar{display: none !important;}
 /* system settings */
-#system-settings-div {display: inline-block; width: 60%;}
-#initializeSchoolYear-Style {text-align: center;}
-#initializeSchoolYear-Style form {display: inline-block;}
-#toggle-switch-system-settings {float: right;}
-.ui-datepicker-calendar{display: none;}
+.datepicker-schoolyear, .datepicker-schoolyearStart, .datepicker-schoolyearEnd {width: 100px !important; text-align: center;}
+#sy-error-dialog{padding-left: 200px}
+#superadmin_home .contentpage .widget .systemContent .systemContainer input, #superadmin_home .contentpage .widget .systemContent .systemContainer select, #superadmin_home .contentpage .widget .systemContent .systemContainer textarea{padding:4px 0;}
+#superadmin_home .contentpage .widget .systemContent .systemContainer{border-bottom: 1px solid #ddd;width: 700px; font-size: 16px;margin: 20px 40px 20px;}
+#superadmin_home .contentpage .widget .systemContent .schoolYear input:first-of-type{margin-right: 15px}
+#superadmin_home .contentpage .widget .systemContent .schoolYear input:last-of-type{margin-left: 15px}
+#superadmin_home .contentpage .widget .systemContent .systemContainer .innerHeader{width: 200px}
+#superadmin_home .contentpage .widget .systemContent .systemContainer .systemBox1{width:490px; display: flex;align-items: center;}
+#superadmin_home .contentpage .widget .systemContent .systemContainer p {margin: 5px 0 10px 0;}
+#superadmin_home .contentpage .widget .systemContent .systemCurriculum .systemBox1{justify-content: unset;}
+#accordion-container {font-size: 14px;background: #ffffff;padding: 8px 10px 21px 10px;border: 1px solid #cccccc;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;-moz-box-shadow: 0 5px 15px #cccccc;-webkit-box-shadow: 0 5px 15px #cccccc;box-shadow: 0 5px 15px #cccccc;}
+.accordion-header {font-size: 14px;background: #ebebeb;margin: 15px 0 0 0;padding: 11px 20px;border: 1px solid #cccccc;cursor: pointer;color: #3f3f3f;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;}
+.active-header {-moz-border-radius: 5px 5px 0 0;-webkit-border-radius: 5px 5px 0 0;border-radius: 5px 5px 0 0;background: url(images/active-header.gif) #cef98d;background-repeat: no-repeat;background-position: right 50%;}
+.active-header:hover {background: url(images/active-header.gif) #c6f089;background-repeat: no-repeat;background-position: right 50%;}
+.inactive-header {background: url(images/inactive-header.gif) #ebebeb;background-repeat: no-repeat;background-position: right 50%;}
+.inactive-header:hover {background: url(images/inactive-header.gif) #f5f5f5;background-repeat: no-repeat;background-position: right 50%;}
+.accordion-content {display: none; background: #ffffff;border: 1px solid #cccccc;border-top: 0;-moz-border-radius: 0 0 5px 5px;-webkit-border-radius: 0 0 5px 5px;border-radius: 0 0 5px 5px; width: 99.8% !important; padding: 20px 0}
 
-.switch {
+/* .switch {
   position: relative;
   display: inline-block;
   width: 50px;
   height: 24px;
 }
 
-/* Hide default HTML checkbox */
+Hide default HTML checkbox
 .switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-/* The slider */
+The slider
 .slider {
   position: absolute;
   cursor: pointer;
@@ -260,7 +270,7 @@ span.attachment{font-weight: 400; font-style: italic; display: block}
   -webkit-transition: .4s;
   transition: .4s;
 }
-
+ */
 input:checked + .slider {
   background-color: #2196F3;
 }
@@ -286,4 +296,5 @@ input:checked + .slider:before {-webkit-transform: translateX(26px);-ms-transfor
     padding: 10px;
   }
 }
+
 

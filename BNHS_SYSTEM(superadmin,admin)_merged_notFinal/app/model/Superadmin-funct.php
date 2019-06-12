@@ -20,6 +20,15 @@ class SAdminFunct{
 		return $sy_start;
 	}
 	
+	public function getSY() {
+		$query = $this->conn->prepare("SELECT * FROM system_settings where sy_status ='Current'");
+		$query->execute();
+		$rowCount = $query->fetch();
+		$sy_start1 = $rowCount['sy_start'];
+		$sy_start = date('Y', strtotime($sy_start1));
+		return $sy_start;
+	}
+	
 	public function addRequest($request_desc){
 		try {
 			$sql3=$this->conn->prepare("INSERT INTO request SET request_type='Insert', request_desc=:request_desc, request_status='Permanent'");
@@ -738,59 +747,162 @@ class SAdminFunct{
 	/*********** END OF ADMIN **************/
 
 	/*********** System Settings **************/
-
-	public function schoolYear($sy_start, $sy_end){
-		$sql=$this->conn->prepare("INSERT INTO system_settings SET sy_start=:sy_start, sy_end=:sy_end");
-		if($sql->execute(array(
-			':sy_start' => $sy_start .'-00',
-			':sy_end' => $sy_end .'-00'
-		))){
-			$query1=$this->conn->prepare("SELECT * FROM system_settings");
-			$query1->execute();
-			while($row1=$query1->fetch(PDO::FETCH_ASSOC)){
-				$sy_start=$row1['sy_start'];
-				$sy_end=$row1['sy_end'];
-			}
-			$log_event="Insert";
-			$log_desc="Added start date: ".$sy_start.", and end date: ".$sy_end. " for system settings";
-			$this->insertLogs($log_event, $log_desc);
-			$this->alert("Success!", "Successfully created the start/end date for the school year", "success", "superadmin-system-settings");
-		}else{
-			$this->alert("Error!", "Failed to created the start/end date for the school year", "error", "superadmin-system-settings");
-		}
-	}
-	
-	public function initialization(){
-		try {
-			$sql=$this->conn->prepare("INSERT INTO logs SET log_event=:log_event, log_desc=:log_desc, user_id=:user_id");
-			$sql3->execute(array(
-				':log_event' => $log_event, 
-				':log_desc' => $log_desc, 
-				':user_id' => $admin_id
-			)); 	
-		}catch (PDOException $exception) {
-			die('ERROR: ' . $exception->getMessage());
-		}
-	}
-
-	public function currentGrading(){
-		$sql = $this->conn->prepare("SELECT active_grading from system_settings") or die ("failed!");
+	public function showSchoolYear(){
+		$sql=$this->conn->prepare("SELECT *, DATE_FORMAT(sy_start, '%Y-%m') as 'school_start', DATE_FORMAT(sy_end, '%Y-%m') as 'school_end' FROM system_settings WHERE sy_status='Current' LIMIT 1");
 		$sql->execute();
-		$row = $sql->fetch(PDO::FETCH_ASSOC);
-		echo '<span>Current Grading: '.$row['active_grading'].'';
-	}
-
-	public function showClasses(){
-		$sql=$this->conn->prepare("SELECT *,fac_no, CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS fullname, s_name, gr_lvl, fac_id, sectionid FROM faculty JOIN section_temp ON fac_id=fc_id join request on sec_req=request_id WHERE fac_adviser='Yes' ");
-		$sql->execute();
-		if($sql->rowCount()>0){
-			while($r=$sql->fetch(PDO::FETCH_ASSOC)){
-				$data[]=$r;
+		if($sql->rowCount() > 0){
+			while($row=$sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$row;
 			}
 			return $data;
 		}
 		return $sql;
 	}
+
+	public function schoolYear($sy_start, $sy_end){
+		$queryCheckSy=$this->conn->prepare("SELECT * FROM system_settings WHERE sy_status='Current'");
+		$queryCheckSy->execute();
+		$rowQueryCheckSy=$queryCheckSy->fetch(PDO::FETCH_ASSOC);
+		$syEndCheck=$rowQueryCheckSy['sy_end'];
+		$syStartPrev=$rowQueryCheckSy['sy_start'];
+		if($queryCheckSy->rowCount() > 0){
+			$sql=$this->conn->prepare("UPDATE system_settings SET sy_start=:sy_start, sy_end=:sy_end WHERE sy_status='Current'");
+			if($sql->execute(array(
+				':sy_start' => $syStartPrev,
+				':sy_end' => $sy_end .'-00'
+			))){
+				$query1=$this->conn->prepare("SELECT * FROM system_settings WHERE sy_status='Current'");
+				$query1->execute();
+				while($row1=$query1->fetch(PDO::FETCH_ASSOC)){
+					$sy_start=$row1['sy_start'];
+					$sy_end=$row1['sy_end'];
+				}
+				$log_event="Update";
+				$log_desc="Updated the End Date: ".$sy_end. " for system settings";
+				$this->insertLogsSuperadmin($log_event, $log_desc);
+				$this->alert("Success!", "Successfully updated the end date for the school year", "success", "superadmin-system-settings");
+			}else{
+				$this->alert("Error!", "Failed to update the end date for the school year", "error", "superadmin-system-settings");
+			}
+		}else{
+			$sql=$this->conn->prepare("INSERT INTO system_settings SET sy_start=:sy_start, sy_end=:sy_end");
+			if($sql->execute(array(
+				':sy_start' => $sy_start .'-00',
+				':sy_end' => $sy_end .'-00'
+			))){
+				$sy=$this->getSY();
+				$queryUpdateSyBudget=$this->conn->prepare("UPDATE budget_info SET budget_sy=:budget_sy");
+				$queryUpdateSyBudget->execute(array(
+					':budget_sy' => $sy
+				));
+				
+				$queryUpdateSyBudgetTemp=$this->conn->prepare("UPDATE budget_info_temp SET bd_sy=:bd_sy");
+				$queryUpdateSyBudgetTemp->execute(array(
+					':bd_sy' => $sy
+				));
+				$query1=$this->conn->prepare("SELECT * FROM system_settings");
+				$query1->execute();
+				while($row1=$query1->fetch(PDO::FETCH_ASSOC)){
+					$sy_start=$row1['sy_start'];
+					$sy_end=$row1['sy_end'];
+				}
+				$log_event="Insert";
+				$log_desc="Added start date: ".$sy_start.", and end date: ".$sy_end. " for system settings";
+				$this->insertLogsSuperadmin($log_event, $log_desc);
+				$this->alert("Success!", "Successfully created the start/end date for the school year", "success", "superadmin-system-settings");
+			}else{
+				$this->alert("Error!", "Failed to created the start/end date for the school year", "error", "superadmin-system-settings");
+			}
+		}
+	}
+	public function showCurr(){
+		$sql=$this->conn->prepare("SELECT * from curriculum");
+		$sql->execute();
+		if($sql->rowCount() > 0){
+			while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
+				$curriculum[] = $row['curr_desc'];
+			}
+			return $curriculum;	
+		}
+		return $sql;
+	}
+	public function showCurrId(){
+		$sql=$this->conn->prepare("SELECT * from curriculum");
+		$sql->execute();
+		if($sql->rowCount() > 0){
+			while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
+				$curriculum[] = $row['curr_id'];
+			}
+			return $curriculum;	
+		}
+		return $sql;
+	}
+	
+	public function showCurriculum(){
+		$sql=$this->conn->prepare("SELECT * from curriculum");
+		$sql->execute();
+		while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
+			echo '<option value="'.$row["curr_id"].'" name="curr_desc">'.$row["curr_desc"].'</option>';
+		}
+	}
+	
+	public function selectCurriculum($curr_desc){
+		$sql=$this->conn->prepare("UPDATE system_settings SET current_curriculum=:current_curriculum");
+		if($sql->execute(array(
+			':current_curriculum' => $curr_desc
+		))){
+			$this->alert("Success!", "You have successfully set a curriculum for this school year", "success", "superadmin-system-settings");
+		}else{
+			$this->alert("Error!", "Failed to set a curriculum", "error", "superadmin-system-settings");
+		}
+	}
+	
+	public function selectGradingPeriod($active_grading){
+		$sql=$this->conn->prepare("UPDATE system_settings SET active_grading = :active_grading WHERE sy_status = 'Current' ");
+		if($sql->execute(array(
+			':active_grading' => $active_grading
+		))){
+			$this->alert('Success!', 'You have successfully set a grading period!', "success", "superadmin-system-settings");
+		}else{
+			$this->alert('Error!', 'Failed to set the grading period', "error", "superadmin-system-settings");
+		}
+	}
+	
+	public function insertHolidays(){
+		$accID = $_SESSION['accid'];
+		$queryGetAdminId=$this->conn->prepare("SELECT * FROM admin WHERE acc_admid=:acc_admid");
+		$queryGetAdminId->execute(array(
+			':acc_admid' => $accID
+		));
+		$rowQueryGetAdminId=$queryGetAdminId->fetch(PDO::FETCH_ASSOC);
+		$admin_id=$rowQueryGetAdminId['admin_id'];
+		$query=$this->conn->prepare("SELECT * FROM announcements where holiday='Yes'");
+		$query->execute();
+		if($query->rowCount() > 0){
+			$queryDelete=$this->conn->prepare("DELETE FROM announcements where holiday='Yes'");
+			$queryDelete->execute();
+		}
+		$curYear = $this->getSY();
+		$array_holiday = ['New Year', 'Chinese Lunar New Year', 'People Power Anniversary', 'The Day of Valor', 'Maundy Thursday', 'Good Friday', 'Black Saturday', 'Easter Sunday', 'Labor Day', 'Eidul-Fitar', 'Independence Day', 'Eid al-Adha (Feast of the Sacrifice)', 'Eid al-Adha Day 2', 'Ninoy Aquino Day', 'National Heroes Day', 'All Saints Day', 'All Souls Day', 'Bonifacio Day', 'Feast of the Immaculate Conception', 'Christmas Eve', 'Christmas Day', 'Rizal Day', 'New Years Eve'];
+		$array_start_date = [$curYear.'-01-01 00:00:00', $curYear.'-02-05 00:00:00', $curYear.'-02-25 00:00:00', $curYear.'-04-09 00:00:00', $curYear.'-04-18 00:00:00', $curYear.'-04-19 00:00:00', $curYear.'-04-20 00:00:00', $curYear.'-04-21 00:00:00', $curYear.'-05-01 00:00:00', $curYear.'-06-06 00:00:00', $curYear.'-06-12 00:00:00', $curYear.'-08-12 00:00:00', $curYear.'-08-13 00:00:00', $curYear.'-08-21 00:00:00', $curYear.'-08-26 00:00:00', $curYear.'-11-01 00:00:00', $curYear.'-11-02 00:00:00', $curYear.'-11-30 00:00:00', $curYear.'-12-08 00:00:00', $curYear.'-12-24 00:00:00', $curYear.'-12-25 00:00:00', $curYear.'-12-30 00:00:00', $curYear.'-12-31 00:00:00'];
+		$array_end_date = [$curYear.'-01-01 23:59:59', $curYear.'-02-05 23:59:59', $curYear.'-02-25 23:59:59', $curYear.'-04-09 23:59:59', $curYear.'-04-18 23:59:59', $curYear.'-04-19 23:59:59', $curYear.'-04-20 23:59:59', $curYear.'-04-21 23:59:59', $curYear.'-05-01 23:59:59', $curYear.'-06-06 23:59:59', $curYear.'-06-12 23:59:59', $curYear.'-08-12 23:59:59', $curYear.'-08-13 23:59:59', $curYear.'-08-21 23:59:59', $curYear.'-08-26 23:59:59', $curYear.'-11-01 23:59:59', $curYear.'-11-02 23:59:59', $curYear.'-11-30 23:59:59', $curYear.'-12-08 23:59:59', $curYear.'-12-24 23:59:59', $curYear.'-12-25 23:59:59', $curYear.'-12-30 23:59:59', $curYear.'-12-31 23:59:59'];
+		$sql=$this->conn->prepare("INSERT INTO announcements SET title=:title, date_start=:date_start, date_end=:date_end, view_lim=:view_lim, holiday=:holiday, post_adminid=:post_adminid") or die ("failed");
+		for($i=0; $i<sizeOf($array_holiday); $i++){
+			if($sql->execute(array(
+				':title' => $array_holiday[$i],
+				':date_start' => $array_start_date[$i],
+				':date_end' => $array_end_date[$i],
+				':view_lim' => '0',
+				':holiday' => 'Yes',
+				':post_adminid' => $admin_id
+			))){
+				$this->alert("Success!", "You have successfully inserted the holidays", "success", "superadmin-system-settings");
+			}else{
+				$this->alert("Error!", "Failed to insert holidays", "error", "superadmin-system-settings");
+			}
+		}
+	}
+	
 
 	/**************** END System settings ****************/
 
@@ -802,7 +914,7 @@ class SAdminFunct{
 			$row1=$query1->fetch(PDO::FETCH_ASSOC);
 			$prev_misc_fee=$row1['misc_fee'];
 			
-			$curYear = $this->getSchoolYear();
+			$curYear = $this->getSY();
 			$request_desc='Added Fee Type '.$budget_name.' with an amount of ₱'.$total_amount.'.00';
 			$this->addRequest($request_desc);
 			$request_id=$this->getRequestID();
@@ -1555,7 +1667,7 @@ class SAdminFunct{
 				$subj_name=$row['subj_name'];
 				$log_event="Insert";
 				$log_desc="Added Subject ".$subj_name;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "A new subject has been created! Subject Department: $subj_dept, Subject Name: $subj_name", "success", "superadmin-subjects");
 			}else{	
 				$this->alert("Error!", "Failed to add subject!", "error", "superadmin-subjects");
@@ -1590,7 +1702,7 @@ class SAdminFunct{
 				$subj_name=$row3['subj_name'];
 				$log_event="Update";
 				$log_desc="Updated Subject ".$subjNameToDel." to ".$subj_name;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "Subject has been updated", "success", "superadmin-subjects");
 			}else{
 				$this->alert("Error!", "Subject has been updated", "error", "superadmin-subjects");
@@ -1614,7 +1726,7 @@ class SAdminFunct{
 			))){
 				$log_event="Delete";
 				$log_desc="Deleted Subject ".$subjNameToDel;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "The Subject has been deleted", "success", "superadmin-subjects");
 			}else{	
 				$this->alert("Error!", "Failed to delete the subject", "error", "superadmin-subjects");
@@ -2313,6 +2425,18 @@ class SAdminFunct{
 		}
 	}
 	
+	public function showClasses(){
+		$sql=$this->conn->prepare("SELECT *,fac_no, CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) AS fullname, s_name, gr_lvl, fac_id, sectionid FROM faculty JOIN section_temp ON fac_id=fc_id join request on sec_req=request_id WHERE fac_adviser='Yes' ");
+		$sql->execute();
+		if($sql->rowCount()>0){
+			while($r=$sql->fetch(PDO::FETCH_ASSOC)){
+				$data[]=$r;
+			}
+			return $data;
+		}
+		return $sql;
+	}
+	
 	public function classRequest() {
 		$sql = $this->conn->prepare("SELECT * from section_temp st join request r on r.request_id = st.sec_req where r.request_status = 'Temporary' and (r.request_type='Adviser_Insert' or r.request_type='Adviser_Update')") or die ("failed!");
 		$sql->execute();
@@ -2530,7 +2654,7 @@ class SAdminFunct{
 		/*accept/reject*/
 		private function saSectionTable($row) {
 		$time_start = array('07:40:00', '08:40:00', '10:00:00', '11:00:00', '13:00:00', '14:00:00', '15:00:00');
-        $time_end = array('08:40:00', '09:40:00', '11:00:00', '12:00:00', '14:00:00', '15:00:00', '16:00:00');
+        	$time_end = array('08:40:00', '09:40:00', '11:00:00', '12:00:00', '14:00:00', '15:00:00', '16:00:00');
 		$fac_id = $row['fac_idv'];
 		$getFacInfo = $this->conn->query("SELECT * FROM faculty WHERE fac_id = '".$fac_id."'");
 		$getSchedID = $this->conn->query("SELECT sched_id FROM schedule WHERE sched_yrlevel = '".$row['grade_lvl']."'");
@@ -2571,7 +2695,7 @@ class SAdminFunct{
 		$schedInfo6 = $getSchedInfo($time_start[5], $row['sec_id']);
 		$schedInfo7 = $getSchedInfo($time_start[6], $row['sec_id']);
 		$remove = function($sched) {
-			$html = '<form action="superadmin-classes"  method="POST">
+			$html = '<form action="superadmin-classedit"  method="POST">
 			<input type="hidden" name="sec" value="'.$sched['sec_id'].'">
 			<input type="hidden" name="sched" value="'.$sched['sched_id'].'">
 			<input type="hidden" name="subj_id" value="'.$sched['subj_id'].'">
@@ -2653,7 +2777,7 @@ class SAdminFunct{
 					}
 				}
 			}
-			return '<form action="superadmin-classes" method="POST" class="classes-sched">
+			return '<form action="superadmin-classedit" method="POST" class="classes-sched">
 					<input type="hidden" name="sec_id" '.'value="'.$details['sec_id'].'"'.'>
 					<input type="hidden" name="sched_a" '.'value="'.$sched_id.'"'.'>
 					<input type="hidden" name="subj_id" '.($checkExist === true ? 'value="'.$details['subj_id'].'"
@@ -2739,9 +2863,9 @@ class SAdminFunct{
 	}
 
 	public function sashowTabledSections() {
-		$checkIfStillOnEdit = $this->conn->query("SELECT * FROM schedsubj_temp WHERE ssb_timestart <> '07:40:00' AND status_ss = 'Temporary'");
-		$checkIfPermanent = $this->conn->query("SELECT * FROM schedsubj_temp WHERE ssb_timestart <> '07:40:00' AND status_ss = 'Permanent'");
-		$checkExist = $this->conn->query("SELECT * FROM schedsubj_temp WHERE ssb_timestart <> '07:40:00'");
+		$checkIfStillOnEdit = $this->conn->query("SELECT * FROM schedsubj_temp WHERE status_ss = 'Temporary'");
+		$checkIfPermanent = $this->conn->query("SELECT * FROM schedsubj_temp WHERE status_ss = 'Permanent'");
+		$checkExist = $this->conn->query("SELECT * FROM schedsubj_temp ");
 		$rejection = $this->conn->query("SELECT * FROM schedsubj_temp WHERE ss_remarks IS NOT NULL");
 		if ($rejection->rowCount() > 0) {
 			echo '<div id="ScheduleEditting">
@@ -2773,7 +2897,7 @@ class SAdminFunct{
 			}
 			echo '<div class="remarks">';
 			echo '<p class="note">If you will reject the schedule requested kindly add some comments.</p>';
-			echo '<form action="superadmin-classes" method="POST">
+			echo '<form action="superadmin-classedit" method="POST">
 				<label>Comments: <input type="text" name="remarks"></label>
 				<button type="submit" name="accept-schedule">Accept</button>
 				<button type="submit" name="reject-schedule">Reject</button>
@@ -2793,9 +2917,9 @@ class SAdminFunct{
 	}
 
 	public function acceptNewSchedule() {
-		$deleteCurrentSchedSubj = $this->conn->query("DELETE FROM schedsubj WHERE time_start <> '07:40:00'");
+		$deleteCurrentSchedSubj = $this->conn->query("DELETE FROM schedsubj");
 		$deleteAllfacsec = $this->conn->query("DELETE FROM facsec");
-		$temp = $this->conn->query("SELECT * FROM schedsubj_temp WHERE ssb_timestart <> '07:40:00'");
+		$temp = $this->conn->query("SELECT * FROM schedsubj_temp");
 		foreach($temp->fetchAll() as $row) {
 			$insertNew = $this->conn->prepare("INSERT INTO schedsubj (schedsubja_id, schedsubjb_id, day, time_start, time_end, fw_id, sw_id, assigned_facid) VALUES (:a, :b, :day, :tstart, :tend, :fw, :sw, :assign)");
 			$insertNew->execute(array(
@@ -2817,25 +2941,25 @@ class SAdminFunct{
 				':s' => $row['sw_id']
 			));
 		}
-		$updatToPerm = $this->conn->query("UPDATE schedsubj_temp SET status_ss = 'Permanent' WHERE ssb_timestart <> '07:40:00'");
+		$updatToPerm = $this->conn->query("UPDATE schedsubj_temp SET status_ss = 'Permanent'");
 		$log_event="Update";
 		$log_desc="Replace the schedule from the temporary schedule";
-		$this->insertLogs($log_event, $log_desc);
-		$this->alert("Success!", "The schedule of the teachers and student has been replaced", "success", "superadmin-classes");					
+		$this->insertLogsSuperadmin($log_event, $log_desc);
+		$this->alert("Success!", "The schedule of the teachers and student has been replaced", "success", "superadmin-classedit");					
 	}
 
 	public function rejectNewSchedule($post) {
 		if(empty($post['remarks']) === true) {
-			$this->alert("Error!", "You can't leave the comments blank", "error", "superadmin-classes");
+			$this->alert("Error!", "You can't leave the comments blank", "error", "superadmin-classedit");
 		} else {
-			$query = $this->conn->prepare("UPDATE schedsubj_temp SET ss_remarks = :rem, status_ss = 'Temporary' WHERE ssb_timestart <> '07:40:00'");
+			$query = $this->conn->prepare("UPDATE schedsubj_temp SET ss_remarks = :rem, status_ss = 'Temporary'");
 			$query->execute(array(
 				':rem' => $post['remarks']
 			));
 			$log_event="Update";
 			$log_desc="Rejected the current temporary schedule requested";
-			$this->insertLogs($log_event, $log_desc);
-			$this->alert("Success!", "You've rejected the temporary schedule", "success", "superadmin-classes");					
+			$this->insertLogsSuperadmin($log_event, $log_desc);
+			$this->alert("Success!", "You've rejected the temporary schedule", "success", "superadmin-classedit");					
 		}
 	}
 
@@ -3083,7 +3207,7 @@ class SAdminFunct{
 				))){
 					$log_event="Delete";
 					$log_desc="Deleted the account of ".$facultyname;
-					$this->insertLogs($log_event, $log_desc);
+					$this->insertLogsSuperadmin($log_event, $log_desc);
 					$this->alert("Success!", "The selected item/s has been successfully deleted", "success", "superadmin-faculty");
 				}else{
 					$this->alert("Error!", "You are not allowed to delete the selected item/s", "error", "superadmin-faculty");
@@ -3122,7 +3246,7 @@ class SAdminFunct{
 					':acc_id' => $del_id))){
 					$log_event="Reset";
 					$log_desc="The account of ".$first_name." ".$middle_name." ".$last_name." has been successfully reset";
-					$this->insertLogs($log_event, $log_desc);
+					$this->insertLogsSuperadmin($log_event, $log_desc);
 					$this->alert("Success!", "The selected item/s has been been reset to its default password", "success", "superadmin-faculty");
 				}else{
 					$this->alert("Error!", "You are not allowed to reset the account of the selected item/s", "error", "superadmin-faculty");
@@ -3154,7 +3278,7 @@ class SAdminFunct{
 						$acc_status_latest=$row3['acc_status'];
 						$log_event="Update";
 						$log_desc="Updated the account status of ".$facultyname." to ".$acc_status_latest;
-						$this->insertLogs($log_event, $log_desc);
+						$this->insertLogsSuperadmin($log_event, $log_desc);
 						$this->alert("Success!", "Successfully changed the account status", "success", "superadmin-faculty");	
 					}else{	
 						$this->alert("Error!", "Failed to change the account status", "error", "superadmin-faculty");
@@ -3189,7 +3313,7 @@ class SAdminFunct{
 						$acc_status_latest=$row3['acc_status'];
 						$log_event="Update";
 						$log_desc="Updated the account status of ".$facultyname." to ".$acc_status_latest;
-						$this->insertLogs($log_event, $log_desc);
+						$this->insertLogsSuperadmin($log_event, $log_desc);
 						$this->alert("Success!", "Successfully changed the account status", "success", "superadmin-faculty");	
 					}else{	
 						$this->alert("Error!", "Failed to change the account status", "error", "superadmin-faculty");
@@ -3273,7 +3397,7 @@ class SAdminFunct{
 			$username=$row2['username'];
 			$log_event="Reset";
 			$log_desc="The account of ".$fname." ".$fmidname." ".$flname." has been successfully reset";
-			$this->insertLogs($log_event, $log_desc);
+			$this->insertLogsSuperadmin($log_event, $log_desc);
 			$this->Prompt("Successfully reset account password! Username = <span class='prompt'>$username</span> Password: <span class='prompt'>$password</span>", "rgb(1, 58, 6)", "superadmin-faculty");
 		}else{
 			$this->alert("Error!", "Failed to reset account password!", "error", "superadmin-faculty");
@@ -3302,7 +3426,7 @@ class SAdminFunct{
 				$facultyname=$row['facultyname'];
 				$log_event="Insert";
 				$log_desc="Added an account of faculty member ".$facultyname;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$sql2=$this->conn->prepare("SELECT username FROM accounts ORDER BY acc_id DESC LIMIT 1");
 				$sql2->execute();
 				$row=$sql2->fetch(PDO::FETCH_ASSOC);
@@ -3343,7 +3467,7 @@ class SAdminFunct{
 				$facultyname=$row2['facultyname'];
 				$log_event="Update";
 				$log_desc="Updated the account details (Name:".$facultyname.", Employee ID:".$fac_no.", Department:".$fac_dept.", Adviser:".$fac_adviser.", Edit section privilege:".$sec_privilege.") of Employee ID: ".$fac_no;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "Account has been updated", "success", "superadmin-faculty");
 			}else{
 				$this->alert("Error!", "Failed to update account", "error", "superadmin-faculty");
@@ -3375,7 +3499,7 @@ class SAdminFunct{
 				$acc_status_latest=$row3['acc_status'];
 				$log_event="Update";
 				$log_desc="Updated the account status of ".$facultyname." to ".$acc_status_latest;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "Successfully changed the account status", "success", "superadmin-faculty");	
 			}else{	
 				$this->alert("Error!", "Failed to change the account status", "error", "superadmin-faculty");
@@ -3403,7 +3527,7 @@ class SAdminFunct{
 			))){
 				$log_event="Delete";
 				$log_desc="Deleted the account of ".$facultyname;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "Account has been deleted", "success", "superadmin-faculty");
 			}else{	
 				$this->alert("Error!", "Failed to delete Faculty Data!", "error", "superadmin-faculty");
@@ -3445,7 +3569,7 @@ class SAdminFunct{
 				))){
 					$log_event="Deleted";
 					$log_desc="Deleted the account of ".$treasurername;
-					$this->insertLogs($log_event, $log_desc);
+					$this->insertLogsSuperadmin($log_event, $log_desc);
 					$this->alert("Success!", "The selected item/s has been successfully deleted", "success", "superadmin-parent");
 				}else{
 					$this->alert("Error!", "You are not allowed to delete the selected item/s", "error", "superadmin-parent");
@@ -3491,7 +3615,7 @@ class SAdminFunct{
 					$username=$row2['username'];	
 					$log_event="Reset";
 					$log_desc="The account of ".$tr_fname." ".$tr_midname." ".$tr_lname." has been successfully reset";
-					$this->insertLogs($log_event, $log_desc);
+					$this->insertLogsSuperadmin($log_event, $log_desc);
 					$this->alert("Success!", "The selected item/s has been successfully reset", "success", "superadmin-parent");
 				}else{
 					$this->alert("Error!", "You are not allowed to reset the selected item/s", "error", "superadmin-parent");
@@ -3524,7 +3648,7 @@ class SAdminFunct{
 						$acc_status_latest=$row3['acc_status'];
 						$log_event="Update";
 						$log_desc="Updated the account status of ".$treasurername." to ".$acc_status_latest;
-						$this->insertLogs($log_event, $log_desc);
+						$this->insertLogsSuperadmin($log_event, $log_desc);
 						$this->alert("Success!", "Successfully changed the account status", "success", "superadmin-parent");	
 					}else{	
 						$this->alert("Error!", "Failed to change the account status", "error", "superadmin-parent");
@@ -3560,7 +3684,7 @@ class SAdminFunct{
 						$acc_status_latest=$row3['acc_status'];
 						$log_event="Update";
 						$log_desc="Updated the account status of ".$treasurername." to ".$acc_status_latest;
-						$this->insertLogs($log_event, $log_desc);
+						$this->insertLogsSuperadmin($log_event, $log_desc);
 						$this->alert("Success!", "Successfully changed the account status", "success", "superadmin-parent");	
 					}else{	
 						$this->alert("Error!", "Failed to change the account status", "error", "superadmin-parent");
@@ -3595,7 +3719,7 @@ class SAdminFunct{
 						$guardianname=$row3['guardianname'];
 						$log_event="Update";
 						$log_desc="Updated the account status of ".$guardianname." to ".$acc_status;
-						$this->insertLogs($log_event, $log_desc);
+						$this->insertLogsSuperadmin($log_event, $log_desc);
 						$this->alert("Success!", "Successfully changed the account status", "success", "superadmin-parent");	
 					}else{	
 						$this->alert("Error!", "Failed to change the account status", "error", "superadmin-parent");
@@ -3630,7 +3754,7 @@ class SAdminFunct{
 						$guardianname=$row3['guardianname'];
 						$log_event="Update";
 						$log_desc="Updated the account status of ".$guardianname." to ".$acc_status;
-						$this->insertLogs($log_event, $log_desc);
+						$this->insertLogsSuperadmin($log_event, $log_desc);
 						$this->alert("Success!", "Successfully changed the account status", "success", "superadmin-parent");	
 					}else{	
 						$this->alert("Error!", "Failed to change the account status", "error", "superadmin-parent");
@@ -3718,7 +3842,7 @@ class SAdminFunct{
 			$username=$row2['username'];	
 			$log_event="Reset";
 			$log_desc="The account of ".$tr_fname." ".$tr_midname." ".$tr_lname." has been successfully reset";
-			$this->insertLogs($log_event, $log_desc);
+			$this->insertLogsSuperadmin($log_event, $log_desc);
 			$this->Prompt("Successfully reset account password! Username = <span class='prompt'>$username</span> Password: <span class='prompt'>$password</span>", "rgb(1, 58, 6)", "superadmin-parent");
 		}else{
 			$this->alert("Error!", "Failed to reset account password!", "error", "superadmin-parent");
@@ -3754,7 +3878,7 @@ class SAdminFunct{
 			$username=$row2['username'];
 			$log_event="Reset";
 			$log_desc="The account of ".$guar_fname." ".$guar_midname." ".$guar_lname." has been successfully reset";
-			$this->insertLogs($log_event, $log_desc);
+			$this->insertLogsSuperadmin($log_event, $log_desc);
 			$this->Prompt("Successfully reset account password! Username = <span class='prompt'>$username</span> Password: <span class='prompt'>$password</span>", "rgb(1, 58, 6)", "superadmin-parent");
 		}else{
 			$this->alert("Error!", "Failed to reset account password!", "error", "superadmin-parent");
@@ -3794,7 +3918,7 @@ class SAdminFunct{
 				$username=$row2['username'];
 				$log_event="Reset";
 				$log_desc="The account of ".$guar_fname." ".$guar_midname." ".$guar_lname." has been successfully reset";
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "The account of selected item/s has been successfully reset", "success", "superadmin-parent");
 			}else{
 				$this->alert("Error!", "Failed to reset the account/s of the selected item/s", "error", "superadmin-parent");
@@ -3822,7 +3946,7 @@ class SAdminFunct{
 				$treasurername=$row2['treasurername'];
 				$log_event="Insert";
 				$log_desc="Added an account of treasurer member ".$treasurername;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$sql2=$this->conn->prepare("SELECT username FROM accounts ORDER BY acc_id DESC LIMIT 1");
 				$sql2->execute();
 				$row=$sql2->fetch(PDO::FETCH_ASSOC);
@@ -3852,7 +3976,7 @@ class SAdminFunct{
 				$treasurername=$row2['treasurername'];
 				$log_event="Update";
 				$log_desc="Updated account details of ".$treasurername;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "Successfully updated the account of $treasurername", "success", "superadmin-parent");
 			}else{
 				$this->alert("Error!", "Failed to update Treasurer data", "error", "superadmin-parent");
@@ -3881,7 +4005,7 @@ class SAdminFunct{
 			))){
 				$log_event="Deleted";
 				$log_desc="Deleted the account of ".$treasurername;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "The account has been deleted!", "success", "superadmin-parent");
 			}else{
 				$this->alert("Error!", "Failed to delete Account Data!", "error", "superadmin-parent");
@@ -3984,7 +4108,7 @@ class SAdminFunct{
 				$treasurername=$row2['treasurername'];
 				$log_event="Update";
 				$log_desc="Updated account details of ".$treasurername;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "Successfully updated the account of $treasurername", "success", "superadmin-parent");
 			}else{
 				$this->alert("Error!", "Failed to reset the account!", "error", "superadmin-parent");
@@ -4012,7 +4136,7 @@ class SAdminFunct{
 				$acc_status_latest=$row3['acc_status'];
 				$log_event="Update";
 				$log_desc="Updated the account status of ".$treasurername." to ".$acc_status_latest;
-				$this->insertLogs($log_event, $log_desc);	
+				$this->insertLogsSuperadmin($log_event, $log_desc);	
 				$this->alert("Success!", "You have successfully changed the account status!", "success", "superadmin-parent");
 			}else{	
 				$this->alert("Error!", "Failed to change the account status!", "error", "superadmin-parent");
@@ -4038,7 +4162,7 @@ class SAdminFunct{
 				$guardianname=$row3['guardianname'];
 				$log_event="Update";
 				$log_desc="Updated the account status of ".$guardianname." to ".$acc_status;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "You have successfully changed the account status!", "success", "superadmin-parent");	
 			}else{	
 				$this->alert("Error!", "Failed to change the account status!", "error", "superadmin-parent");
@@ -4084,7 +4208,7 @@ class SAdminFunct{
 					$username=$row2['username'];
 					$log_event="Reset";
 					$log_desc="The account of ".$first_name." ".$middle_name." ".$last_name." has been successfully reset";
-					$this->insertLogs($log_event, $log_desc);
+					$this->insertLogsSuperadmin($log_event, $log_desc);
 					$this->Prompt("Successfully reset account password! Username = <span class='prompt'>$username</span> Password: <span class='prompt'>$password</span>", "rgb(1, 58, 6)", "superadmin-student");
 				}else{
 					$this->alert("Error!", "Failed to reset account password!", "error", "superadmin-student");
@@ -4116,7 +4240,7 @@ class SAdminFunct{
 						$studentname=$row3['studentname'];
 						$log_event="Update";
 						$log_desc="Updated the account status of ".$studentname." to ".$acc_status;
-						$this->insertLogs($log_event, $log_desc);
+						$this->insertLogsSuperadmin($log_event, $log_desc);
 						$this->alert("Success!", "Successfully changed the account status", "success", "superadmin-student");	
 					}else{	
 						$this->alert("Error!", "Failed to change the account status", "error", "superadmin-student");
@@ -4151,7 +4275,7 @@ class SAdminFunct{
 						$studentname=$row3['studentname'];
 						$log_event="Update";
 						$log_desc="Updated the account status of ".$studentname." to ".$acc_status;
-						$this->insertLogs($log_event, $log_desc);
+						$this->insertLogsSuperadmin($log_event, $log_desc);
 						$this->alert("Success!", "Successfully changed the account status", "success", "superadmin-student");	
 					}else{	
 						$this->alert("Error!", "Failed to change the account status", "error", "superadmin-student");
@@ -4221,7 +4345,7 @@ class SAdminFunct{
 			$username=$row2['username'];
 			$log_event="Reset";
 			$log_desc="The account of ".$first_name." ".$middle_name." ".$last_name." has been successfully reset";
-			$this->insertLogs($log_event, $log_desc);
+			$this->insertLogsSuperadmin($log_event, $log_desc);
 			$this->Prompt("Successfully reset account password! Username = <span class='prompt'>$username</span> Password: <span class='prompt'>$password</span>", "rgb(1, 58, 6)", "superadmin-student");
 		}else{
 			$this->alert("Error!", "Failed to reset account password!", "error", "superadmin-student");
@@ -4244,7 +4368,7 @@ class SAdminFunct{
 				$studentname=$row3['studentname'];
 				$log_event="Update";
 				$log_desc="Updated the account status of ".$studentname." to ".$acc_status;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "You have successfully changed the account status!", "success", "superadmin-student");
 			}else{	
 				$this->alert("Error!", "Failed to change the account status!", "error", "superadmin-student");
@@ -4280,7 +4404,7 @@ class SAdminFunct{
 				))){
 					$log_event="Delete";
 					$log_desc="Deleted the event '".$title2."'";
-					$this->insertLogs($log_event, $log_desc);
+					$this->insertLogsSuperadmin($log_event, $log_desc);
 					$this->alert("Success!", "The event has been deleted", "success", "superadmin-events");
 				}else{	
 					$this->alert("Error!", "Failed to delete the selected event/s", "error", "superadmin-events");
@@ -4319,7 +4443,7 @@ class SAdminFunct{
 				))){
 					$log_event="Delete";
 					$log_desc="Deleted the announcement '".$post2."'";
-					$this->insertLogs($log_event, $log_desc);
+					$this->insertLogsSuperadmin($log_event, $log_desc);
 					$this->alert("Success!", "The selected announcement/s has been deleted", "success", "superadmin-events");
 				}else{	
 					$this->alert("Error!", "Failed to delete the selected announcement/s", "error", "superadmin-events");
@@ -4331,7 +4455,10 @@ class SAdminFunct{
 	}
 	
 	public function showEvents(){
-		$admin_id = $_SESSION['accid'];
+		$queryAdmin_id = $this->conn->prepare("SELECT admin_id from admin join accounts on acc_admid=acc_id WHERE acc_status='Active' LIMIT 1");
+		$queryAdmin_id->execute();
+		$rowQueryAdmin_ID=$queryAdmin_id->fetch(PDO::FETCH_ASSOC);
+		$admin_id=$rowQueryAdmin_ID['admin_id'];
 		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start_1, DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, date_start, date_end, post, view_lim, attachment FROM announcements WHERE post_adminid=? AND title IS NOT NULL AND holiday='No'") or die ("failed!");
 		$sql->bindParam(1, $admin_id);
 		$sql->execute();
@@ -4344,7 +4471,10 @@ class SAdminFunct{
 		return $sql;
 	}
 	public function showHolidays(){
-		$admin_id = $_SESSION['accid'];
+		$queryAdmin_id = $this->conn->prepare("SELECT admin_id from admin join accounts on acc_admid=acc_id WHERE acc_status='Active' LIMIT 1");
+		$queryAdmin_id->execute();
+		$rowQueryAdmin_ID=$queryAdmin_id->fetch(PDO::FETCH_ASSOC);
+		$admin_id=$rowQueryAdmin_ID['admin_id'];
 		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e') as date_start_1,  DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, DAY(CURDATE()), DAY(date_start) FROM announcements WHERE post_adminid=? AND title IS NOT NULL AND holiday='Yes' AND (date_start between now() and adddate(now(), +15))") or die ("failed!");
 		$sql->bindParam(1, $admin_id);
 		$sql->execute();
@@ -4358,9 +4488,7 @@ class SAdminFunct{
 	}	
 	
 	public function showEventsSection(){
-		$admin_id = $_SESSION['accid'];
-		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start_1, DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, date_start, date_end, post, view_lim, attachment FROM announcements WHERE post_adminid=? AND title IS NOT NULL") or die ("failed!");
-		$sql->bindParam(1, $admin_id);
+		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start_1, DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, date_start, date_end, post, view_lim, attachment FROM announcements WHERE post_adminid IS NOT NULL AND title IS NOT NULL AND holiday='No'") or die ("failed!");
 		$sql->execute();
 		if($sql->rowCount()>0){
 			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
@@ -4372,7 +4500,10 @@ class SAdminFunct{
 	}
 	
 	public function showAnnouncementSection(){
-		$admin_id = $_SESSION['accid'];
+		$queryAdmin_id = $this->conn->prepare("SELECT admin_id from admin join accounts on acc_admid=acc_id WHERE acc_status='Active' LIMIT 1");
+		$queryAdmin_id->execute();
+		$rowQueryAdmin_ID=$queryAdmin_id->fetch(PDO::FETCH_ASSOC);
+		$admin_id=$rowQueryAdmin_ID['admin_id'];
 		$sql = $this->conn->prepare("SELECT ann_id, title, DATE_FORMAT(date(date_start), '%M %e, %Y') as date_start_1, DATE_FORMAT(date(date_end), '%M %e, %Y') as date_end_1, date_start, date_end, post, view_lim, attachment FROM announcements WHERE post_adminid=? and post IS NOT NULL") or die ("failed!");
 		$sql->bindParam(1, $admin_id);
 		$sql->execute();
@@ -4387,7 +4518,10 @@ class SAdminFunct{
 	
 	
 	public function getAnnouncements() {
-		$admin_id = $_SESSION['accid'];
+		$queryAdmin_id = $this->conn->prepare("SELECT admin_id from admin join accounts on acc_admid=acc_id WHERE acc_status='Active' LIMIT 1");
+		$queryAdmin_id->execute();
+		$rowQueryAdmin_ID=$queryAdmin_id->fetch(PDO::FETCH_ASSOC);
+		$admin_id=$rowQueryAdmin_ID['admin_id'];
 		$sql = $this->conn->prepare("SELECT * FROM announcements WHERE post_adminid=? AND post IS NOT NULL") or die ("failed!");
 		$sql->bindParam(1, $admin_id);
 		$sql->execute();
@@ -4405,7 +4539,13 @@ class SAdminFunct{
 	
 	public function insertEvent($title, $date_start, $date_end, $view_lim){
 		try{
-			$admin_id = $_SESSION['accid'];
+			$accID = $_SESSION['accid'];
+			$queryGetAdminId=$this->conn->prepare("SELECT * FROM admin WHERE acc_admid=:acc_admid");
+			$queryGetAdminId->execute(array(
+				':acc_admid' => $accID
+			));
+			$rowQueryGetAdminId=$queryGetAdminId->fetch(PDO::FETCH_ASSOC);
+			$admin_id=$rowQueryGetAdminId['admin_id'];
 			$checkbox = $_POST['view_lim'];
 			$sql = "INSERT INTO announcements SET title=:title, date_start=:date_start, date_end=:date_end, view_lim=('";
 			for($i=0; $i<sizeof ($checkbox);$i++) {
@@ -4420,7 +4560,7 @@ class SAdminFunct{
 			':title'  => (empty($title) ? null : $title),
 			':date_start' => $date_start,
 			':date_end' => $date_end.' 23:59:59',
-			':post_adminid' => $_SESSION['accid']))){
+			':post_adminid' => $admin_id))){
 				$sql2=$this->conn->prepare("SELECT * from announcements WHERE post_adminid=? ORDER BY ann_id DESC LIMIT 1");
 				$sql2->bindParam(1, $admin_id);
 				$sql2->execute();
@@ -4428,15 +4568,15 @@ class SAdminFunct{
 				$ann_id=$row2['ann_id'];
 				$sql3=$this->conn->prepare("INSERT INTO admann SET adminn_id=:adminn_id, annn_id=:annn_id");
 				$sql3->execute(array(
-					':adminn_id' => $_SESSION['accid'],
+					':adminn_id' => $admin_id,
 					':annn_id' => $ann_id
 				));
 				$log_event="Insert";
 				$log_desc="Added announcement with a Title: ".$title;
-				$this->insertLogs($log_event, $log_desc);
-				$this->alert("Success!", "An announcement has been created! Title: $title, Start Date: $date_start, End Date: $date_end", "success", "superadmin-events");
+				$this->insertLogsSuperadmin($log_event, $log_desc);
+				$this->alert("Success!", "An announcement has been created! Title: $title, Start Date: $date_start, End Date: $date_end", "success", "admin-events");
 			}else{
-				$this->alert("Error!", "Failed to post announcement", "error", "superadmin-events");
+				$this->alert("Error!", "Failed to post announcement", "error", "admin-events");
 			}
 			
 		} catch (PDOException $exception){
@@ -4446,7 +4586,13 @@ class SAdminFunct{
 	
 	public function insertAnnouncement($post, $date_start, $date_end, $view_lim, $attachment){
 		try{
-			$admin_id=$_SESSION['accid'];
+			$accID = $_SESSION['accid'];
+			$queryGetAdminId=$this->conn->prepare("SELECT * FROM admin WHERE acc_admid=:acc_admid");
+			$queryGetAdminId->execute(array(
+				':acc_admid' => $accID
+			));
+			$rowQueryGetAdminId=$queryGetAdminId->fetch(PDO::FETCH_ASSOC);
+			$admin_id=$rowQueryGetAdminId['admin_id'];
 			$checkbox = $_POST['view_lim'];
 			$sql = "INSERT INTO announcements SET date_start=:date_start, date_end=:date_end, post=:post, view_lim=('";
 			for($i=0; $i<sizeof ($checkbox);$i++) {
@@ -4462,7 +4608,7 @@ class SAdminFunct{
 			':date_end' => $date_end,
 			':post' => (empty($post) ? null : $post),
 			':attachment' => (empty($attachment['name']) ? null : $attachment['name']),
-			':post_adminid' => $_SESSION['accid']))){
+			':post_adminid' => $admin_id))){
 				$sql2=$this->conn->prepare("SELECT * from announcements WHERE post_adminid=? ORDER BY ann_id DESC LIMIT 1");
 				$sql2->bindParam(1, $admin_id);
 				$sql2->execute();
@@ -4470,12 +4616,12 @@ class SAdminFunct{
 				$ann_id=$row2['ann_id'];
 				$sql3=$this->conn->prepare("INSERT INTO admann set adminn_id=:adminn_id, annn_id=:annn_id");
 				$sql3->execute(array(
-					':adminn_id' => $_SESSION['accid'],
+					':adminn_id' => $admin_id,
 					':annn_id' => $ann_id
 				));
 				$log_event="Insert";
 				$log_desc="Added the announcement: ".$post;
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "An announcement has been created! Announcement: $post, Start Date: $date_start, End Date: $date_end", "success", "superadmin-events");
 			}else{
 				$this->alert("Error!", "Failed to post announcement", "error", "superadmin-events");
@@ -4582,7 +4728,7 @@ class SAdminFunct{
 			$row2=$sql2->fetch(PDO::FETCH_ASSOC);
 			$log_event="Update";
 			$log_desc="Updated the announcement with the following details(Title: ".$title.", Date Start: ".$date_start.", Date End: ".$date_end.")";
-			$this->insertLogs($log_event, $log_desc);
+			$this->insertLogsSuperadmin($log_event, $log_desc);
 			$this->alert("Success!", "An announcement has been updated! Title: $title, Start Date: $date_start, End Date: $date_end", "success", "superadmin-events");
 		}else{
 			$this->alert("Error!", "Failed to post the announcement", "error", "superadmin-events");
@@ -4635,7 +4781,7 @@ class SAdminFunct{
 					$attch=$row8['attch'];
 					$log_event="Update";
 					$log_desc="Updated the announcement with the following details( Announcement: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch.")";
-					$this->insertLogs($log_event, $log_desc);
+					$this->insertLogsSuperadmin($log_event, $log_desc);
 					$this->alert("Error!", "Failed! Maximum file size 20 mb", "error", "superadmin-events");
 				}
 			}else{
@@ -4668,7 +4814,7 @@ class SAdminFunct{
 				$attch=$row2['attch'];
 				$log_event="Update";
 				$log_desc="Updated the announcement with the following details(Announcement: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch.")";
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "An announcement has been updated! Announcement: $post, Start Date: $date_start, End Date: $date_end", "success", "superadmin-events");
 			}else{
 				$this->alert("Error!", "Failed to post the announcement", "error", "superadmin-events");
@@ -4699,7 +4845,7 @@ class SAdminFunct{
 				$attch=$row2['attch'];
 				$log_event="Update";
 				$log_desc="Updated the announcement with the following details( Announcement: ".$post.", Date Start: ".$date_start.", Date End: ".$date_end.", Attachment: ".$attch.")";
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "An announcement has been updated! Announcement: $post, Start Date: $date_start, End Date: $date_end", "success", "superadmin-events");
 			}else{
 				$this->alert("Error!", "Failed to post the announcement", "error", "superadmin-events");
@@ -4731,7 +4877,7 @@ class SAdminFunct{
 			))){
 				$log_event="Delete";
 				$log_desc="Deleted the event '".$title2. "'";
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "The event has been deleted", "success", "superadmin-events");
 			}else{	
 				$this->alert("Error!", "Failed to delete the event", "error", "superadmin-events");
@@ -4760,7 +4906,7 @@ class SAdminFunct{
 			))){
 				$log_event="Delete";
 				$log_desc="Deleted the announcement '".$post2. "'";
-				$this->insertLogs($log_event, $log_desc);
+				$this->insertLogsSuperadmin($log_event, $log_desc);
 				$this->alert("Success!", "The event has been deleted", "success", "superadmin-events");
 			}else{	
 				$this->alert("Error!", "Failed to delete the event", "error", "superadmin-events");
@@ -4835,11 +4981,21 @@ class SAdminFunct{
 	
 	/**************** LOGS ********************/
 	
+	public function getYearLogs() {
+		$sql=$this->conn->prepare("SELECT year(log_date) as 'dateModified' FROM logs GROUP BY dateModified ORDER BY 1 DESC");
+		$sql->execute();
+		$option = '';
+		while ($row = $sql->fetch(PDO::FETCH_ASSOC)){
+			$option .= '<option value="'.$row["dateModified"].'" name="year">'.$row["dateModified"].'</option>';
+		}
+		echo $option;
+	}
+	
 	public function showAdminLogs(){
-		$sql=$this->conn->query("SELECT CONCAT(adm_fname,' ',adm_midname,' ',adm_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e, %Y - %H:%i:%S') AS logdate 
+		$sql=$this->conn->query("SELECT CONCAT(adm_fname,' ',adm_midname,' ',adm_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e, %Y - %H:%i:%S') AS logdate, year(log_date) as 'dateModified' 
 			FROM logs 
 			JOIN accounts on acc_id = user_id 
-			JOIN admin on acc_admid = acc_id ORDER BY log_date DESC") or die ("failed!");
+			JOIN admin on acc_admid = acc_id") or die ("failed!");
 		if($sql->rowCount()>0){
 			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
 				$data[]=$r;
@@ -4850,7 +5006,7 @@ class SAdminFunct{
 		return $data;
 	}
 	public function showFacultyLogs(){
-		$sql=$this->conn->query("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate 
+		$sql=$this->conn->query("SELECT CONCAT(fac_fname,' ',fac_midname,' ',fac_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e, %Y - %H:%i:%S') AS logdate, year(log_date) as 'dateModified'
 			FROM logs 
 			JOIN accounts on acc_id = user_id 
 			JOIN faculty on acc_idz = acc_id") or die ("failed!");
@@ -4864,12 +5020,12 @@ class SAdminFunct{
 		return $data;
 	}
 	public function showTreasurerLogs(){
-		$sql=$this->conn->query("SELECT CONCAT(tr_fname,' ',tr_midname,' ',tr_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate 
+		$sql=$this->conn->query("SELECT CONCAT(tr_fname,' ',tr_midname,' ',tr_lname) as username, log_event, log_desc, DATE_FORMAT(log_date, '%M %e, %Y - %H:%i:%S') AS logdate, year(log_date) as 'dateModified' 
 			FROM logs 
 			JOIN accounts on acc_id = user_id 
 			JOIN treasurer on acc_trid = acc_id") or die ("failed!");
 		/*$sql=$this->conn->query("SELECT DATE_FORMAT(log_date, '%M %e %Y - %H:%i:%S') AS logdate, log_event, log_desc, acc_type 
-		FROM logs join accounts ON user_id = acc_id") or die ("failed!");*/
+			FROM logs join accounts ON user_id = acc_id") or die ("failed!");*/
 		if($sql->rowCount()>0){
 			while($r = $sql->fetch(PDO::FETCH_ASSOC)){
 				$data[]=$r;
@@ -4883,9 +5039,15 @@ class SAdminFunct{
 	
 	/*************** SYSTEM SETTING *******************/
 
-	public function insertHolidays(){
-
-		$curYear = $this->getSchoolYear();
+	/*public function insertHolidays(){
+		$accID = $_SESSION['accid'];
+		$queryGetAdminId=$this->conn->prepare("SELECT * FROM admin WHERE acc_admid=:acc_admid");
+		$queryGetAdminId->execute(array(
+			':acc_admid' => $accID
+		));
+		$rowQueryGetAdminId=$queryGetAdminId->fetch(PDO::FETCH_ASSOC);
+		$admin_id=$rowQueryGetAdminId['admin_id'];
+		$curYear = $this->getSY();
 		$array_holiday = ['New Year', 'Chinese Lunar New Year', 'People Power Anniversary', 'The Day of Valor', 'Maundy Thursday', 'Good Friday', 'Black Saturday', 'Easter Sunday', 'Labor Day', 'Eidul-Fitar', 'Independence Day', 'Eid al-Adha (Feast of the Sacrifice)', 'Eid al-Adha Day 2', 'Ninoy Aquino Day', 'National Heroes Day', 'All Saints Day', 'All Souls Day', 'Bonifacio Day', 'Feast of the Immaculate Conception', 'Christmas Eve', 'Christmas Day', 'Rizal Day', 'New Years Eve'];
 		$array_start_date = [$curYear.'-01-01 00:00:00', $curYear.'-02-05 00:00:00', $curYear.'-02-25 00:00:00', $curYear.'-04-09 00:00:00', $curYear.'-04-18 00:00:00', $curYear.'-04-19 00:00:00', $curYear.'-04-20 00:00:00', $curYear.'-04-21 00:00:00', $curYear.'-05-01 00:00:00', $curYear.'-06-06 00:00:00', $curYear.'-06-12 00:00:00', $curYear.'-08-12 00:00:00', $curYear.'-08-13 00:00:00', $curYear.'-08-21 00:00:00', $curYear.'-08-26 00:00:00', $curYear.'-11-01 00:00:00', $curYear.'-11-02 00:00:00', $curYear.'-11-30 00:00:00', $curYear.'-12-08 00:00:00', $curYear.'-12-24 00:00:00', $curYear.'-12-25 00:00:00', $curYear.'-12-30 00:00:00', $curYear.'-12-31 00:00:00'];
 		$array_end_date = [$curYear.'-01-01 23:59:59', $curYear.'-02-05 23:59:59', $curYear.'-02-25 23:59:59', $curYear.'-04-09 23:59:59', $curYear.'-04-18 23:59:59', $curYear.'-04-19 23:59:59', $curYear.'-04-20 23:59:59', $curYear.'-04-21 23:59:59', $curYear.'-05-01 23:59:59', $curYear.'-06-06 23:59:59', $curYear.'-06-12 23:59:59', $curYear.'-08-12 23:59:59', $curYear.'-08-13 23:59:59', $curYear.'-08-21 23:59:59', $curYear.'-08-26 23:59:59', $curYear.'-11-01 23:59:59', $curYear.'-11-02 23:59:59', $curYear.'-11-30 23:59:59', $curYear.'-12-08 23:59:59', $curYear.'-12-24 23:59:59', $curYear.'-12-25 23:59:59', $curYear.'-12-30 23:59:59', $curYear.'-12-31 23:59:59'];
@@ -4897,7 +5059,7 @@ class SAdminFunct{
 				':date_end' => $array_end_date[$i],
 				':view_lim' => '0',
 				':holiday' => 'Yes',
-				':post_adminid' => $_SESSION['accid']
+				':post_adminid' => $admin_id
 			));
 		}
 	}
@@ -4905,23 +5067,6 @@ class SAdminFunct{
 		$query = $this->conn->query("SELECT * FROM system_settings WHERE sy_status = 'Current'");
 		$result = $query->fetch();
 		return $result['active_grading'];
-	}
-	public function selectCurriculum(){
-		$query = $this->conn->query("SELECT * FROM system_settings WHERE sy_status = 'Current'");
-		$query->execute();
-		$result = $query->fetch();
-		$sql=$this->conn->prepare("SELECT * from curriculum");
-		$sql->execute();
-		echo '<label class="curriculum"><span>Select Curriculum:</span></label><br>
-		<select name="curriculum" class="edit-curriculum" required>';
-		foreach ($sql->fetchAll() as $row) {
-			if ($row['curr_id'] == $result['current_curriculum']) {
-				echo '<option value="'.$row['curr_id'].'" selected>'.$row["curr_desc"].'</option>';
-			} else {
-				echo '<option value="'.$row['curr_id'].'">'.$row["curr_desc"].'</option>';
-			}
-		}
-		echo '</select>';
 	}
 	
 	public function checkCurrentSystemEditStatus() {
@@ -5031,7 +5176,7 @@ class SAdminFunct{
 		return $sql;
 	}
 
-	/*public function syStatus($sy_status){
+	public function syStatus($sy_status){
 		$curDate = date('Y-m-d');
 		$sql3=$this->conn->prepare("SELECT sy_end FROM system_settings");
 		$sql3->execute();
@@ -5199,7 +5344,7 @@ class SAdminFunct{
 				$this->alert("Error!", "You are not allowed to the end the school year, Because there might be some data that can be deleted. Try ending the school year after the specified date", "error", "superadmin-system-settings");
 			}
 		}
-	}*/
+	}
 	public function syStatus($sy_status){
 		$curDate = date('Y-m-d');
 		$sql3=$this->conn->prepare("SELECT sy_end FROM system_settings");
@@ -5224,7 +5369,7 @@ class SAdminFunct{
 					}
 					$log_event="Update";
 					$log_desc="Successfully updated the school year status to ".$status;
-					$this->insertLogs($log_event, $log_desc);
+					$this->insertLogsSuperadmin($log_event, $log_desc);
 					$this->alert("Success!", "Successfully started the school year", "success", "superadmin-system-settings");
 				}
 			}else if($curDate >= $school_end){
@@ -5255,7 +5400,7 @@ class SAdminFunct{
 						));
 					}
 					//grade 10 to graduated
-					$curYear = $this->getSchoolYear();
+					$curYear = $this->getSY();
 					$sql9=$this->conn->prepare("SELECT * from student");
 					$sql9->execute();
 					$row9=$sql9->fetchAll();
@@ -5274,7 +5419,7 @@ class SAdminFunct{
 					}
 					$log_event2="Update";
 					$log_desc2="Successfully updated the school year status to ".$status;
-					$this->insertLogs($log_event2, $log_desc2);
+					$this->insertLogsSuperadmin($log_event2, $log_desc2);
 					echo "
 					<div name='content'>
 					<button name='opener3' style='display:none'>
@@ -5317,7 +5462,7 @@ class SAdminFunct{
 					}
 					$log_event3="Update";
 					$log_desc3="Successfully updated the school year status to ".$status;
-					$this->insertLogs($log_event3, $log_desc3);
+					$this->insertLogsSuperadmin($log_event3, $log_desc3);
 				}
 			}else{
 				//update school year status
@@ -5332,7 +5477,7 @@ class SAdminFunct{
 					}
 					$log_event4="Update";
 					$log_desc4="Successfully updated the school year status to ".$status;
-					$this->insertLogs($log_event4, $log_desc4);
+					$this->insertLogsSuperadmin($log_event4, $log_desc4);
 					$this->alert("Success!", "Successfully started the school year", "success", "superadmin-system-settings");
 				}
 			}
@@ -5364,30 +5509,12 @@ class SAdminFunct{
 				}
 				$log_event5="Update";
 				$log_desc5="Successfully updated the school year status to ".$status;
-				$this->insertLogs($log_event5, $log_desc5);
+				$this->insertLogsSuperadmin($log_event5, $log_desc5);
 				$this->alert("Error!", "You are not allowed to the end the school year, Because there might be some data that can be deleted. Try ending the school year after the specified date", "error", "superadmin-system-settings");
 			}
 		}
 	}
 	
-	/*public function editClass($edit_class){
-		$sql2=$this->conn->prepare("UPDATE system_settings SET edit_class=:edit_class");
-		if($sql2->execute(array(
-			':edit_class' => $edit_class
-		))){
-			$logQuery=$this->conn->prepare("SELECT * FROM system_settings");
-			$logQuery->execute();
-			while($rowQuery=$logQuery->fetch(PDO::FETCH_ASSOC)){
-				$status=$rowQuery['edit_class'];
-			}
-			$log_event="Update";
-			$log_desc="Successfully updated the edit class status to ".$status;
-			$this->insertLogs($log_event, $log_desc);
-			$this->alert("Success!", "Successfully changed the status of edit class", "success", "superadmin-system-settings");
-		}else{
-			$this->alert("Error!", "Failed to changed the status of of edit class", "error", "superadmin-system-settings");
-		}
-	}*/
 	public function editClass($edit_class){
 		$sql2=$this->conn->prepare("UPDATE system_settings SET edit_class=:edit_class");
 		if($sql2->execute(array(
@@ -5406,8 +5533,26 @@ class SAdminFunct{
 			$this->alert("Error!", "Failed to changed the status of of edit class", "error", "superadmin-system-settings");
 		}
 	}
+	public function editClass($edit_class){
+		$sql2=$this->conn->prepare("UPDATE system_settings SET edit_class=:edit_class");
+		if($sql2->execute(array(
+			':edit_class' => $edit_class
+		))){
+			$logQuery=$this->conn->prepare("SELECT * FROM system_settings");
+			$logQuery->execute();
+			while($rowQuery=$logQuery->fetch(PDO::FETCH_ASSOC)){
+				$status=$rowQuery['edit_class'];
+			}
+			$log_event="Update";
+			$log_desc="Successfully updated the edit class status to ".$status;
+			$this->insertLogsSuperadmin($log_event, $log_desc);
+			$this->alert("Success!", "Successfully changed the status of edit class", "success", "superadmin-system-settings");
+		}else{
+			$this->alert("Error!", "Failed to changed the status of of edit class", "error", "superadmin-system-settings");
+		}
+	}
 	
-	/*public function activeGrading($active_grading){
+	public function activeGrading($active_grading){
 		$sql2=$this->conn->prepare("UPDATE system_settings SET active_grading=:active_grading");
 		if($sql2->execute(array(
 			':active_grading' => $active_grading
@@ -5424,7 +5569,7 @@ class SAdminFunct{
 		}else{
 			$this->alert("Error!", "Failed to changed the status of grading", "error", "superadmin-system-settings");
 		}
-	}*/
+	}
 	
 	public function selectGradingPeriod($post){
 		$sql=$this->conn->prepare("UPDATE system_settings SET current_curriculum = :curr_id WHERE sy_status = 'Current' ");
@@ -5449,7 +5594,7 @@ class SAdminFunct{
 			}
 			$log_event="Update";
 			$log_desc="Successfully updated the grading status to ".$status;
-			$this->insertLogs($log_event, $log_desc);
+			$this->insertLogsSuperadmin($log_event, $log_desc);
 			$this->alert("Success!", "Successfully changed the status of grading", "success", "superadmin-system-settings");
 		}else{
 			$this->alert("Error!", "Failed to changed the status of grading", "error", "superadmin-system-settings");
@@ -5468,12 +5613,12 @@ class SAdminFunct{
 			}
 			$log_event="Update";
 			$log_desc="Successfully updated the transfer status to ".$status;
-			$this->insertLogs($log_event, $log_desc);
+			$this->insertLogsSuperadmin($log_event, $log_desc);
 			$this->alert("Success!", "Successfully changed the status of transferring students", "success", "superadmin-system-settings");
 		}else{
 			$this->alert("Error!", "Failed to changed the status of transferring students", "error", "superadmin-system-settings");
 		}
-	}
+	}*/
 	/*************** END SYSTEM SETTING  ***********/
 
 	/*************** PROMT / MESSAGE  ***********/

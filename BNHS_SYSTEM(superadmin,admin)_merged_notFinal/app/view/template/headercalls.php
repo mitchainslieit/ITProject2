@@ -23,3 +23,6 @@
 	<script type="text/javascript" src="<?php echo URL; ?>public/vendors/sweetalert/sweetalert.js"></script>
 	<script type="text/javascript" src="<?php echo URL; ?>public/vendors/tooltip/dist/js/tooltipster.bundle.min.js"></script>
 	<script type="text/javascript" src="<?php echo URL; ?>public/vendors/google-chart/loader.js"></script>
+	
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
