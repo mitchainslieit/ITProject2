@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+		<url>
+		  <loc>http://www.yoursite.com/index.cfm</loc>
+		  <lastmod>2008-10-27</lastmod>
+		  <changefreq>daily</changefreq>
+		  <priority>1.0</priority>
+	   </url>
+	   <url>
+		  <loc>http://www.yoursite.com/contact.cfm</loc>
+		  <lastmod>2008-10-27</lastmod>
+		  <changefreq>daily</changefreq>
+		  <priority>1.0</priority>
+	   </url>
+	   <url>
+		  <loc>http://www.yoursite.com/location.cfm</loc>
+		  <lastmod>2008-10-27</lastmod>
+		  <changefreq>daily</changefreq>
+		  <priority>1.0</priority>
+	   </url>
+</urlset>

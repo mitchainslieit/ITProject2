@@ -1,0 +1,336 @@
+/*fonts*/
+@font-face {
+  font-family: 'OpenSans-Regular';
+  font-style: normal;
+  font-weight: 400;
+  src: url('OpenSans-Regular.ttf'); 
+}
+@font-face {
+  font-family: 'OpenSans-Bold';
+  font-style: normal;
+  font-weight: 700;
+  src: url('OpenSans-Bold.ttf'); 
+}
+
+/*floats*/
+.fl {float:left;}
+.fr {float:right;}
+
+/* global */
+h1,h2,h3,h4,h5{ padding:0; margin:0; }
+.row {width: 95%; margin: 0 auto}
+.customButton{background: #0089DA; border: none; color: #fff;padding: 7px 12px;letter-spacing: 0.5px; cursor: pointer; font-family: 'Open Sans'; font-size: 13px;}
+.pending{background-color: #f48642;border: none;color: #fff;border-radius: 4px;padding: 2px 12px; font-size: 13px;}
+.accActive{background-color: #008716;border: none;color: #fff;border-radius: 4px;padding: 2px 12px; font-size: 13px;}
+.accDeactive{background-color: #f48642;border: none;color: #fff;border-radius: 4px;padding: 2px 12px; font-size: 13px;}
+.cancel{border: none;position: relative;top: -8px;left: -2px;background-color: transparent; outline: none}
+.cancel .fa-window-close:before{color: #910000;}
+.temporary{color: #f48642;}
+.temporaryContainer{position: relative;}
+.temporaryContainer .temporaryDesc {visibility: hidden;color: #c90000;text-align: center;font-size: 12px;position: absolute;z-index: 1;bottom: 100%;top: -9px;}
+.temporaryContainer:hover .temporaryDesc {visibility: visible;}
+.hidden{display: none}
+span.prompt{font-weight: 700; text-decoration: underline;}
+i.fnt{padding-left: 9px;}
+i.fnt2{padding-right: 9px;}
+td.action{display: flex;justify-content: center;}
+td.action > *{padding: 0px 5px;}
+/* #ui-datepicker-div{display: none !important;} */
+textarea{width: 100%; margin-top: 10px !important;margin-bottom: 20px !important; }
+.dataTables_wrapper th, td { white-space: nowrap; }
+.dataTables_wrapper thead tr th:first-of-type{background: #fff}
+.tleft{text-align: left}
+.tright{text-align: right;}
+.tcenter{text-align: center}
+.custPad{padding: 8px 8px 8px 45px !important;}
+.custPad2{padding: 0px 8px 0px 20px !important;}
+.longText{white-space: unset !important; text-align: justify;}
+.longTitle{white-space: unset !important; width: 250px}
+#noFilterTable, #superadmin-table-noFunct{margin: 20px 0 !important;}
+#checkAl1, #checkAl, #checkItem{width: 100% !important}
+.buttonContainer button{margin-right: 20px;}
+
+span.selectAll{font-size: 11px; display: block}
+.selectAllCheck{vertical-align: middle;}
+
+#superadmin_home .contentpage .widget .feeTypeContent thead tr th:first-of-type,
+#superadmin_home .contentpage .widget #superadmin_feeType_request thead tr th:first-of-type,
+#superadmin_home .contentpage .widget #superadmin-table-section thead tr th:first-of-type,
+#superadmin_home .contentpage .widget #superadmin-table-noFunct thead tr th:first-of-type,
+#superadmin_home .contentpage .widget .facultyContent thead tr th:first-of-type,
+#superadmin_home .contentpage .widget #ptaTable thead tr th:first-of-type,
+#superadmin_home .contentpage .widget #superadmin-table-all thead tr th:first-of-type,
+#superadmin_home .contentpage .widget #superadmin-table-section-top thead tr th:first-of-type,
+#superadmin_home .contentpage .widget #superadmin-table-parent thead tr th:first-of-type,
+#superadmin_home .contentpage .widget #superadmin-table-student thead tr th:first-of-type,
+#superadmin_home .contentpage .widget #admin-table-events thead tr th:first-of-type,
+#superadmin_home .contentpage .widget .admin-table-withScroll thead tr th:first-of-type{width: 60px !important; padding: 0px!important}
+
+#superadmin_home .contentpage .widget .subjectContent .cont2 .box1,
+#superadmin_home .contentpage .widget .enrolledContent .cont1{display: flex; width: 430px !important; justify-content: space-between; align-items: center; margin-bottom: 15px}
+#superadmin_home .contentpage .widget .enrolledContent .cont1 .box1{display: flex; width: 430px !important; justify-content: space-between; align-items: center; margin-bottom: 15px}
+
+#superadmin_home .contentpage .widget .curriculumContent .cont2 .cont1{display: flex; width: 350px !important; justify-content: space-between; align-items: center; margin: 20px 20px 15px 0px}
+/* accept/reject shedule */
+.superadmin-classedit-page #getCurrentLevel { padding: 8px 6px; border-radius: 8px; }
+.superadmin-classedit-page .classes-edit table { border-collapse: collapse; margin-top: 20px; }
+.superadmin-classedit-page .classes-edit table th { font-weight: bold; color: #3f3f3f; font-size: 14px; text-align: center; padding: 10px 18px !important; }
+.superadmin-classedit-page .classes-edit table th, .superadmin-classedit-page .classes-edit table td { border: 1px solid #ddd; padding: 8px 12px; }
+.superadmin-classedit-page .classes-edit table tbody tr:nth-of-type(odd) { background: #d1d1d1; }
+.superadmin-classedit-page #ScheduleEditting { height: 435px; display: flex; justify-content: center; align-items: center; }
+
+/* tooltip */
+.tooltip {position: relative;display: inline-block;}
+.tooltip .tooltiptext {visibility: hidden;width: 68px;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;bottom: 150%;left: 50%;margin-left: -39px;}
+.tooltip .tooltiptext::after {content: "";position: absolute;top: 100%;left: 50%;margin-left: -5px;border-width: 5px;border-style: solid;border-color: black transparent transparent transparent;}
+.tooltip:hover .tooltiptext {visibility: visible;}
+.dataTables_scrollBody{overflow-y: hidden;}
+/* .dataTables_wrapper tbody tr:first-of-type .action:last-of-type .tooltip:hover .tooltiptext {visibility: visible;}
+.dataTables_wrapper tbody tr:first-of-type .action:last-of-type .tooltip .tooltiptext {height: 16.8px; visibility: hidden;width: 68px;background-color: black;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;top: 150%;left: 50%;margin-left: -34px;}
+.dataTables_wrapper tbody tr:first-of-type .action:last-of-type .tooltip .tooltiptext::after {content: "";position: absolute;top: -10px;left: 50%;margin-left: -5px;border-width: 5px;border-style: solid;border-color: transparent transparent black transparent;} */
+
+/*clearings*/
+.clear{ clear:both;}
+.clearfix:after {content:"."; display:block; height:0; clear:both;visibility:hidden;font-size: 0;}
+.clearfix {display:block;}
+/**************************************************CONTENT PAGE**********************************************************************/
+
+/* dialog */
+.ui-dialog{padding:0px !important; font-family: 'Open Sans' !important;}
+.ui-widget-overlay.custom-overlay{background-color: black;background-image: none;opacity: 0.8;z-index: 1040;}
+.ui-dialog .ui-dialog-title{color: #fff; font-weight: 400;}
+.ui-widget.ui-widget-content{width: 700px !important;border: none!important;}
+.ui-widget-content span{padding-top: unset !important;}
+.ui-widget-header{border: unset !important; background: #367FA9 !important; border-radius: unset !important}
+.ui-dialog .ui-dialog-titlebar,.ui-dialog .ui-dialog-content{padding: 15px 28px !important}
+.ui-dialog .ui-dialog-titlebar-close {right: 20px !important}
+
+
+/*widget template*/
+#superadmin_home .contentpage .widget {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 25px; margin-bottom: 40px}
+#superadmin_home .contentpage .widget .header {display: flex; justify-content: space-between;padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+#superadmin_home .contentpage .widget .header p{padding: 0; margin: 0}
+#superadmin_home .contentpage .widget .widgetContent{padding: 25px 23px 0 23px;}
+
+/*dashboard*/
+.eventBox #eventDataTable{width: 475px !important; margin: 0}
+.attachment{font-style: italic; color: #1a0dab; margin: 0}
+.eventBox{margin-top: 20px}
+.holidayBox{margin-top: 20px}
+.holidayBox #eventDataTable{margin: 0}
+h3.att_title{font-weight: 400; font-size: 14px; width: 410px}
+#superadmin_home .contentpage .dashboardWidget table.dataTable thead .title{border-top: none !important;}
+#superadmin_home .contentpage .dashboardWidget table.dataTable tbody td{border: none !important; border-bottom: 1px solid #ddd !important; padding: 15px !important}
+#superadmin_home .contentpage .dashboardWidget table.dataTable thead th{border: none !important; border-bottom: 1px solid #ddd !important; padding: 15px !important; border-top: 1px solid #ddd !important;}
+#superadmin_home .contentpage .dashboardWidget table.dataTable{border:none;}
+#superadmin_home .contentpage .summary {display: flex; justify-content: space-between;}
+#superadmin_home .contentpage .summary .box{width: calc(90%/4);padding: 7px 22px; opacity: 0.9}
+#superadmin_home .contentpage .summary .box h4{font-size: 15px; color: #fff; text-align: left}
+#superadmin_home .contentpage .summary .box h4>span{text-decoration: underline; font-weight: 700; font-family: Arial}
+#superadmin_home .contentpage .summary .box1{background: #00C0EF;}
+#superadmin_home .contentpage .summary .box2{background: #00A65A;}
+#superadmin_home .contentpage .summary .box3{background: #F39C12;}
+#superadmin_home .contentpage .summary .box4{background: #DD4B39;}
+#superadmin_home .contentpage .summary .box .innercont{width: 100%; display: flex;justify-content: space-between;align-items: baseline; margin-top: 10px;}
+#superadmin_home .contentpage .summary .box .innercont>span{font-size: 27px; color: #fff}
+#superadmin_home .contentpage .summary .box .innercont>i{color: #fff; font-size: 50px;}
+
+/* dashboard widget/calendar */
+#superadmin_home .contentpage .dashboardWidget{display: flex;justify-content: space-between; margin-top: 40px; align-items: flex-start;}
+#superadmin_home .contentpage .dashboardWidget .contright {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px; width: 42%; order: 2}
+#superadmin_home .contentpage .calendarWidget .contright {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px; width: 100%; order: 2}
+#superadmin_home .contentpage .dashboardWidget .contright .header {padding: 10px 23px;text-align: left; font-size: 15px; color: #fff; background: #003366;}
+#superadmin_home .contentpage .dashboardWidget .contright .header p{padding: 0; margin: 0}
+#superadmin_home .contentpage .dashboardWidget .contright .eventcontent{padding: 10px 20px;}
+#superadmin_home .contentpage .dashboardWidget .contleft{width: 56%; order: 1}
+#superadmin_home .contentpage .dashboardWidget .contleft .innercont2 {box-shadow: 0px 0px 2px 0px #9aa5b7; background: #fff; padding-bottom: 30px;}
+#superadmin_home .contentpage .dashboardWidget .contleft .innercont2 .header {padding: 10px 23px;text-align: left; font-size: 15px;color: #fff; background: #003366;}
+#superadmin_home .contentpage .dashboardWidget .contleft .innercont2 .header p{padding: 0; margin: 0}
+#superadmin_home .contentpage .dashboardWidget .contleft .innercont2 .eventcontent{padding: 10px 20px}
+#superadmin_home .contentpage .dashboardWidget .contleft .innercont2 .eventcontent>p{font-weight: 400; font-size: 14px; text-align: left; text-transform: uppercase; border-bottom: 1px solid #ddd; border-bottom-style: dashed;}
+
+/*statemen of accounts*/
+#superadmin_home .contentpage .widget .widgetContent .cont1{width: 345px;display: flex;justify-content: space-between;align-items: center;}
+#superadmin_home .contentpage .widget .widgetContent .cont1 p{font-size: 15px; padding: 0;margin: 0; letter-spacing: 1px;}
+#superadmin_home .contentpage .widget .widgetContent .cont1 span{font-family: Arial; font-weight: 700}
+
+/* payment status */
+#superadmin_home .contentpage .widget .balContent .cont1{display: unset}
+#superadmin_home .contentpage .widget .balContent > p{text-align: left}
+#superadmin_home .contentpage .widget .balContent .cont1 .box{display: flex; width: 420px; justify-content: space-between; align-items: center; margin-bottom: 15px}
+#superadmin_home .contentpage .widget .balContent .cont1 .box select{width: 215px; height: 33px;}
+
+#superadmin_home .contentpage .widget .feeTypeHistoryContent .cont1{display: block;}
+#superadmin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box{display: flex; width: 372px !important; justify-content: space-between; align-items: center; margin-bottom: 15px}
+#superadmin_home .contentpage .widget .feeTypeHistoryContent .cont1 .box p:nth-of-type(2){width: 175px;}
+/*classcontentBot*/
+#superadmin_home .contentpage .widget .classcontentBot .cont1 {width: 100%}
+#superadmin_home .contentpage .widget .classcontentBot .cont1 .innerCont span {font-weight: 700; font-size: 15px; letter-spacing: 1px}
+#superadmin_home .contentpage .widget .classcontentBot .cont1 .innerCont select{padding: 9px 0; width: 280px}
+#superadmin_home .contentpage .widget .classcontentBot .cont1 .innerCont{width: 480px; display: flex;justify-content: space-between;align-items: center;}
+#superadmin_home .contentpage .widget .classcontentBot .totalSummary p{font-size: 14px; font-weight: 700; letter-spacing: 1px; text-align: right; font-family: "Arial"}
+#superadmin_home .contentpage .widget .classcontentBot .totalSummary span{font-weight: 400; letter-spacing: unset;}
+
+/* transfer */
+#superadmin_home .contentpage .widget .transferContent .cont1 .box1{display: flex; width: 390px !important; justify-content: space-between; align-items: center; margin-bottom: 15px}
+
+/* curriculum */
+#superadmin_home .contentpage .widget .curriculumContent .cont2 .box1{display: flex; align-items: center; margin-bottom: 15px}
+/* faculty */
+.ui-widget-content{text-align: left; font-size: 15px;}
+.ui-widget-content span{font-weight: 700; padding-top: 17px;font-family: "Open Sans"}
+.ui-widget-content input,.ui-widget-content select{width: 100%; padding: 10px 15px; font-family: "Open Sans"; margin-top: 10px; margin-bottom: 20px}
+.ui-widget-content input{width: 100%;}
+.ui-widget-content textarea::placeholder{letter-spacing: 2px; padding: 10px 15px}
+.ui-widget-content input::placeholder{letter-spacing: 2px}
+.ui-widget-content button{float: right; letter-spacing: 0px; border-radius: 2px; font-family: 'Open Sans' !important;}
+#superadmin_home .contentpage .widget .widgetcontent .table-wrap{width: 100%; overflow: auto; margin-top: 20px;}
+#superadmin_home .contentpage .widget .widgetcontent table{width: 100% !important;text-align: center;border-spacing:0;margin:auto;border-collapse: separate;overflow:hidden;}
+#superadmin_home .contentpage .widget .widgetcontent tr:nth-child(even) {background-color: #f2f2f2}
+#superadmin_home .contentpage .widget .widgetcontent th{white-space:nowrap;font-size: 14px; border: 1px solid #ddd; font-family: Arial; font-weight: 700; padding: 9px 18px;}
+#superadmin_home .contentpage .widget .widgetcontent th>i{padding-left: 10px}
+#superadmin_home .contentpage .widget .widgetcontent td{white-space:nowrap;height: 40px;font-size: 14px; border: 1px solid #ddd; padding: 2px 8px;}
+#superadmin_home .contentpage .widget .widgetcontent td i { margin: 0 10px; }
+#superadmin_home .contentpage .widget .editContent{padding: 30px !important}
+/* parent/student */
+.ptaContent > [name="content"], .parentContent > [name="content"]{text-align: left;}
+.widgetParent{margin-bottom: 30px;}
+#superadmin_home .contentpage .widget .parentContent .customTable{width: 100%;border-spacing:0;margin:auto; border-collapse: separate; margin:auto;overflow:hidden;}
+#superadmin_home .contentpage .widget .parentContent .customTable tr:nth-child(even) {background-color: #f2f2f2}
+#superadmin_home .contentpage .widget .parentContent .customTable th{white-space:nowrap;font-size: 14px; border: 1px solid #ddd; font-family: Arial; font-weight: 700; padding: 9px 18px;}
+#superadmin_home .contentpage .widget .parentContent .customTable th>i{padding-left: 10px}
+#superadmin_home .contentpage .widget .parentContent .customTable td{white-space:nowrap;height: 36px;font-size: 14px; border: 1px solid #ddd;}
+
+#superadmin_home .contentpage .widget .parentContent .cont1, #superadmin_home .contentpage .widget .studentContent .cont1{width: 435px !important;}
+#superadmin_home .contentpage .widget .parentContent .cont1 .box1, #superadmin_home .contentpage .widget .studentContent .cont1 .box1{display: flex; justify-content: space-between;}
+/* event */
+input[type="checkbox"]{width: 11% !important;}
+span.attachment{font-weight: 400; font-style: italic; display: block}
+
+/* reports */
+#superadmin_home .contentpage .widget .payHistoryContent .cont1,#admin_home .contentpage .widget .enrolledContent .cont1{display: unset}
+#superadmin_home .contentpage .widget .payHistoryContent > p, #admin_home .contentpage .widget .enrolledContent > p{text-align: left}
+#superadmin_home .contentpage .widget .payHistoryContent .cont1 .box, #admin_home .contentpage .widget .enrolledContent .cont1 .box{display: flex; width: 420px; justify-content: space-between; align-items: center; margin-bottom: 15px}
+#superadmin_home .contentpage .widget .payHistoryContent .cont1 .box select, #admin_home .contentpage .widget .enrolledContent .cont1 .box select{width: 215px; height: 33px;}
+.ui-dialog-content{min-height: 62px !important}
+
+/* logs */
+#superadmin_home .contentpage .widget .logsContent .cont1{width: 290px;}
+#superadmin_home .contentpage .widget .logsContent .cont1 .box{display: flex;}
+.logLongText{white-space: unset !important; text-align: justify;}
+.superadmin-system-settings-page .ui-datepicker-calendar{display: none !important;}
+/* system settings */
+.systemTable input { border-radius: 5px; transition: all ease-in 0.3s; border: none; cursor: pointer; height: 30px; width: 90px; text-align: center; }
+input.yes { background: rgb(0, 175, 0); color: #fff; }
+input.no { background: rgb(175, 0, 0); color: #fff; }
+.datepicker-schoolyear, .datepicker-schoolyearStart, .datepicker-schoolyearEnd {width: 100px !important; text-align: center;}
+#sy-error-dialog{padding-left: 200px}
+#superadmin_home .contentpage .widget .systemContent .systemContainer input, #superadmin_home .contentpage .widget .systemContent .systemContainer select, #superadmin_home .contentpage .widget .systemContent .systemContainer textarea{padding:4px 0;}
+#superadmin_home .contentpage .widget .systemContent .systemContainer{border-bottom: 1px solid #ddd;width: 700px; font-size: 16px;margin: 20px 40px 20px;}
+#superadmin_home .contentpage .widget .systemContent .schoolYear input:first-of-type{margin-right: 15px}
+#superadmin_home .contentpage .widget .systemContent .schoolYear input:last-of-type{margin-left: 15px}
+#superadmin_home .contentpage .widget .systemContent .systemContainer .innerHeader{width: 200px}
+#superadmin_home .contentpage .widget .systemContent .systemContainer .systemBox1{width:490px; display: flex;align-items: center;}
+#superadmin_home .contentpage .widget .systemContent .systemContainer p {margin: 5px 0 10px 0;}
+#superadmin_home .contentpage .widget .systemContent .systemCurriculum .systemBox1{justify-content: unset;}
+#accordion-container {font-size: 14px;background: #ffffff;padding: 8px 10px 21px 10px;border: 1px solid #cccccc;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;-moz-box-shadow: 0 5px 15px #cccccc;-webkit-box-shadow: 0 5px 15px #cccccc;box-shadow: 0 5px 15px #cccccc;}
+.accordion-header {font-size: 14px;background: #ebebeb;margin: 15px 0 0 0;padding: 11px 20px;border: 1px solid #cccccc;cursor: pointer;color: #3f3f3f;-moz-border-radius: 5px;-webkit-border-radius: 5px;border-radius: 5px;}
+.active-header {-moz-border-radius: 5px 5px 0 0;-webkit-border-radius: 5px 5px 0 0;border-radius: 5px 5px 0 0;background: url(images/active-header.gif) #cef98d;background-repeat: no-repeat;background-position: right 50%;}
+.active-header:hover {background: url(images/active-header.gif) #c6f089;background-repeat: no-repeat;background-position: right 50%;}
+.inactive-header {background: url(images/inactive-header.gif) #ebebeb;background-repeat: no-repeat;background-position: right 50%;}
+.inactive-header:hover {background: url(images/inactive-header.gif) #f5f5f5;background-repeat: no-repeat;background-position: right 50%;}
+.accordion-content {display: none; background: #ffffff;border: 1px solid #cccccc;border-top: 0;-moz-border-radius: 0 0 5px 5px;-webkit-border-radius: 0 0 5px 5px;border-radius: 0 0 5px 5px; width: 99.8% !important; padding: 20px 0}
+
+/* .switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+Hide default HTML checkbox
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+The slider
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+ */
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {box-shadow: 0 0 1px #2196F3;}
+input:checked + .slider:before {-webkit-transform: translateX(26px);-ms-transform: translateX(26px);transform: translateX(26px);}
+/* Rounded sliders */
+.slider.round {border-radius: 34px;}
+.slider.round:before {border-radius: 50%;}
+#superadmin_home .contentpage .widget .systemContent .cont1{display: unset; text-align: left;}
+#superadmin_home .contentpage .widget .systemContent .cont1 .innerCont{margin-top: 20px; display: block;}
+.superadmin-system-settings-page .facultSettings .dataTables_wrapper .dataTables_length { margin-top: 20px !important; }
+.superadmin-system-settings-page #modal-table .dataTables_filter label > input, 
+.superadmin-system-settings-page #modal-table .dataTables_length label > select { padding: 0; margin-top: 0; margin-bottom: 0; }
+.superadmin-system-settings-page #modal-table .dataTables_length { margin-top: 20px !important; }
+.superadmin-system-settings-page #modal-table .dataTables_length label > select { width: unset; }
+.superadmin-system-settings-page #modal-table #systemTable-fact-2 input[type="checkbox"] { width: 100% !important; margin-top: 0; margin-bottom: 0; }
+
+
+/*Profile*/
+.superadmin-profile-page .contentpage{padding-top: 0px; font-family: 'Open Sans'}
+.superadmin-profile-page .contentpage:nth-of-type(2){padding-top: 100px}
+.superadmin-profile-page .profile-banner{background:url(../images/common/about-background.jpg);width: 100%;height: 280px;background-position: bottom center;background-size: cover;position: relative;background-color: #252932;border-bottom: 4px solid #fff;box-shadow: 2px 0px 4px rgba(0,0,0,0.1);}
+.superadmin-profile-page .tleft{width: 50%; position: relative;}
+.superadmin-profile-page .img-circle{border-radius: 50%}
+.superadmin-profile-page .profile-avatar {width: 200px;position: relative;margin: 0px auto;margin-top: 176px;border: 4px solid #E4EAE6;}
+.superadmin-profile-page .iconContainer{padding-left: 50px}
+.superadmin-profile-page .rowProf{display: flex; justify-content: space-between;}
+.superadmin-profile-page .contentpage .widget{box-shadow: 0px 0px 0px 0px #9aa5b7 !important; width: 75%; margin-top: -67px}
+.superadmin-profile-page .contentpage .widgetcontent{padding-left: 43px}
+.superadmin-profile-page .contentpage .nameCont{width: 200px; color: #505458;}
+.superadmin-profile-page .contentpage .nameCont h5{color: #505458; padding: 15px; font-size: 14px}
+.superadmin-profile-page .contentpage .nameCont a{width: 90%; margin-top: 20px; margin: 0 auto}
+.superadmin-profile-page .contentpage .widgetcontent .box{display: flex; padding-top: 23px; font-size: 14px; align-items: center}
+.superadmin-profile-page .contentpage .widgetcontent .box > span {width: 200px; text-align: left;}
+.superadmin-profile-page .contentpage .widgetcontent .box > input {box-sizing: border-box;border: 1px solid #c2c2c2;box-shadow: 0px 0px 5px 0px #e0e0e0;border-radius: 5px;padding: 4px;outline: none;background-color: #f8f8f8;width: 45%;}
+.superadmin-profile-page .contentpage #changeProfileCont{margin-top: -20px;}
+.superadmin-profile-page .contentpage #changeProfileCont > button{border: none;background: none;font-size: 14px;color: #237bff;}
+/**************************************************END CONTENT PAGE**********************************************************************/
+
+/* footer */
+#footer{margin: 25px 0 25px 280px; }
+#footer p.copy{font-size: 15px;color: #575a60;}
+
+
+/*responsive*/
+@media only screen and (max-width: 1400px) {
+	#superadmin_home .contentpage .conttop .box {
+    width: calc(87%/4);
+    padding: 10px;
+  }
+}
+
+
